@@ -11,7 +11,7 @@ import SwiftUI
 struct PlanalyticsApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            Text("ideiglenes")
         }
     }
 }
