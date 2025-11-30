@@ -9,9 +9,10 @@ import SwiftUI
 
 @main
 struct PlanalyticsApp: App {
+    let persistentController = CoreDataManager.shared
     var body: some Scene {
         WindowGroup {
-            Text("ideiglenes")
+            TransactionsListView(vm: TransactionsListViewModel(container: persistentController))
         }
     }
 }

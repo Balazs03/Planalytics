@@ -6,8 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		60F22D2B2EDB2EB0008A3AD3 /* Transaction+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60F22D2A2EDB2EB0008A3AD3 /* Transaction+CoreDataProperties.swift */; };
+		60F22D2C2EDB2EB0008A3AD3 /* Transaction+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60F22D292EDB2EB0008A3AD3 /* Transaction+CoreDataClass.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		6043D5102ED9F0A900C92D82 /* Planalytics.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Planalytics.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		60F22D292EDB2EB0008A3AD3 /* Transaction+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Transaction+CoreDataClass.swift"; path = "Planalytics/Model/CoreData/Transaction+CoreDataClass.swift"; sourceTree = "<group>"; };
+		60F22D2A2EDB2EB0008A3AD3 /* Transaction+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Transaction+CoreDataProperties.swift"; path = "Planalytics/Model/CoreData/Transaction+CoreDataProperties.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +39,8 @@
 		6043D5072ED9F0A900C92D82 = {
 			isa = PBXGroup;
 			children = (
+				60F22D292EDB2EB0008A3AD3 /* Transaction+CoreDataClass.swift */,
+				60F22D2A2EDB2EB0008A3AD3 /* Transaction+CoreDataProperties.swift */,
 				6043D5122ED9F0A900C92D82 /* Planalytics */,
 				6043D5112ED9F0A900C92D82 /* Products */,
 			);
@@ -119,6 +128,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				60F22D2B2EDB2EB0008A3AD3 /* Transaction+CoreDataProperties.swift in Sources */,
+				60F22D2C2EDB2EB0008A3AD3 /* Transaction+CoreDataClass.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

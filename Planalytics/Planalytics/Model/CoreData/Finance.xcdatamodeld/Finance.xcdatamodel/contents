@@ -11,7 +11,7 @@
         <attribute name="name" attributeType="String"/>
         <attribute name="plannedCompletionDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
     </entity>
-    <entity name="Transaction" representedClassName="Transaction" syncable="YES" codeGenerationType="class">
+    <entity name="Transaction" representedClassName="Transaction" syncable="YES">
         <attribute name="amount" attributeType="Decimal" defaultValueString="0"/>
         <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
