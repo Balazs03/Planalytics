@@ -9,20 +9,61 @@ import SwiftUI
 
 struct AddTransactionView: View {
     @State private var vm : AddTransactionViewModel
+    @State private var isAmountOnFocus: Bool = false
     
     init(vm: AddTransactionViewModel) {
         self.vm = vm
     }
     
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Form {
+            Section("Típus"){
+                Picker(selection: $vm.transactionType, label: Text("Válaszd ki a típust")) {
+                    ForEach(TransactionType.allCases, id: \.self) { type in
+                        Text(type.title)
+                    }
+                }
+                .pickerStyle(.segmented)
+            }
+            
+            Section("Összeg") {
+                HStack{
+                    TextField("0.0", value: $vm.amount, format: .number)
+                        .font(.system(size: 28))
+                        .multilineTextAlignment(.center)
+                    Text("Ft")
+                        .opacity(vm.amount == 0 ? 1.0 : 0.5)
+                        .font(.system(size: 28))
+                }
+            }
+            
+            Section("Név") {
+                TextField(vm.transactionType == .income ? "Bevétel neve" : "Kiadás neve", text: $vm.name)
+            }
+            
+            if vm.transactionType == .expense {
+                Section("Kategória") {
+                    Picker(selection: $vm.transactionCategory, label: Text("Válaszd ki a kategóriát")) {
+                        ForEach(TransactionCategory.allCases, id: \.self) { category in
+                            HStack {
+                                Image(systemName: category.iconName)
+                                    .foregroundColor(category.diagramColor)
+                                Text(category.title)
+                                
+                            }
+                        }
+                    }
+                    .pickerStyle(.inline)
+                }
+            }
+        }
     }
 }
 
 #Preview {
-//    AddTransactionView(
-  //      vm: AddTransactionViewModel(
-    //        container: CoreDataManager.
-      //  )
-  //  )
+    AddTransactionView(
+        vm: AddTransactionViewModel(
+            container: CoreDataManager.listPreview()
+        )
+    )
 }

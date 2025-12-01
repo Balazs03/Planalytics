@@ -98,17 +98,6 @@ class CoreDataManager {
             return []
         }
     }
-    
-    func fetchCategories() -> [Category] {
-        let request = NSFetchRequest<Category>(entityName: "Category")
-        
-        do {
-            return try context.fetch(request)
-        } catch {
-            print("Probléma a lekérdezéskor: \(error)")
-            return []
-        }
-    }
 }
 
 extension CoreDataManager {
@@ -125,27 +114,12 @@ extension CoreDataManager {
                 
         let previewContext = manager.context
         
-        let eating = Category(context: previewContext)
-        eating.name = "Étkezés"
-        eating.colorHex = "#FF0000"
-        eating.iconName = "fork.knife"
-        
-        let housing = Category(context: previewContext)
-        housing.name = "Lakhatás"
-        housing.colorHex = "#FF8000"
-        housing.iconName = "house"
-        
-        let recreation = Category(context: previewContext)
-        recreation.name = "Szórakozás"
-        recreation.colorHex = "#FFFF00"
-        recreation.iconName = "gamecontroller"
-        
         let myTransaction1 = Transaction(context: previewContext)
         myTransaction1.amount = 25000.2
         myTransaction1.name = "Bevásárlás"
         myTransaction1.date = Date()
         myTransaction1.transactionType = .expense
-        myTransaction1.category = eating
+        myTransaction1.category = TransactionCategory.food.rawValue
         
         let myTransaction2 = Transaction(context: previewContext)
         myTransaction2.amount = 100000.0
@@ -158,14 +132,14 @@ extension CoreDataManager {
         myTransaction3.name = "Ruha vásárlás"
         myTransaction3.date = Date()
         myTransaction3.transactionType = .expense
-        myTransaction3.category = recreation
+        myTransaction3.category = TransactionCategory.entertainment.rawValue
         
         let myTransaction4 = Transaction(context: previewContext)
         myTransaction4.amount = 1000.5
         myTransaction4.name = "Mozi"
         myTransaction4.date = Date()
         myTransaction4.transactionType = .expense
-        myTransaction3.category = recreation
+        myTransaction3.category = TransactionCategory.entertainment.rawValue
         
         manager.saveContext()
         return manager

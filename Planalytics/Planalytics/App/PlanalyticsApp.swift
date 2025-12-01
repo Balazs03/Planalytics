@@ -12,7 +12,7 @@ struct PlanalyticsApp: App {
     let persistentController = CoreDataManager.shared
     var body: some Scene {
         WindowGroup {
-            TransactionsListView(vm: TransactionsListViewModel(container: persistentController))
+            MainPageView(vm: MainPageViewModel(container: persistentController))
         }
     }
 }
