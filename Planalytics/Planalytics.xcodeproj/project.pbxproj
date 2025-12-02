@@ -7,14 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		60F22D2B2EDB2EB0008A3AD3 /* Transaction+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60F22D2A2EDB2EB0008A3AD3 /* Transaction+CoreDataProperties.swift */; };
-		60F22D2C2EDB2EB0008A3AD3 /* Transaction+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60F22D292EDB2EB0008A3AD3 /* Transaction+CoreDataClass.swift */; };
+		60A2D62A2EDF06090086BB1A /* SFSymbolsPicker in Frameworks */ = {isa = PBXBuildFile; productRef = 60A2D6292EDF06090086BB1A /* SFSymbolsPicker */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		6043D5102ED9F0A900C92D82 /* Planalytics.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Planalytics.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		60F22D292EDB2EB0008A3AD3 /* Transaction+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Transaction+CoreDataClass.swift"; path = "Planalytics/Model/CoreData/Transaction+CoreDataClass.swift"; sourceTree = "<group>"; };
-		60F22D2A2EDB2EB0008A3AD3 /* Transaction+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Transaction+CoreDataProperties.swift"; path = "Planalytics/Model/CoreData/Transaction+CoreDataProperties.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -30,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				60A2D62A2EDF06090086BB1A /* SFSymbolsPicker in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -39,8 +37,6 @@
 		6043D5072ED9F0A900C92D82 = {
 			isa = PBXGroup;
 			children = (
-				60F22D292EDB2EB0008A3AD3 /* Transaction+CoreDataClass.swift */,
-				60F22D2A2EDB2EB0008A3AD3 /* Transaction+CoreDataProperties.swift */,
 				6043D5122ED9F0A900C92D82 /* Planalytics */,
 				6043D5112ED9F0A900C92D82 /* Products */,
 			);
@@ -74,6 +70,7 @@
 			);
 			name = Planalytics;
 			packageProductDependencies = (
+				60A2D6292EDF06090086BB1A /* SFSymbolsPicker */,
 			);
 			productName = Planalytics;
 			productReference = 6043D5102ED9F0A900C92D82 /* Planalytics.app */;
@@ -103,6 +100,9 @@
 			);
 			mainGroup = 6043D5072ED9F0A900C92D82;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				60A2D6282EDF06090086BB1A /* XCRemoteSwiftPackageReference "SFSymbolsPicker" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6043D5112ED9F0A900C92D82 /* Products */;
 			projectDirPath = "";
@@ -128,8 +128,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				60F22D2B2EDB2EB0008A3AD3 /* Transaction+CoreDataProperties.swift in Sources */,
-				60F22D2C2EDB2EB0008A3AD3 /* Transaction+CoreDataClass.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -343,6 +341,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		60A2D6282EDF06090086BB1A /* XCRemoteSwiftPackageReference "SFSymbolsPicker" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/alessiorubicini/SFSymbolsPicker";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.9;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		60A2D6292EDF06090086BB1A /* SFSymbolsPicker */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 60A2D6282EDF06090086BB1A /* XCRemoteSwiftPackageReference "SFSymbolsPicker" */;
+			productName = SFSymbolsPicker;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6043D5082ED9F0A900C92D82 /* Project object */;
 }

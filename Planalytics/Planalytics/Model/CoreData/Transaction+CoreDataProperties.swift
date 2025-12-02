@@ -33,6 +33,7 @@ enum TransactionCategory: Int16, CaseIterable{
     case housing = 2
     case transportation = 3
     case healthAndEducation = 4
+    case saving = 5
     
     var title : String {
         switch self {
@@ -46,6 +47,8 @@ enum TransactionCategory: Int16, CaseIterable{
             return "Közlekedés"
         case .healthAndEducation:
             return "Egészség és oktatás"
+        case .saving:
+            return "Megtakarítás"
         }
     }
     
@@ -61,6 +64,8 @@ enum TransactionCategory: Int16, CaseIterable{
             return "car.side.fill"
         case .healthAndEducation:
             return "cross.circle.fill"
+        case .saving:
+            return "dollarsign.bank.building.fill"
         }
     }
     
@@ -76,6 +81,8 @@ enum TransactionCategory: Int16, CaseIterable{
             return .orange
         case .healthAndEducation:
             return .red
+        case .saving:
+            return .yellow
         }
     }
 }

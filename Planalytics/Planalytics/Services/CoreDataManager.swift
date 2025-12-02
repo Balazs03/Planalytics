@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CoreData
+internal import CoreData
 
 class CoreDataManager {
     static var shared = CoreDataManager()
@@ -98,6 +98,16 @@ class CoreDataManager {
             return []
         }
     }
+
+    func calculateTotalBalance() -> [Decimal] {
+        let transactions: [Transaction] = fetchTransactions(year: nil, month: nil)
+        let goal: [Goal] = fetchGoals()
+        
+        let totalLiquidBalance: Decimal = transactions.reduce(0) { $0 + ($1.amount as Decimal) }
+        let totalGoalBalance: Decimal = goal.reduce(0) { $0 + ($1.amount as Decimal) }
+        
+        return [totalGoalBalance + totalLiquidBalance, totalLiquidBalance, totalGoalBalance] as [Decimal]
+    }
 }
 
 extension CoreDataManager {
@@ -109,7 +119,7 @@ extension CoreDataManager {
     // példányosítja a memóriába mentett managert, majd létrehoz elemeket
     // Kulcselem: mivel a context-nél self-et használtunk, az az aktuális managert menti el
     // ami preview esetén a memóriába mentett, az alkalmazás futása közben pedig a háttértárra
-    static func listPreview() -> CoreDataManager {
+    static func transactionListPreview() -> CoreDataManager {
         let manager = createMemoryManager()
                 
         let previewContext = manager.context
@@ -142,6 +152,48 @@ extension CoreDataManager {
         myTransaction3.category = TransactionCategory.entertainment.rawValue
         
         manager.saveContext()
+        return manager
+    }
+    
+    static func goalsListPreview() -> CoreDataManager {
+        let manager = createMemoryManager()
+        
+        let previewContext = manager.context
+        
+        let myGoal1 = Goal(context: previewContext)
+        myGoal1.name = "Autó vásárlás"
+        myGoal1.amount = 100000.0
+        myGoal1.iconName = "car.side"
+        myGoal1.creationDate = Date()
+        var calendar1 = DateComponents()
+        calendar1.year = 2026
+        calendar1.month = 12
+        calendar1.day = 31
+        myGoal1.plannedCompletionDate = Calendar.current.date(from: calendar1)!
+        
+        
+        let myGoal2 = Goal(context: previewContext)
+        myGoal2.name = "Kedvenc könyv"
+        myGoal2.amount = 300.0
+        myGoal2.iconName = "book"
+        myGoal2.creationDate = Date()
+        var calendar2 = DateComponents()
+        calendar2.year = 2025
+        calendar2.month = 12
+        calendar2.day = 06
+        myGoal2.plannedCompletionDate = Calendar.current.date(from: calendar2)!
+        
+        let myGoal3 = Goal(context: previewContext)
+        myGoal3.name = "Fejhallgató vásárlás"
+        myGoal3.amount = 40000.0
+        myGoal3.iconName = "headphones"
+        myGoal3.creationDate = Date()
+        var calendar3 = DateComponents()
+        calendar3.year = 2025
+        calendar3.month = 12
+        calendar3.day = 24
+        myGoal3.plannedCompletionDate = Calendar.current.date(from: calendar3)!
+        
         return manager
     }
 }

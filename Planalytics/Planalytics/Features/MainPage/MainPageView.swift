@@ -18,11 +18,11 @@ struct MainPageView: View {
         NavigationStack {
             VStack {
                 Text("Egyenleg HUF")
-                Text("\(vm.sum.formatted()) Ft")
+                Text("\(vm.transBalance.formatted()) Ft")
                     .fontWeight(.bold)
                     .font(.system(size: 48, weight: .bold, design: .rounded))
                     .contentTransition(.numericText())
-                    .animation(.default, value: vm.sum)
+                    .animation(.default, value: vm.transBalance)
             }
             
             HStack {
@@ -32,7 +32,7 @@ struct MainPageView: View {
             }
                 Spacer()
                 if vm.transactions.isEmpty {
-                    Text("Nincs megjeleníthető adat.")
+                    Text("Nincs megjeleníthető tranzakció")
                 } else {
                     List {
                         ForEach(vm.transactions.prefix(3)) { transaction in
@@ -67,7 +67,7 @@ struct MainPageView: View {
 
 #Preview {
     // memóriába mentő manager
-    let mockManager = CoreDataManager.listPreview()
+    let mockManager = CoreDataManager.transactionListPreview()
     let vm = MainPageViewModel(
         container: mockManager
     )

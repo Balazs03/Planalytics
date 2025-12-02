@@ -32,7 +32,7 @@ struct AddTransactionView: View {
                         .font(.system(size: 28))
                         .multilineTextAlignment(.center)
                     Text("Ft")
-                        .opacity(vm.amount == 0 ? 1.0 : 0.5)
+                        .opacity(vm.amount == 0 ? 0.3 : 1)
                         .font(.system(size: 28))
                 }
             }
@@ -63,7 +63,7 @@ struct AddTransactionView: View {
 #Preview {
     AddTransactionView(
         vm: AddTransactionViewModel(
-            container: CoreDataManager.listPreview()
+            container: CoreDataManager.transactionListPreview()
         )
     )
 }
