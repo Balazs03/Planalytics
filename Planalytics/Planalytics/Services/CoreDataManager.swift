@@ -165,6 +165,8 @@ extension CoreDataManager {
         myGoal1.amount = 100000.0
         myGoal1.iconName = "car.side"
         myGoal1.creationDate = Date()
+        myGoal1.desc = "Jövő év végére szeretnék venni egy autót."
+        myGoal1.isFinished = false
         var calendar1 = DateComponents()
         calendar1.year = 2026
         calendar1.month = 12
@@ -177,6 +179,8 @@ extension CoreDataManager {
         myGoal2.amount = 300.0
         myGoal2.iconName = "book"
         myGoal2.creationDate = Date()
+        myGoal2.desc = "Mikulás napra szeretnék venni egy új könyvet."
+        myGoal2.isFinished = false
         var calendar2 = DateComponents()
         calendar2.year = 2025
         calendar2.month = 12
@@ -188,12 +192,14 @@ extension CoreDataManager {
         myGoal3.amount = 40000.0
         myGoal3.iconName = "headphones"
         myGoal3.creationDate = Date()
+        myGoal3.isFinished = false
         var calendar3 = DateComponents()
         calendar3.year = 2025
         calendar3.month = 12
         calendar3.day = 24
         myGoal3.plannedCompletionDate = Calendar.current.date(from: calendar3)!
         
+        manager.saveContext()
         return manager
     }
 }

@@ -41,6 +41,8 @@ struct GoalsMainPageView: View {
                                     )
                             }
                             Spacer()
+                            Image(systemName: goal.isFinished ? "checkmark.circle": "x.circle")
+                                .foregroundColor(goal.isFinished ? .green : .red)
                             Text("\((goal.progress * 100).formatted())%")
                         }
                     }

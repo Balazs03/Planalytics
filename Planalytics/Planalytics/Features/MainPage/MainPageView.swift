@@ -15,53 +15,51 @@ struct MainPageView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            VStack {
-                Text("Egyenleg HUF")
-                Text("\(vm.transBalance.formatted()) Ft")
-                    .fontWeight(.bold)
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
-                    .contentTransition(.numericText())
-                    .animation(.default, value: vm.transBalance)
+        VStack {
+            Text("Egyenleg HUF")
+            Text("\(vm.transBalance.formatted()) Ft")
+                .fontWeight(.bold)
+                .font(.system(size: 48, weight: .bold, design: .rounded))
+                .contentTransition(.numericText())
+                .animation(.default, value: vm.transBalance)
+        }
+        
+        HStack {
+            Button("Hozzáadás") {
+                
             }
-            
-            HStack {
-                Button("Hozzáadás") {
-                    
-                }
-            }
-                Spacer()
-                if vm.transactions.isEmpty {
-                    Text("Nincs megjeleníthető tranzakció")
-                } else {
-                    List {
-                        ForEach(vm.transactions.prefix(3)) { transaction in
-                            HStack {
-                                VStack(alignment: .leading){
-                                    
-                                    Text(transaction.name ?? "Névtelen")
-                                    Text(transaction.date, style: .date)
-                                }
-                                Spacer()
-                                
-                                switch (transaction.transactionType) {
-                                case .income:
-                                    Text("+\(transaction.amount) Ft")
-                                case .expense:
-                                    Text("-\(transaction.amount) Ft")
-                                }
-                            }
-                        }
+        }
+            Spacer()
+            if vm.transactions.isEmpty {
+                Text("Nincs megjeleníthető tranzakció")
+            } else {
+                List {
+                    ForEach(vm.transactions.prefix(3)) { transaction in
                         HStack {
-                            Spacer()
-                            Button("Összes") {
+                            VStack(alignment: .leading){
                                 
+                                Text(transaction.name ?? "Névtelen")
+                                Text(transaction.date, style: .date)
                             }
                             Spacer()
+                            
+                            switch (transaction.transactionType) {
+                            case .income:
+                                Text("+\(transaction.amount) Ft")
+                            case .expense:
+                                Text("-\(transaction.amount) Ft")
+                            }
                         }
                     }
+                    HStack {
+                        Spacer()
+                        Button("Összes") {
+                            
+                        }
+                        Spacer()
+                    }
                 }
-        }
+            }
     }
 }
 
