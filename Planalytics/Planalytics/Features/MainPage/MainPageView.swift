@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MainPageView: View {
+    @Environment(Coordinator.self) private var coordinator
     @State private var vm: MainPageViewModel
     
     init(vm: MainPageViewModel) {
@@ -70,4 +71,5 @@ struct MainPageView: View {
         container: mockManager
     )
     MainPageView(vm: vm)
+        .environment(Coordinator())
 }

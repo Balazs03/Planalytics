@@ -56,4 +56,5 @@ struct GoalsMainPageView: View {
     let container = CoreDataManager.goalsListPreview()
     let vm = GoalsMainPageViewModel(container: container)
     GoalsMainPageView(vm: vm)
+        .environment(Coordinator())
 }

@@ -8,13 +8,14 @@
 import SwiftUI
 internal import CoreData
 
-struct GoalDetailView: View {
+struct GoalDetailPageView: View {
+    @Environment(Coordinator.self) private var coordinator
     @State private var vm: GoalDetailPageViewModel
     @State private var showAddMoneySheet = false
     @State private var showWithdrawSheet = false
     
-    init(goal: Goal) {
-        vm = GoalDetailPageViewModel(goal: goal)
+    init(vm : GoalDetailPageViewModel) {
+        self.vm = vm
     }
     
     var body: some View {
@@ -101,6 +102,7 @@ struct GoalDetailView: View {
 
 #Preview {
     let container = CoreDataManager.goalsListPreview()
-    let vm = GoalDetailPageViewModel(goal: container.fetchGoals()[0])
-    GoalDetailView(goal: vm.goal)
+    let vm = GoalDetailPageViewModel(goal: container.fetchGoals()[0], container: container)
+    GoalDetailPageView(vm: vm)
+        .environment(Coordinator())
 }

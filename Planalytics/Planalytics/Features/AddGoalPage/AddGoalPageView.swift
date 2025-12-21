@@ -9,8 +9,13 @@ import SwiftUI
 import SFSymbolsPicker
 
 struct AddGoalPageView: View {
-    @State private var vm =  AddGoalPageViewModel(container: CoreDataManager.shared)
+    @Environment(Coordinator.self) private var coordinator
+    @State private var vm : AddGoalPageViewModel
     @State private var showIconPicker: Bool = false
+    
+    init(vm: AddGoalPageViewModel) {
+        self.vm = vm
+    }
     
     var body: some View {
         Form {
@@ -58,5 +63,8 @@ struct AddGoalPageView: View {
 }
 
 #Preview {
-    AddGoalPageView()
+    let container = CoreDataManager.transactionListPreview()
+    let vm = AddGoalPageViewModel(container: container)
+    AddGoalPageView(vm: vm)
+        .environment(Coordinator())
 }

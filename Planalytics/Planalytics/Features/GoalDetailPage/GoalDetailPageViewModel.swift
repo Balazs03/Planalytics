@@ -11,11 +11,12 @@ internal import CoreData
 @Observable
 class GoalDetailPageViewModel {
     var goal: Goal
-    let container = CoreDataManager.shared
+    let container :CoreDataManager
     var transBalance: Decimal = 0
     var errorMessage: String?
     
-    init(goal: Goal) {
+    init(goal: Goal, container: CoreDataManager) {
+        self.container = container
         self.goal = goal
         refreshBalance()
     }
@@ -33,7 +34,7 @@ class GoalDetailPageViewModel {
         return false
     }
     
-    func addBalance(amount: Decimal) -> Bool {
+    func addBalance(amount: Decimal) {
         let newTransaction = Transaction(context: container.context)
         newTransaction.amount = -amount as NSDecimalNumber
         newTransaction.date = Date()
@@ -44,7 +45,6 @@ class GoalDetailPageViewModel {
         goal.amount = (goal.amount as Decimal) + amount as NSDecimalNumber
         container.saveContext()
         refreshBalance()
-        return true
     }
     
     func withdrawBalancePossible(amount: Decimal) -> Bool {
@@ -55,7 +55,7 @@ class GoalDetailPageViewModel {
         return false
     }
     
-    func withdrawBalance(amount: Decimal) -> Bool {
+    func withdrawBalance(amount: Decimal) {
 
         let newTransaction = Transaction(context: container.context)
         newTransaction.amount = amount as NSDecimalNumber
@@ -65,6 +65,5 @@ class GoalDetailPageViewModel {
         
         goal.amount = (goal.amount as Decimal) - amount as NSDecimalNumber
         container.saveContext()
-        return true
     }
 }

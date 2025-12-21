@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct WithdrawMoneySheet: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(Coordinator.self) private var coordinator
     @State var amount: Decimal = 0
     
-    var isWithdrawPossible: (Decimal) -> Bool = { _ in true }
+    var isWithdrawPossible: (Decimal) -> Bool = { _ in false }
     var withdrawMoney: (Decimal) -> Void = { _ in }
     var goalBalance: Decimal = 0
     
@@ -33,7 +33,7 @@ struct WithdrawMoneySheet: View {
                 
                 Button("Pénz kivétele") {
                     withdrawMoney(amount)
-                    dismiss()
+                    //dismiss()
                 }
                 .disabled(isWithdrawPossible(amount))
                 .buttonStyle(.glassProminent)
@@ -42,7 +42,7 @@ struct WithdrawMoneySheet: View {
             .toolbar{
                 ToolbarItem(placement: .navigationBarLeading){
                     Button{
-                        dismiss()
+                        //dismiss()
                     } label: {
                         Image(systemName: "arrow.backward")
                     }
@@ -55,5 +55,15 @@ struct WithdrawMoneySheet: View {
 }
 
 #Preview {
-    WithdrawMoneySheet()
+    WithdrawMoneySheet(
+        isWithdrawPossible: { amount in
+            // Dummy logic: allow adding if amount is less than 50,000
+            return amount < 50000
+        },
+        withdrawMoney: { amount in
+            print("Withdrawn \(amount) from goal")
+        },
+        goalBalance: 125000.50
+    )
+    .environment(Coordinator()) // Inject the coordinator to avoid crashing
 }

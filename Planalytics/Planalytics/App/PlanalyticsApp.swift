@@ -9,10 +9,14 @@ import SwiftUI
 
 @main
 struct PlanalyticsApp: App {
+    // Belépési pontnál létrehozom a coordinatort, hogy az legyen a root view
+    @State private var coordinator = Coordinator()
     let persistentController = CoreDataManager.shared
+    
     var body: some Scene {
         WindowGroup {
-            MainPageView(vm: MainPageViewModel(container: persistentController))
+            CoordinatorView(container: persistentController)
+                .environment(coordinator)
         }
     }
 }

@@ -7,11 +7,12 @@
 
 import SwiftUI
 
-struct AddTransactionView: View {
-    @State private var vm : AddTransactionViewModel
+struct AddTransactionPageView: View {
+    @Environment(Coordinator.self) private var coordinator
+    @State private var vm : AddTransactionPageViewModel
     @State private var isAmountOnFocus: Bool = false
     
-    init(vm: AddTransactionViewModel) {
+    init(vm: AddTransactionPageViewModel) {
         self.vm = vm
     }
     
@@ -61,9 +62,8 @@ struct AddTransactionView: View {
 }
 
 #Preview {
-    AddTransactionView(
-        vm: AddTransactionViewModel(
-            container: CoreDataManager.transactionListPreview()
-        )
-    )
+    let container = CoreDataManager.transactionListPreview()
+    let vm = AddTransactionPageViewModel(container: container)
+    AddTransactionPageView(vm: vm)
+        .environment(Coordinator())
 }

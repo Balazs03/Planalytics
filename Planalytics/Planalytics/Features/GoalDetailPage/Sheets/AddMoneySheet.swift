@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AddMoneySheet: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(Coordinator.self) private var coordinator
     @State private var amount: Decimal = 0
     
     var isAddPossible: (Decimal) -> Bool
@@ -35,7 +35,7 @@ struct AddMoneySheet: View {
                 
                 Button("Pénz hozzáadása") {
                     addMoney(amount)
-                    dismiss()
+                    //dismiss()
                 }
                 .buttonStyle(.glassProminent)
                 .disabled(isAddPossible(amount))
@@ -44,7 +44,7 @@ struct AddMoneySheet: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading){
                     Button {
-                        dismiss()
+                        //dismiss()
                     } label: {
                         Image(systemName: "arrow.backward")
                     }
@@ -54,4 +54,18 @@ struct AddMoneySheet: View {
         }
         .padding()
     }
+}
+
+#Preview {
+    AddMoneySheet(
+        isAddPossible: { amount in
+            // Dummy logic: allow adding if amount is less than 50,000
+            return amount < 50000
+        },
+        addMoney: { amount in
+            print("Added \(amount) to goal")
+        },
+        balance: 125000.50
+    )
+    .environment(Coordinator()) // Inject the coordinator to avoid crashing
 }

@@ -9,7 +9,7 @@ import Foundation
 internal import CoreData
 
 @Observable
-class AddTransactionViewModel {
+class AddTransactionPageViewModel {
     let container: CoreDataManager
     var name : String = ""
     var amount: Decimal = 0
