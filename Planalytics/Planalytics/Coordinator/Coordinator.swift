@@ -16,9 +16,18 @@ enum Page: Hashable {
     case addTransaction
 }
 
-enum Sheet: Hashable {
-    case addMoney
-    case withdrawMoney
+enum Sheet: Hashable, Identifiable {
+    var id: String {
+        switch self {
+        case .addMoney(let goal):
+            return "addMoney_\(goal.id)"
+        case .withdrawMoney(let goal):
+            return "withdrawMoney_\(goal.id)"
+        }
+    }
+    
+    case addMoney(Goal)
+    case withdrawMoney(Goal)
 }
 
 @Observable

@@ -17,19 +17,20 @@ struct MainPageView: View {
     
     var body: some View {
         VStack {
-            Text("Egyenleg HUF")
-            Text("\(vm.transBalance.formatted()) Ft")
-                .fontWeight(.bold)
-                .font(.system(size: 48, weight: .bold, design: .rounded))
-                .contentTransition(.numericText())
-                .animation(.default, value: vm.transBalance)
-        }
-        
-        HStack {
-            Button("Hozzáadás") {
-                
+            VStack {
+                Text("Egyenleg HUF")
+                Text("\(vm.transBalance.formatted()) Ft")
+                    .fontWeight(.bold)
+                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                    .contentTransition(.numericText())
+                    .animation(.default, value: vm.transBalance)
             }
-        }
+            
+            HStack {
+                Button("Hozzáadás") {
+                    coordinator.push(.addTransaction)
+                }
+            }
             Spacer()
             if vm.transactions.isEmpty {
                 Text("Nincs megjeleníthető tranzakció")
@@ -55,12 +56,15 @@ struct MainPageView: View {
                     HStack {
                         Spacer()
                         Button("Összes") {
-                            
                         }
                         Spacer()
                     }
                 }
             }
+        }
+        .onAppear {
+            vm.refreshData()
+        }
     }
 }
 

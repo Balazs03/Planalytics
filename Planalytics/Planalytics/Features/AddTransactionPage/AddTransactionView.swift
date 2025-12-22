@@ -11,6 +11,13 @@ struct AddTransactionPageView: View {
     @Environment(Coordinator.self) private var coordinator
     @State private var vm : AddTransactionPageViewModel
     @State private var isAmountOnFocus: Bool = false
+    var disableForm: Bool {
+        if vm.transactionType == .income {
+            vm.amount == 0
+        } else {
+            vm.amount == 0 || vm.name.isEmpty || (vm.transactionCategory == nil)
+        }
+    }
     
     init(vm: AddTransactionPageViewModel) {
         self.vm = vm
@@ -54,9 +61,19 @@ struct AddTransactionPageView: View {
                             }
                         }
                     }
-                    .pickerStyle(.inline)
                 }
             }
+            
+            Button("Mentés") {
+                if vm.transactionType == . income && vm.name.isEmpty {
+                    vm.name = "Névtelen bevétel"
+                }
+                
+                vm.saveTransaction()
+                
+                coordinator.pop()
+            }
+            .disabled(disableForm)
         }
     }
 }

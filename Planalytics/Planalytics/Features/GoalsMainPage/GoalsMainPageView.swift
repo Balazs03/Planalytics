@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct GoalsMainPageView: View {
+    @Environment(Coordinator.self) private var coordinator
     @State private var vm: GoalsMainPageViewModel
     
     init(vm: GoalsMainPageViewModel) {
@@ -29,25 +30,31 @@ struct GoalsMainPageView: View {
             List {
                 ForEach(vm.goals, id: \.self) { goal in
                     if goal.isFinished == false {
-                        HStack {
-                            Image(systemName: goal.iconName ?? "pointer.arrow.click.2")
-                            VStack {
-                                Text(goal.name)
-                                Text(
-                                    goal.plannedCompletionDate, // Biztonságos kicsomagolás
-                                    format: Calendar.current.isDate(goal.plannedCompletionDate, equalTo: Date(), toGranularity: .year)
-                                        ? .dateTime.month().day()         // Ha idei év: Hónap, Nap
-                                        : .dateTime.year().month().day()  // Ha más év: Év, Hónap, Nap
-                                    )
-                            }
-                            Spacer()
-                            Image(systemName: goal.isFinished ? "checkmark.circle": "x.circle")
-                                .foregroundColor(goal.isFinished ? .green : .red)
-                            Text("\((goal.progress * 100).formatted())%")
+                        NavigationLink(value: Page.goalDetail(goal)){
+                            goalRow(goal: goal)
                         }
                     }
                 }
             }
+        }
+    }
+    @ViewBuilder
+    private func goalRow(goal: Goal) -> some View {
+        HStack {
+            Image(systemName: goal.iconName ?? "pointer.arrow.click.2")
+            VStack {
+                Text(goal.name)
+                Text(
+                    goal.plannedCompletionDate, // Biztonságos kicsomagolás
+                    format: Calendar.current.isDate(goal.plannedCompletionDate, equalTo: Date(), toGranularity: .year)
+                        ? .dateTime.month().day()         // Ha idei év: Hónap, Nap
+                        : .dateTime.year().month().day()  // Ha más év: Év, Hónap, Nap
+                    )
+            }
+            Spacer()
+            Image(systemName: goal.isFinished ? "checkmark.circle": "x.circle")
+                .foregroundColor(goal.isFinished ? .green : .red)
+            Text("\((goal.progress * 100).formatted())%")
         }
     }
 }

@@ -17,14 +17,17 @@ class MainPageViewModel {
     
     init(container: CoreDataManager) {
         self.container = container
-        loadTransactions()
         let balances = container.calculateTotalBalance()
         totalBalance = balances[0]
         transBalance = balances[1]
         goalBalance = balances[2]
     }
     
-    func loadTransactions() {
+    func refreshData() {
         transactions = container.fetchTransactions(year: nil, month: nil)
+        let balances = container.calculateTotalBalance()
+        totalBalance = balances[0]
+        transBalance = balances[1]
+        goalBalance = balances[2]
     }
 }

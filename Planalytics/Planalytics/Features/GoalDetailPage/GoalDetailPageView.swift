@@ -11,8 +11,6 @@ internal import CoreData
 struct GoalDetailPageView: View {
     @Environment(Coordinator.self) private var coordinator
     @State private var vm: GoalDetailPageViewModel
-    @State private var showAddMoneySheet = false
-    @State private var showWithdrawSheet = false
     
     init(vm : GoalDetailPageViewModel) {
         self.vm = vm
@@ -34,7 +32,7 @@ struct GoalDetailPageView: View {
         HStack {
             VStack {
                 Button {
-                    showAddMoneySheet = true
+                    coordinator.present(sheet: .addMoney(vm.goal))
                 } label: {
                     Image(systemName: "plus")
                 }
@@ -44,7 +42,7 @@ struct GoalDetailPageView: View {
             
             VStack {
                 Button {
-                    showWithdrawSheet = true
+                    coordinator.present(sheet: .withdrawMoney(vm.goal))
                 } label: {
                     Image(systemName: "arrow.down")
                 }
@@ -73,30 +71,6 @@ struct GoalDetailPageView: View {
                 vm.container.saveContext()
             }
         ))
-        .sheet(isPresented: $showAddMoneySheet) {
-            AddMoneySheet(
-                isAddPossible: {
-                    amount in
-                    vm.addBalancePossible(amount: amount)
-                }, addMoney: {
-                    amount in
-                    vm.addBalance(amount: amount)
-                }, balance: vm.transBalance
-            )
-        }
-        .sheet(isPresented: $showWithdrawSheet) {
-            WithdrawMoneySheet(
-                isWithdrawPossible: {
-                    amount in
-                    vm.withdrawBalancePossible(amount: amount)
-                },
-                withdrawMoney: {
-                    amount in
-                    vm.withdrawBalance(amount: amount)
-                },
-                goalBalance: vm.goal.saving?.decimalValue ?? 0.00,
-            )
-        }
     }
 }
 

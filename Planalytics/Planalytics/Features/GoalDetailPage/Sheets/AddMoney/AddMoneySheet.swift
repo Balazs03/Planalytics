@@ -9,19 +9,19 @@ import SwiftUI
 
 struct AddMoneySheet: View {
     @Environment(Coordinator.self) private var coordinator
-    @State private var amount: Decimal = 0
+    @State private var vm: AddMoneySheetViewModel
     
-    var isAddPossible: (Decimal) -> Bool
-    var addMoney: (Decimal) -> Void
-    var balance: Decimal
+    init(vm: AddMoneySheetViewModel) {
+        self.vm = vm
+    }
     
     var body: some View {
         NavigationStack {
             VStack(alignment: .center) {
-                TextField("0.0", value: $amount, format: .currency(code: "HUF"))
+                TextField("0.0", value: $vm.amount, format: .currency(code: "HUF"))
                     .keyboardType(.decimalPad)
                     .padding()
-                    .foregroundColor(amount == 0 ? .gray : .white)
+                    .foregroundColor(vm.amount == 0 ? .gray : .white)
                 
                 HStack{
                     Image(systemName: "exclamationmark.triangle")
@@ -29,22 +29,22 @@ struct AddMoneySheet: View {
                     Text("A kívánt összeg meghaladja a jelenlegi egyenleget")
                         .foregroundColor(.red)
                 }
-                .opacity(isAddPossible(amount) ? 0: 1)
+                .opacity(vm.addBalancePossible(amount: vm.amount) ? 0: 1)
                 
-                Text("Egyenleg: \(balance.formatted()) Ft")
+                Text("Egyenleg: \(vm.transBalance.formatted()) Ft")
                 
                 Button("Pénz hozzáadása") {
-                    addMoney(amount)
-                    //dismiss()
+                    vm.addBalance(amount: vm.amount)
+                    coordinator.dismissSheet()
                 }
                 .buttonStyle(.glassProminent)
-                .disabled(isAddPossible(amount))
+                .disabled(vm.addBalancePossible(amount: vm.amount))
             }
             .navigationTitle("Pénz hozzáadása")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading){
                     Button {
-                        //dismiss()
+                        coordinator.dismissSheet()
                     } label: {
                         Image(systemName: "arrow.backward")
                     }
@@ -57,15 +57,10 @@ struct AddMoneySheet: View {
 }
 
 #Preview {
+    let container = CoreDataManager.goalsListPreview()
+    let vm = AddMoneySheetViewModel(container: container, goal: container.fetchGoals()[1])
     AddMoneySheet(
-        isAddPossible: { amount in
-            // Dummy logic: allow adding if amount is less than 50,000
-            return amount < 50000
-        },
-        addMoney: { amount in
-            print("Added \(amount) to goal")
-        },
-        balance: 125000.50
+        vm: vm
     )
     .environment(Coordinator()) // Inject the coordinator to avoid crashing
 }

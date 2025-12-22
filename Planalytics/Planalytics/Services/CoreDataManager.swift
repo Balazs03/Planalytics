@@ -31,12 +31,10 @@ class CoreDataManager {
     var context: NSManagedObjectContext { return self.container.viewContext }
     
     func saveContext () {
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-                print("Sikertelen mentés: \(error)")
-            }
+        do {
+            try context.save()
+        } catch {
+            print("Sikertelen mentés: \(error)")
         }
     }
     

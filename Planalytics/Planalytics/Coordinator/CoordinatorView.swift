@@ -14,6 +14,13 @@ struct CoordinatorView: View {
     var body: some View {
         NavigationStack(path: Bindable(coordinator).path) {
             MainPageView(vm: MainPageViewModel(container: container))
+            
+                .navigationDestination(for: Page.self) {
+                    page in viewFactory(page)
+                }
+        }
+        .sheet(item: Bindable(coordinator).sheet) { sheet in
+            sheetFactory(sheet)
         }
     }
     
@@ -29,6 +36,17 @@ struct CoordinatorView: View {
             AddGoalPageView(vm: AddGoalPageViewModel(container: container))
         case .addTransaction:
             AddTransactionPageView(vm: AddTransactionPageViewModel(container: container))
+        }
+    }
+    
+    @ViewBuilder func sheetFactory(_ sheet: Sheet) -> some View {
+        switch sheet {
+        case .addMoney(let goal):
+            let vm = AddMoneySheetViewModel(container: container, goal: goal)
+            AddMoneySheet(vm: vm)
+        case .withdrawMoney(let goal):
+            let vm = WithdrawMoneySheetViewModel(container: container, goal: goal)
+            WithdrawMoneySheet(vm: vm)
         }
     }
 }

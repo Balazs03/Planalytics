@@ -20,12 +20,16 @@ class AddTransactionPageViewModel {
         self.container = container
     }
     
-    func saveTransaction(name: String, amount: Decimal, type: TransactionType, category: TransactionCategory?) {
+    func saveTransaction() {
         let transaction = Transaction(context: container.context)
         transaction.name = name
         transaction.amount = amount as NSDecimalNumber
-        transaction.transactionType = type
-        transaction.transactionCategory = category
+        transaction.transactionType = transactionType
+        transaction.date = Date()
+        
+        if transactionType == .expense {
+            transaction.transactionCategory = transactionCategory
+        }
         
         container.saveContext()
     }
