@@ -101,7 +101,16 @@ class CoreDataManager {
         let transactions: [Transaction] = fetchTransactions(year: nil, month: nil)
         let goal: [Goal] = fetchGoals()
         
-        let totalLiquidBalance: Decimal = transactions.reduce(0) { $0 + ($1.amount as Decimal) }
+        var totalLiquidBalance: Decimal = 0
+        
+        for transaction in transactions {
+            if transaction.transactionType == .income {
+                totalLiquidBalance += transaction.amount as Decimal
+            } else {
+                totalLiquidBalance -= transaction.amount as Decimal
+            }
+        }
+        
         let totalGoalBalance: Decimal = goal.reduce(0) { $0 + ($1.amount as Decimal) }
         
         return [totalGoalBalance + totalLiquidBalance, totalLiquidBalance, totalGoalBalance] as [Decimal]

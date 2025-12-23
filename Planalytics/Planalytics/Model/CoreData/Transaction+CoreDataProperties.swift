@@ -27,7 +27,11 @@ enum TransactionType: Int16, CaseIterable{
     }
 }
 
-enum TransactionCategory: Int16, CaseIterable{
+enum TransactionCategory: Int16, CaseIterable, Hashable, Identifiable{
+    var id: Int16 {
+        self.rawValue
+    }
+    
     case food = 0
     case entertainment = 1
     case housing = 2

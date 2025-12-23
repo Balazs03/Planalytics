@@ -52,15 +52,20 @@ struct AddTransactionPageView: View {
             if vm.transactionType == .expense {
                 Section("Kategória") {
                     Picker(selection: $vm.transactionCategory, label: Text("Válaszd ki a kategóriát")) {
-                        ForEach(TransactionCategory.allCases, id: \.self) { category in
-                            HStack {
-                                Image(systemName: category.iconName)
-                                    .foregroundColor(category.diagramColor)
-                                Text(category.title)
-                                
-                            }
+                        ForEach(TransactionCategory.allCases) { category in
+                            Label {
+                                    // A szöveg (title) rész - itt feketén hagyjuk vagy kényszerítjük
+                                    Text(category.title)
+                                        .foregroundStyle(.black)
+                                } icon: {
+                                    // Az ikon rész - itt alkalmazzuk a kategória színét
+                                    Image(systemName: category.iconName)
+                                        .foregroundStyle(category.diagramColor)
+                                }
+                                .tag(category as TransactionCategory?)
                         }
                     }
+                    .pickerStyle(.inline)
                 }
             }
             

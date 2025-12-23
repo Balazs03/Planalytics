@@ -19,11 +19,19 @@ struct MainPageView: View {
         VStack {
             VStack {
                 Text("Egyenleg HUF")
-                Text("\(vm.transBalance.formatted()) Ft")
-                    .fontWeight(.bold)
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
-                    .contentTransition(.numericText())
-                    .animation(.default, value: vm.transBalance)
+                HStack {
+                    Text("\(vm.transBalance.formatted()) Ft")
+                        .fontWeight(.bold)
+                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .contentTransition(.numericText())
+                        .animation(.default, value: vm.transBalance)
+                    
+                    if vm.transBalance < 0 {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.red)
+                            .font(.largeTitle)
+                    }
+                }
             }
             
             HStack {
