@@ -8,16 +8,35 @@
 import SwiftUI
 
 struct CoordinatorView: View {
-    @Environment(Coordinator.self) private var coordinator: Coordinator
+    @Environment(Coordinator.self) private var coordinator
     let container: CoreDataManager
     
     var body: some View {
-        NavigationStack(path: Bindable(coordinator).path) {
-            MainPageView(vm: MainPageViewModel(container: container))
+        @Bindable var bindableCoordinator = coordinator
+        
+        TabView (selection: $bindableCoordinator.selectedTab) {
             
-                .navigationDestination(for: Page.self) {
-                    page in viewFactory(page)
-                }
+            NavigationStack(path: $bindableCoordinator.mainPath) {
+                viewFactory(.main)
+                    .navigationDestination(for: Page.self) { page in
+                        viewFactory(page)
+                    }
+            }
+            .tabItem {
+                Label("Pénzügyek", systemImage: "house")
+            }
+            .tag(Tab.main)
+            
+            NavigationStack(path: $bindableCoordinator.goalPath) {
+                viewFactory(.goalsMain)
+                    .navigationDestination(for: Page.self) { page in
+                        viewFactory(page)
+                    }
+            }
+            .tabItem {
+                Label("Célok", systemImage: "list.bullet")
+            }
+            .tag(Tab.goals)
         }
         .sheet(item: Bindable(coordinator).sheet) { sheet in
             sheetFactory(sheet)

@@ -28,7 +28,7 @@ struct MainPageView: View {
             
             HStack {
                 Button("Hozzáadás") {
-                    coordinator.push(.addTransaction)
+                    coordinator.mainPush(.addTransaction)
                 }
             }
             Spacer()

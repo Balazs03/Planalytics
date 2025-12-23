@@ -71,7 +71,7 @@ struct AddTransactionPageView: View {
                 
                 vm.saveTransaction()
                 
-                coordinator.pop()
+                coordinator.mainPop()
             }
             .disabled(disableForm)
         }

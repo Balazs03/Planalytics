@@ -16,6 +16,11 @@ enum Page: Hashable {
     case addTransaction
 }
 
+enum Tab {
+    case main
+    case goals
+}
+
 enum Sheet: Hashable, Identifiable {
     var id: String {
         switch self {
@@ -32,25 +37,39 @@ enum Sheet: Hashable, Identifiable {
 
 @Observable
 class Coordinator {
-    var path = NavigationPath()
+    var mainPath = NavigationPath()
+    var goalPath = NavigationPath()
     var sheet: Sheet?
+    var selectedTab: Tab = .main
     
-    func push(_ page: Page) {
-        path.append(page)
+    func mainPush(_ page: Page) {
+        mainPath.append(page)
     }
     
-    func pop(){
-        path.removeLast()
+    func mainPop(){
+        mainPath.removeLast()
+    }
+    
+    func mainPopToRoot() {
+        mainPath.removeLast(mainPath.count)
+    }
+    
+    func goalPush(_ page: Page) {
+        goalPath.append(page)
+    }
+    
+    func goalPop(){
+        goalPath.removeLast()
+    }
+    
+    func goalPopToRoot() {
+        goalPath.removeLast(mainPath.count)
     }
     
     func present(sheet: Sheet) {
         self.sheet = sheet
     }
-    
-    func popToRoot() {
-        path.removeLast(path.count)
-    }
-    
+
     func dismissSheet() {
         self.sheet = nil
     }
