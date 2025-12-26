@@ -70,12 +70,7 @@ struct AddTransactionPageView: View {
             }
             
             Button("Mentés") {
-                if vm.transactionType == . income && vm.name.isEmpty {
-                    vm.name = "Névtelen bevétel"
-                }
-                
                 vm.saveTransaction()
-                
                 coordinator.mainPop()
             }
             .disabled(disableForm)

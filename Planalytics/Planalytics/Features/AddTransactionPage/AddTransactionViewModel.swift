@@ -22,7 +22,9 @@ class AddTransactionPageViewModel {
     
     func saveTransaction() {
         let transaction = Transaction(context: container.context)
-        transaction.name = name
+        if transactionType == . income && name.isEmpty {
+            transaction.name = "Névtelen bevétel"
+        }
         transaction.amount = amount as NSDecimalNumber
         transaction.transactionType = transactionType
         transaction.date = Date()

@@ -45,7 +45,6 @@ extension Goal {
         }
         set {
             iconName = newValue
-
         }
     }
 }

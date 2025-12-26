@@ -13,6 +13,10 @@ struct AddGoalPageView: View {
     @State private var vm : AddGoalPageViewModel
     @State private var showIconPicker: Bool = false
     
+    var disableForm: Bool {
+        vm.name.isEmpty || vm.amount == 0
+    }
+    
     init(vm: AddGoalPageViewModel) {
         self.vm = vm
     }
@@ -54,6 +58,12 @@ struct AddGoalPageView: View {
                         .padding()
                 }
             }
+            
+            Button("Mentés") {
+                vm.addGoal()
+                coordinator.goalPop()
+            }
+            .disabled(disableForm)
         }
         .sheet(isPresented: $showIconPicker) {
             SymbolsPicker(selection: $vm.iconNameWrapper, title: "Válassz egy ikont", searchLabel: "Keresés", autoDismiss: true)

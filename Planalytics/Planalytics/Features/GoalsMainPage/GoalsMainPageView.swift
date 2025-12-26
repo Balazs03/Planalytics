@@ -17,25 +17,35 @@ struct GoalsMainPageView: View {
     
     var body: some View {
         VStack {
-            Text("Aktív célok: \(vm.goals.count - vm.finishedGoalNumber)")
-                .font(.system(size: 48, weight: .bold, design: .rounded))
-            Text("Eddig befejezettek: \(vm.finishedGoalNumber)")
-                .font(.system(size: 24, weight: .bold, design: .rounded))
-                .multilineTextAlignment(.center)
-        }
-        .padding()
-        if vm.goals.isEmpty {
-            Text("Nincsenek megadott célok")
-        } else {
-            List {
-                ForEach(vm.goals, id: \.self) { goal in
-                    if goal.isFinished == false {
-                        NavigationLink(value: Page.goalDetail(goal)){
-                            goalRow(goal: goal)
+            VStack {
+                Text("Aktív célok: \(vm.goals.count - vm.finishedGoalNumber)")
+                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                Text("Eddig befejezettek: \(vm.finishedGoalNumber)")
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .multilineTextAlignment(.center)
+            }
+            .padding()
+            
+            Button("Hozzáadás") {
+                coordinator.goalPush(.addGoal)
+            }
+            
+            if vm.goals.isEmpty {
+                Text("Nincsenek megadott célok")
+            } else {
+                List {
+                    ForEach(vm.goals, id: \.self) { goal in
+                        if goal.isFinished == false {
+                            NavigationLink(value: Page.goalDetail(goal)){
+                                goalRow(goal: goal)
+                            }
                         }
                     }
                 }
             }
+        }
+        .onAppear {
+            vm.fetchGoals()
         }
     }
     @ViewBuilder
@@ -57,6 +67,7 @@ struct GoalsMainPageView: View {
             Text("\((goal.progress * 100).formatted())%")
         }
     }
+    
 }
 
 #Preview {

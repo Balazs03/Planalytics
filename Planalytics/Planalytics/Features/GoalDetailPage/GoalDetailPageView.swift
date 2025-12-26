@@ -71,6 +71,24 @@ struct GoalDetailPageView: View {
                 vm.container.saveContext()
             }
         ))
+        
+        VStack {
+            Button("Törlés") {
+                vm.deleteGoal()
+                coordinator.goalPop()
+            }
+            .buttonStyle(.borderedProminent)
+            
+            Button("Változtatások mentése") {
+                vm.container.saveContext()
+                coordinator.goalPop()
+            }
+            .buttonStyle(.glassProminent)
+        }
+        
+        
+        
+        .navigationTitle(vm.goal.name)
     }
 }
 

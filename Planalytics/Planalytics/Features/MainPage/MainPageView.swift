@@ -21,8 +21,8 @@ struct MainPageView: View {
                 Text("Egyenleg HUF")
                 HStack {
                     Text("\(vm.transBalance.formatted()) Ft")
+                        .font(.system(.largeTitle ,design: .rounded))
                         .fontWeight(.bold)
-                        .font(.system(size: 48, weight: .bold, design: .rounded))
                         .contentTransition(.numericText())
                         .animation(.default, value: vm.transBalance)
                     

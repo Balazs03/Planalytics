@@ -21,17 +21,17 @@ class AddGoalPageViewModel {
         self.container = container
     }
     
-    func addGoal(name: String, amount: Decimal, plannedCompletionDate: Date, desc: String?, iconName: String?) {
+    func addGoal() {
         let newGoal = Goal(context: container.context)
-        newGoal.name = name
-        newGoal.amount = amount as NSDecimalNumber
-        newGoal.plannedCompletionDate = plannedCompletionDate
+        newGoal.name = self.name
+        newGoal.amount = self.amount as NSDecimalNumber
+        newGoal.plannedCompletionDate = self.plannedCompletionDate
         newGoal.creationDate = Date()
         if let desc = desc {
             newGoal.desc = desc
         }
         if self.iconNameWrapper != "pointer.arrow.click.2" {
-            newGoal.iconName = iconName
+            newGoal.iconNameWrapper = iconNameWrapper
         }
         
         container.saveContext()

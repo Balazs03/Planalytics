@@ -20,6 +20,11 @@ class GoalDetailPageViewModel {
         refreshBalance()
     }
     
+    func deleteGoal() {
+        container.context.delete(goal)
+        container.saveContext()
+    }
+    
     func refreshBalance() {
         let balances = container.calculateTotalBalance()
         transBalance = balances[1]
