@@ -87,7 +87,7 @@ class CoreDataManager {
     
     func fetchGoals() -> [Goal] {
         let request = NSFetchRequest<Goal>(entityName: "Goal")
-        request.sortDescriptors = [NSSortDescriptor(key: "plannedCompletionDate", ascending: true)]
+        request.sortDescriptors = [NSSortDescriptor(key: "plannedCompletionDate", ascending: false)]
         
         do {
             return try context.fetch(request)

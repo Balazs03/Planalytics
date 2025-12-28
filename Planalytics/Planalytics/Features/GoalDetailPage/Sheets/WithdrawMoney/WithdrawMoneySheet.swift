@@ -18,8 +18,14 @@ struct WithdrawMoneySheet: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .center){
-                TextField("0.00", value: $vm.amount, format: .currency(code: "HUF"))
-                    .foregroundColor(vm.amount == 0 ? .gray : .white)
+                HStack{
+                    TextField("0.0", value: $vm.amount, format: .number)
+                        .font(.largeTitle)
+                        .multilineTextAlignment(.center)
+                    Text("Ft")
+                        .opacity(vm.amount == 0 ? 0.3 : 1)
+                        .font(.largeTitle)
+                }
                 
                 HStack{
                     Image(systemName: "exclamationmark.triangle")
@@ -27,15 +33,15 @@ struct WithdrawMoneySheet: View {
                     Text("Az kívánt összeg meghaladja a célre félretett összeget")
                         .foregroundColor(.red)
                 }
-                .opacity(vm.withdrawBalancePossible(amount: vm.amount) ? 0: 1)
+                .opacity(vm.withdrawBalancePossible() ? 0: 1)
                 
                 Text("Eddig a célre féltetett összeg: \(vm.goal.amount) Ft")
                 
                 Button("Pénz kivétele") {
-                    vm.withdrawBalance(amount: vm.amount)
+                    vm.withdrawBalance()
                     coordinator.dismissSheet()
                 }
-                .disabled(vm.withdrawBalancePossible(amount: vm.amount))
+                .disabled(!vm.withdrawBalancePossible() || vm.amount == 0)
                 .buttonStyle(.glassProminent)
             }
             .navigationTitle("Pénz kivétel")

@@ -8,7 +8,7 @@
 import Foundation
 
 @Observable
-class MainPageViewModel {
+class TransactionMainViewModel {
     let container: CoreDataManager
     var transactions : [Transaction] = []
     var totalBalance: Decimal = 0

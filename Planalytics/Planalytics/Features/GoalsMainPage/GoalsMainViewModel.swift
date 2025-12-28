@@ -8,7 +8,7 @@
 import Foundation
 
 @Observable
-class GoalsMainPageViewModel {
+class GoalsMainViewModel {
     var goals : [Goal] = []
     var finishedGoalNumber: Int { return goals.filter { $0.isFinished }.count }
     let container: CoreDataManager

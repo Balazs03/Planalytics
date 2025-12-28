@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct GoalsMainPageView: View {
+struct GoalsMainView: View {
     @Environment(Coordinator.self) private var coordinator
-    @State private var vm: GoalsMainPageViewModel
+    @State private var vm: GoalsMainViewModel
     
-    init(vm: GoalsMainPageViewModel) {
+    init(vm: GoalsMainViewModel) {
         self.vm = vm
     }
     
@@ -42,6 +42,7 @@ struct GoalsMainPageView: View {
                         }
                     }
                 }
+                .id(coordinator.dataVersion)
             }
         }
         .onAppear {
@@ -72,7 +73,7 @@ struct GoalsMainPageView: View {
 
 #Preview {
     let container = CoreDataManager.goalsListPreview()
-    let vm = GoalsMainPageViewModel(container: container)
-    GoalsMainPageView(vm: vm)
+    let vm = GoalsMainViewModel(container: container)
+    GoalsMainView(vm: vm)
         .environment(Coordinator())
 }

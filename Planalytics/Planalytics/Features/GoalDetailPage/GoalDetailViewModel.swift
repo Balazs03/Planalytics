@@ -9,15 +9,21 @@ import Foundation
 internal import CoreData
 
 @Observable
-class GoalDetailPageViewModel {
+class GoalDetailViewModel {
     var goal: Goal
     let container :CoreDataManager
     var transBalance: Decimal = 0
     
+    
     init(goal: Goal, container: CoreDataManager) {
         self.container = container
         self.goal = goal
-        refreshBalance()
+    }
+    
+    func refreshData() {
+        container.context.refresh(goal, mergeChanges: true)
+        let balances = container.calculateTotalBalance()
+        transBalance = balances[1]
     }
     
     func deleteGoal() {
@@ -25,8 +31,7 @@ class GoalDetailPageViewModel {
         container.saveContext()
     }
     
-    func refreshBalance() {
-        let balances = container.calculateTotalBalance()
-        transBalance = balances[1]
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }

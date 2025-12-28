@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-struct AddTransactionPageView: View {
+struct AddTransactionView: View {
     @Environment(Coordinator.self) private var coordinator
-    @State private var vm : AddTransactionPageViewModel
+    @State private var vm : AddTransactionViewModel
     @State private var isAmountOnFocus: Bool = false
     var disableForm: Bool {
         if vm.transactionType == .income {
@@ -19,7 +19,7 @@ struct AddTransactionPageView: View {
         }
     }
     
-    init(vm: AddTransactionPageViewModel) {
+    init(vm: AddTransactionViewModel) {
         self.vm = vm
     }
     
@@ -80,7 +80,7 @@ struct AddTransactionPageView: View {
 
 #Preview {
     let container = CoreDataManager.transactionListPreview()
-    let vm = AddTransactionPageViewModel(container: container)
-    AddTransactionPageView(vm: vm)
+    let vm = AddTransactionViewModel(container: container)
+    AddTransactionView(vm: vm)
         .environment(Coordinator())
 }

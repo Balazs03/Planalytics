@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+internal import CoreData
 
 enum Page: Hashable {
     case goalsMain
@@ -41,6 +42,23 @@ class Coordinator {
     var goalPath = NavigationPath()
     var sheet: Sheet?
     var selectedTab: Tab = .main
+    
+    var dataVersion: UUID = UUID()
+        
+    init() {
+        setupCoreDataObserver()
+    }
+        
+    private func setupCoreDataObserver() {
+        NotificationCenter.default.addObserver(
+            forName: .NSManagedObjectContextDidSave,
+            object: nil, // Bármelyik mentést figyeljük
+            queue: .main
+        ) { [weak self] _ in
+            // Ha mentés történt, megváltoztatjuk az ID-t
+            self?.dataVersion = UUID()
+        }
+    }
     
     func mainPush(_ page: Page) {
         mainPath.append(page)

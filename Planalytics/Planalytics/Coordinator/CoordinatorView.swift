@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+internal import CoreData
 
 struct CoordinatorView: View {
     @Environment(Coordinator.self) private var coordinator
@@ -46,15 +47,31 @@ struct CoordinatorView: View {
     @ViewBuilder func viewFactory(_ path: Page) -> some View {
         switch path {
         case .main:
-            MainPageView(vm: MainPageViewModel(container: container))
+            let vm = TransactionMainViewModel(container: container)
+            TransactionMainView(vm: vm)
+            
         case .goalsMain:
-            GoalsMainPageView(vm: GoalsMainPageViewModel(container: container))
+            let vm = GoalsMainViewModel(container: container)
+            GoalsMainView(vm: vm)
+                .onChange(of: coordinator.dataVersion) {
+                    vm.fetchGoals()
+                }
+            
         case .goalDetail(let goal):
-            GoalDetailPageView(vm: GoalDetailPageViewModel(goal: goal, container: container))
+            let vm = GoalDetailViewModel(goal: goal, container: container)
+            GoalDetailView(vm: vm)
+                .onChange(of: coordinator.dataVersion) {
+                    vm.container.context.refresh(vm.goal, mergeChanges: true)
+                    vm.refreshData()
+                }
+            
         case .addGoal:
-            AddGoalPageView(vm: AddGoalPageViewModel(container: container))
+            let vm = AddGoalPageViewModel(container: container)
+            AddGoalView(vm: vm)
+            
         case .addTransaction:
-            AddTransactionPageView(vm: AddTransactionPageViewModel(container: container))
+            let vm = AddTransactionViewModel(container: container)
+            AddTransactionView(vm: vm)
         }
     }
     

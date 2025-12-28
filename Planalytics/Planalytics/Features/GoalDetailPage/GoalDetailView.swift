@@ -8,11 +8,11 @@
 import SwiftUI
 internal import CoreData
 
-struct GoalDetailPageView: View {
+struct GoalDetailView: View {
     @Environment(Coordinator.self) private var coordinator
-    @State private var vm: GoalDetailPageViewModel
+    @State private var vm: GoalDetailViewModel
     
-    init(vm : GoalDetailPageViewModel) {
+    init(vm : GoalDetailViewModel) {
         self.vm = vm
     }
     
@@ -66,27 +66,17 @@ struct GoalDetailPageView: View {
         
         Toggle("Befejezett", isOn: Binding(
             get: { vm.goal.isFinished },
-            set: {
-                vm.goal.isFinished = $0
-                vm.container.saveContext()
+            set: { newValue in
+                vm.goal.isFinished = newValue
+                vm.container.saveContext() // Azonnali mentés a Toggle átváltásakor
             }
         ))
         
-        VStack {
-            Button("Törlés") {
-                vm.deleteGoal()
-                coordinator.goalPop()
-            }
-            .buttonStyle(.borderedProminent)
-            
-            Button("Változtatások mentése") {
-                vm.container.saveContext()
-                coordinator.goalPop()
-            }
-            .buttonStyle(.glassProminent)
+        Button("Törlés") {
+            vm.deleteGoal()
+            coordinator.goalPop()
         }
-        
-        
+        .buttonStyle(.borderedProminent)
         
         .navigationTitle(vm.goal.name)
     }
@@ -94,7 +84,7 @@ struct GoalDetailPageView: View {
 
 #Preview {
     let container = CoreDataManager.goalsListPreview()
-    let vm = GoalDetailPageViewModel(goal: container.fetchGoals()[0], container: container)
-    GoalDetailPageView(vm: vm)
+    let vm = GoalDetailViewModel(goal: container.fetchGoals()[0], container: container)
+    GoalDetailView(vm: vm)
         .environment(Coordinator())
 }

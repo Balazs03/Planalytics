@@ -10,7 +10,7 @@ internal import CoreData
 
 @Observable
 class WithdrawMoneySheetViewModel {
-    private let container: CoreDataManager
+    let container: CoreDataManager
     var goal: Goal
     var errorMessage: String?
     var amount: Decimal = 0
@@ -20,7 +20,7 @@ class WithdrawMoneySheetViewModel {
         self.goal = goal
     }
     
-    func withdrawBalancePossible(amount: Decimal) -> Bool {
+    func withdrawBalancePossible() -> Bool {
         if amount <= goal.amount as Decimal {
             return true
         }
@@ -28,15 +28,14 @@ class WithdrawMoneySheetViewModel {
         return false
     }
     
-    func withdrawBalance(amount: Decimal) {
-
+    func withdrawBalance() {
         let newTransaction = Transaction(context: container.context)
         newTransaction.amount = amount as NSDecimalNumber
         newTransaction.date = Date()
         newTransaction.name = "Utalás \(goal.name) célból"
         newTransaction.transactionType = .income
         
-        goal.amount = (goal.amount as Decimal) - amount as NSDecimalNumber
+        goal.saving = (goal.saving ?? 0) as Decimal - amount as NSDecimalNumber
         container.saveContext()
     }
 }

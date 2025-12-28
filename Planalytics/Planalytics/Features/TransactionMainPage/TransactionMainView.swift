@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct MainPageView: View {
+struct TransactionMainView: View {
     @Environment(Coordinator.self) private var coordinator
-    @State private var vm: MainPageViewModel
+    @State private var vm: TransactionMainViewModel
     
-    init(vm: MainPageViewModel) {
+    init(vm: TransactionMainViewModel) {
         self.vm = vm
     }
     
@@ -44,7 +44,7 @@ struct MainPageView: View {
                 Text("Nincs megjeleníthető tranzakció")
             } else {
                 List {
-                    ForEach(vm.transactions.prefix(3)) { transaction in
+                    ForEach(vm.transactions.reversed().prefix(3)) { transaction in
                         HStack {
                             VStack(alignment: .leading){
                                 
@@ -79,9 +79,9 @@ struct MainPageView: View {
 #Preview {
     // memóriába mentő manager
     let mockManager = CoreDataManager.transactionListPreview()
-    let vm = MainPageViewModel(
+    let vm = TransactionMainViewModel(
         container: mockManager
     )
-    MainPageView(vm: vm)
+    TransactionMainView(vm: vm)
         .environment(Coordinator())
 }

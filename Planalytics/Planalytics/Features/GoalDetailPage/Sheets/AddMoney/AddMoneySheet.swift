@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+internal import CoreData
 
 struct AddMoneySheet: View {
     @Environment(Coordinator.self) private var coordinator
@@ -18,10 +19,14 @@ struct AddMoneySheet: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .center) {
-                TextField("0.0", value: $vm.amount, format: .currency(code: "HUF"))
-                    .keyboardType(.decimalPad)
-                    .padding()
-                    .foregroundColor(vm.amount == 0 ? .gray : .white)
+                HStack{
+                    TextField("0.0", value: $vm.amount, format: .number)
+                        .font(.largeTitle)
+                        .multilineTextAlignment(.center)
+                    Text("Ft")
+                        .opacity(vm.amount == 0 ? 0.3 : 1)
+                        .font(.largeTitle)
+                }
                 
                 HStack{
                     Image(systemName: "exclamationmark.triangle")
@@ -29,16 +34,16 @@ struct AddMoneySheet: View {
                     Text("A kívánt összeg meghaladja a jelenlegi egyenleget")
                         .foregroundColor(.red)
                 }
-                .opacity(vm.addBalancePossible(amount: vm.amount) ? 0: 1)
+                .opacity(vm.addBalancePossible() ? 0: 1)
                 
                 Text("Egyenleg: \(vm.transBalance.formatted()) Ft")
                 
                 Button("Pénz hozzáadása") {
-                    vm.addBalance(amount: vm.amount)
+                    vm.addBalance()
                     coordinator.dismissSheet()
                 }
                 .buttonStyle(.glassProminent)
-                .disabled(vm.addBalancePossible(amount: vm.amount))
+                .disabled(!vm.addBalancePossible() || vm.amount <= 0)
             }
             .navigationTitle("Pénz hozzáadása")
             .toolbar {
