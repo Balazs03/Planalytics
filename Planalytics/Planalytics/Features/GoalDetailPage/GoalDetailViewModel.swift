@@ -27,11 +27,14 @@ class GoalDetailViewModel {
     }
     
     func deleteGoal() {
+        if let saving = goal.saving as? Decimal, saving > 0 {
+            let newTrans = Transaction(context: container.context)
+            newTrans.amount = goal.saving!
+            newTrans.name = "\(goal.name) nevű célra félretett megtakarítás"
+            newTrans.date = Date()
+            newTrans.transactionType = .income
+        }
         container.context.delete(goal)
         container.saveContext()
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
     }
 }

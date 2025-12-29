@@ -18,6 +18,10 @@ class GoalsMainViewModel {
         fetchGoals()
     }
     
+    func clearGoals() {
+        goals = []
+    }
+    
     func fetchGoals() {
         goals = container.fetchGoals()
     }

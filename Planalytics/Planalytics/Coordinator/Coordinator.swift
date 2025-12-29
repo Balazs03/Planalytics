@@ -81,7 +81,7 @@ class Coordinator {
     }
     
     func goalPopToRoot() {
-        goalPath.removeLast(mainPath.count)
+        goalPath.removeLast(goalPath.count)
     }
     
     func present(sheet: Sheet) {

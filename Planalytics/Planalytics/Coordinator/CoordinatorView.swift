@@ -54,6 +54,7 @@ struct CoordinatorView: View {
             let vm = GoalsMainViewModel(container: container)
             GoalsMainView(vm: vm)
                 .onChange(of: coordinator.dataVersion) {
+                    //vm.clearGoals()
                     vm.fetchGoals()
                 }
             
@@ -61,7 +62,6 @@ struct CoordinatorView: View {
             let vm = GoalDetailViewModel(goal: goal, container: container)
             GoalDetailView(vm: vm)
                 .onChange(of: coordinator.dataVersion) {
-                    vm.container.context.refresh(vm.goal, mergeChanges: true)
                     vm.refreshData()
                 }
             

@@ -17,12 +17,17 @@ struct GoalDetailView: View {
     }
     
     var body: some View {
-        VStack{
+        VStack(alignment: .center){
             Text(vm.goal.name)
-                .font(.system(size: 48, weight: .bold, design: .rounded))
+                .font(.system(.largeTitle, design: .rounded, weight: .bold))
             
-            Text("\((vm.goal.progress).formatted())%")
-                .font(.system(size: 24, weight: .bold, design: .rounded))
+            Text("Tervezett összeg: \(vm.goal.amount) Ft")
+                .font(.system(.title, design: .rounded, weight: .bold))
+                .multilineTextAlignment(.center)
+            
+            Text("\((vm.goal.progress * 100).formatted())%")
+                .font(.system(.title, design: .rounded, weight: .bold))
+
             LinearProgressView(value: NSDecimalNumber(decimal: vm.goal.progress).doubleValue, shape: Capsule())
                         .tint(Gradient(colors: [.purple, .blue]))
                         .frame(height: 64)
@@ -72,9 +77,12 @@ struct GoalDetailView: View {
             }
         ))
         
-        Button("Törlés") {
-            vm.deleteGoal()
+        Button("Törlés", role: .destructive) {
             coordinator.goalPop()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                vm.deleteGoal()
+            }
         }
         .buttonStyle(.borderedProminent)
         
