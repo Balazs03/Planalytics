@@ -91,10 +91,19 @@ enum TransactionCategory: Int16, CaseIterable, Hashable, Identifiable{
     }
 }
 
-extension Transaction {
+extension Transaction: Identifiable {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Transaction> {
         return NSFetchRequest<Transaction>(entityName: "Transaction")
+    }
+    
+    @objc var sect: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium // Pl: "Dec 31, 2025" vagy rendszerbeállítás szerint
+        formatter.timeStyle = .none
+        // Beállíthatod, hogy magyarul írja ki, ha fixen azt szeretnéd:
+        formatter.locale = Locale(identifier: "hu_HU")
+        return formatter.string(from: self.date)
     }
 
     @NSManaged public var amount: NSDecimalNumber
@@ -125,8 +134,4 @@ extension Transaction {
             }
         }
     }
-}
-
-extension Transaction : Identifiable {
-
 }

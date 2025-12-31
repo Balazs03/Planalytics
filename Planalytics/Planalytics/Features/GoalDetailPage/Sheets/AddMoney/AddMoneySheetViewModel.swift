@@ -14,6 +14,7 @@ class AddMoneySheetViewModel {
     var goal: Goal
     var amount: Decimal = 0
     var errorMessage: String?
+    var finishedMessage: String?
     var transBalance: Decimal = 0
 
     init(container: CoreDataManager, goal: Goal) {
@@ -41,6 +42,9 @@ class AddMoneySheetViewModel {
         errorMessage = nil
         
         goal.saving = (goal.saving ?? 0) as Decimal + self.amount as NSDecimalNumber
+        
+        //if goal.saving!.decimalValue >= goal.amount.decimalValue {}
+        
         container.saveContext()
     }
 }

@@ -64,14 +64,12 @@ struct TransactionMainView: View {
                     HStack {
                         Spacer()
                         Button("Összes") {
+                            coordinator.mainPush(.allTransactions)
                         }
                         Spacer()
                     }
                 }
             }
-        }
-        .onAppear {
-            vm.refreshData()
         }
     }
 }

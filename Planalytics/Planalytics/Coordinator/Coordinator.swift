@@ -15,6 +15,7 @@ enum Page: Hashable {
     case main
     case addGoal
     case addTransaction
+    case allTransactions
 }
 
 enum Tab {

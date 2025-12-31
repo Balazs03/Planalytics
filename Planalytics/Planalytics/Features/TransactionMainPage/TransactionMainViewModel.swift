@@ -17,10 +17,7 @@ class TransactionMainViewModel {
     
     init(container: CoreDataManager) {
         self.container = container
-        let balances = container.calculateTotalBalance()
-        totalBalance = balances[0]
-        transBalance = balances[1]
-        goalBalance = balances[2]
+        refreshData()
     }
     
     func refreshData() {

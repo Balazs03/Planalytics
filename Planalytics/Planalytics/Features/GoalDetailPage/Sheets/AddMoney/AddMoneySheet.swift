@@ -13,7 +13,6 @@ struct AddMoneySheet: View {
     @State private var vm: AddMoneySheetViewModel
     @State private var showAmountAlert: Bool = false
     
-    
     init(vm: AddMoneySheetViewModel) {
         self.vm = vm
     }
@@ -60,7 +59,7 @@ struct AddMoneySheet: View {
                     showAmountAlert.toggle()
                 }
             } message: {
-                Text("A megadott összeg \(vm.amount.formatted()) nagyobb, mint a cél összege")
+                Text("A megadott összeg meghaladja a cél összegét")
             }
             
             
