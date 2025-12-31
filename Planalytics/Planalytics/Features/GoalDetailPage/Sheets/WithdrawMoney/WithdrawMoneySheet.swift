@@ -35,7 +35,7 @@ struct WithdrawMoneySheet: View {
                 }
                 .opacity(vm.withdrawBalancePossible() ? 0: 1)
                 
-                Text("Eddig a célre féltetett összeg: \(vm.goal.amount) Ft")
+                Text("Eddig a célre féltetett összeg: \((vm.goal.saving ?? 0)) Ft")
                 
                 Button("Pénz kivétele") {
                     vm.withdrawBalance()

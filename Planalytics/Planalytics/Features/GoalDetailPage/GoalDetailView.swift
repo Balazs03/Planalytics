@@ -17,7 +17,7 @@ struct GoalDetailView: View {
     }
     
     var body: some View {
-        VStack(alignment: .center){
+        VStack {
             Text(vm.goal.name)
                 .font(.system(.largeTitle, design: .rounded, weight: .bold))
             
@@ -32,7 +32,6 @@ struct GoalDetailView: View {
                         .tint(Gradient(colors: [.purple, .blue]))
                         .frame(height: 64)
         }
-        .padding()
 
         HStack {
             VStack {
@@ -77,22 +76,34 @@ struct GoalDetailView: View {
             }
         ))
         
-        Button("Törlés", role: .destructive) {
-            coordinator.goalPop()
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                vm.deleteGoal()
+        .buttonStyle(.borderedProminent)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    // Törlés gomb a menüben
+                    Button(role: .destructive) {
+                        coordinator.goalPop()
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            vm.deleteGoal()
+                        }
+                    } label: {
+                        Label("Cél törlése", systemImage: "trash")
+                    }
+                    
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
             }
         }
-        .buttonStyle(.borderedProminent)
-        
-        .navigationTitle(vm.goal.name)
     }
 }
 
 #Preview {
     let container = CoreDataManager.goalsListPreview()
     let vm = GoalDetailViewModel(goal: container.fetchGoals()[0], container: container)
-    GoalDetailView(vm: vm)
-        .environment(Coordinator())
+    NavigationStack {
+        GoalDetailView(vm: vm)
+            .environment(Coordinator())
+    }
 }

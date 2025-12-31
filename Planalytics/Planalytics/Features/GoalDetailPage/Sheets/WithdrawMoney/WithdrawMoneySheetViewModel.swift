@@ -21,7 +21,7 @@ class WithdrawMoneySheetViewModel {
     }
     
     func withdrawBalancePossible() -> Bool {
-        if amount <= goal.amount as Decimal {
+        if amount <= (goal.saving ?? 0) as Decimal {
             return true
         }
         errorMessage = "Nincs elegendő pénz a költségköltségből!"

@@ -53,10 +53,6 @@ struct CoordinatorView: View {
         case .goalsMain:
             let vm = GoalsMainViewModel(container: container)
             GoalsMainView(vm: vm)
-                .onChange(of: coordinator.dataVersion) {
-                    //vm.clearGoals()
-                    vm.fetchGoals()
-                }
             
         case .goalDetail(let goal):
             let vm = GoalDetailViewModel(goal: goal, container: container)

@@ -22,7 +22,7 @@ class AddTransactionViewModel {
     
     func saveTransaction() {
         let transaction = Transaction(context: container.context)
-        if transactionType == . income && name.isEmpty {
+        if transactionType == .income && name.isEmpty {
             transaction.name = "Névtelen bevétel"
         }
         transaction.amount = amount as NSDecimalNumber

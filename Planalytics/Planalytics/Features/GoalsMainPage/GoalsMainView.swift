@@ -19,9 +19,14 @@ struct GoalsMainView: View {
     var body: some View {
         VStack {
             VStack {
-                Text("Aktív célok: \(vm.goals.count - vm.finishedGoalNumber)")
+                Text("Aktív célok: \(vm.activeGoalNumber)")
+                    .contentTransition(.numericText())
+                    .animation(.default, value: vm.activeGoalNumber)
                     .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                
                 Text("Eddig befejezettek: \(vm.finishedGoalNumber)")
+                    .contentTransition(.numericText())
+                    .animation(.default, value: vm.finishedGoalNumber)
                     .font(.system(.title2, design: .rounded, weight: .bold))
                     .multilineTextAlignment(.center)
             }
@@ -31,46 +36,31 @@ struct GoalsMainView: View {
                 coordinator.goalPush(.addGoal)
             }
             
-            if vm.goals.isEmpty {
-                Text("Nincsenek megadott célok")
-            } else {
-                List {
-                    ForEach(vm.goals.filter { !$0.isDeleted && $0.managedObjectContext != nil }, id: \.objectID) { goal in
-                        if goal.isFinished == false {
+            VStack {
+                Picker("Szűrés", selection: $vm.selectedFilter) {
+                    ForEach(GoalFilter.allCases, id: \.self) { filter in
+                        Text(filter.rawValue).tag(filter)
+                    }
+                }
+                .pickerStyle(.segmented)
+                
+                if vm.goals.isEmpty {
+                    Text("Nincsenek megadott célok")
+                } else {
+                    List {
+                        ForEach(vm.filteredGoals, id: \.objectID) { goal in
                             NavigationLink(value: Page.goalDetail(goal)){
-                                goalRow(goal: goal)
+                                GoalRowView(goal: goal)
                             }
                         }
                     }
+                    .animation(.default, value: vm.filteredGoals)
                 }
-                .id(coordinator.dataVersion)
             }
         }
-        .onAppear {
-            vm.fetchGoals()
-        }
-    }
-    
-    @ViewBuilder
-    private func goalRow(goal: Goal) -> some View {
-        if goal.isDeleted || goal.managedObjectContext == nil {
-            // ANIMÁCIÓT HOZZÁADNI AZ ELEM ELTŰNÉSHEZ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        } else {
-            HStack {
-                Image(systemName: goal.iconName ?? "pointer.arrow.click.2")
-                VStack {
-                    Text(goal.name)
-                    Text(
-                        goal.plannedCompletionDate,
-                        format: Calendar.current.isDate(goal.plannedCompletionDate, equalTo: Date(), toGranularity: .year)
-                        ? .dateTime.month().day()         // Ha idei év: Hónap, Nap
-                        : .dateTime.year().month().day()  // Ha más év: Év, Hónap, Nap
-                    )
-                }
-                Spacer()
-                Image(systemName: goal.isFinished ? "checkmark.circle": "x.circle")
-                    .foregroundColor(goal.isFinished ? .green : .red)
-                Text("\((goal.progress * 100).formatted())%")
+        .onChange(of: coordinator.dataVersion) {
+            withAnimation(.snappy) { // Itt adjuk meg az animációt
+                vm.fetchGoals()
             }
         }
     }

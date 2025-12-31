@@ -11,6 +11,8 @@ internal import CoreData
 struct AddMoneySheet: View {
     @Environment(Coordinator.self) private var coordinator
     @State private var vm: AddMoneySheetViewModel
+    @State private var showAmountAlert: Bool = false
+    
     
     init(vm: AddMoneySheetViewModel) {
         self.vm = vm
@@ -39,12 +41,29 @@ struct AddMoneySheet: View {
                 Text("Egyenleg: \(vm.transBalance.formatted()) Ft")
                 
                 Button("Pénz hozzáadása") {
-                    vm.addBalance()
-                    coordinator.dismissSheet()
+                    if vm.amount > vm.goal.amount as Decimal {
+                        showAmountAlert.toggle()
+                    } else {
+                        vm.addBalance()
+                        coordinator.dismissSheet()
+                    }
                 }
                 .buttonStyle(.glassProminent)
                 .disabled(!vm.addBalancePossible() || vm.amount <= 0)
             }
+            .alert("Túl nagy összeg", isPresented: $showAmountAlert) {
+                Button("OK", role: .cancel){
+                    vm.addBalance()
+                    coordinator.dismissSheet()
+                }
+                Button("Mégsem", role: .destructive) {
+                    showAmountAlert.toggle()
+                }
+            } message: {
+                Text("A megadott összeg \(vm.amount.formatted()) nagyobb, mint a cél összege")
+            }
+            
+            
             .navigationTitle("Pénz hozzáadása")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading){
