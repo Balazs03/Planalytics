@@ -13,7 +13,7 @@ struct AllTransactionsView: View {
     @State private var vm: AllTransactionsViewModel
     @SectionedFetchRequest(
         sectionIdentifier: \Transaction.sect,
-        sortDescriptors: [NSSortDescriptor(keyPath: \Transaction.date, ascending: true)],
+        sortDescriptors: [NSSortDescriptor(keyPath: \Transaction.date, ascending: false)],
         animation: .default
     ) private var items
     

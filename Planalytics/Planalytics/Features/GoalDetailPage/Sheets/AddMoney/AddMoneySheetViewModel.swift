@@ -39,12 +39,13 @@ class AddMoneySheetViewModel {
         newTransaction.name = "Megtakarítás feltöltése a következő célra: \(goal.name)"
         newTransaction.transactionCategory = .saving
         newTransaction.transactionType = .expense
+        newTransaction.goal = goal // ezzel az inverz kapcsolat miatt belerakom a transactions nssetbe
+        // Másik megoldás a generált addTransaction függvénnyel
+        newTransaction.transactionCategory = .saving
+
         errorMessage = nil
         
         goal.saving = (goal.saving ?? 0) as Decimal + self.amount as NSDecimalNumber
-        
-        //if goal.saving!.decimalValue >= goal.amount.decimalValue {}
-        
         container.saveContext()
     }
 }

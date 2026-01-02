@@ -174,12 +174,50 @@ extension CoreDataManager {
         myGoal1.creationDate = Date()
         myGoal1.desc = "Jövő év végére szeretnék venni egy autót."
         myGoal1.isFinished = false
+        var calendar = DateComponents()
+        calendar.year = 2026
+        calendar.month = 12
+        calendar.day = 31
+        myGoal1.plannedCompletionDate = Calendar.current.date(from: calendar)!
+        
+        let goal1Transaction = Transaction(context: previewContext)
+        goal1Transaction.amount = 1000.0
+        goal1Transaction.name = "Teszt tranzakció első célhoz"
         var calendar1 = DateComponents()
-        calendar1.year = 2026
+        calendar1.year = 2025
         calendar1.month = 12
         calendar1.day = 31
-        myGoal1.plannedCompletionDate = Calendar.current.date(from: calendar1)!
+        goal1Transaction.date = Calendar.current.date(from: calendar1)!
+        goal1Transaction.transactionType = .expense
+        goal1Transaction.transactionCategory = .saving
+        myGoal1.addToTransactions(goal1Transaction)
+        myGoal1.saving = ((myGoal1.saving ?? 0) as Decimal) + (goal1Transaction.amount as Decimal) as NSDecimalNumber
         
+        let goal1Transaction2 = Transaction(context: previewContext)
+        goal1Transaction2.amount = 2000.0
+        goal1Transaction2.name = "Teszt tranzakció2 első célhoz"
+        var calendar2 = DateComponents()
+        calendar2.year = 2025
+        calendar2.month = 12
+        calendar2.day = 30
+        goal1Transaction2.date = Calendar.current.date(from: calendar2)!
+        goal1Transaction2.transactionType = .expense
+        goal1Transaction2.transactionCategory = .saving
+        myGoal1.addToTransactions(goal1Transaction2)
+        myGoal1.saving = ((myGoal1.saving ?? 0) as Decimal) + (goal1Transaction2.amount as Decimal) as NSDecimalNumber
+
+
+        let goal1Transaction3 = Transaction(context: previewContext)
+        goal1Transaction3.amount = 1000.0
+        goal1Transaction3.name = "Teszt tranzakció3 első célhoz"
+        var calendar3 = DateComponents()
+        calendar3.year = 2025
+        calendar3.month = 12
+        calendar3.day = 30
+        goal1Transaction3.date = Calendar.current.date(from: calendar3)!
+        goal1Transaction3.transactionType = .income
+        myGoal1.addToTransactions(goal1Transaction3)
+        myGoal1.saving = ((myGoal1.saving ?? 0) as Decimal) - (goal1Transaction2.amount as Decimal) as NSDecimalNumber
         
         let myGoal2 = Goal(context: previewContext)
         myGoal2.name = "Kedvenc könyv"
@@ -188,11 +226,11 @@ extension CoreDataManager {
         myGoal2.creationDate = Date()
         myGoal2.desc = "Mikulás napra szeretnék venni egy új könyvet."
         myGoal2.isFinished = false
-        var calendar2 = DateComponents()
-        calendar2.year = 2025
-        calendar2.month = 12
-        calendar2.day = 06
-        myGoal2.plannedCompletionDate = Calendar.current.date(from: calendar2)!
+        var calendar4 = DateComponents()
+        calendar4.year = 2025
+        calendar4.month = 12
+        calendar4.day = 06
+        myGoal2.plannedCompletionDate = Calendar.current.date(from: calendar4)!
         
         let myGoal3 = Goal(context: previewContext)
         myGoal3.name = "Fejhallgató vásárlás"
@@ -200,11 +238,11 @@ extension CoreDataManager {
         myGoal3.iconName = "headphones"
         myGoal3.creationDate = Date()
         myGoal3.isFinished = false
-        var calendar3 = DateComponents()
-        calendar3.year = 2025
-        calendar3.month = 12
-        calendar3.day = 24
-        myGoal3.plannedCompletionDate = Calendar.current.date(from: calendar3)!
+        var calendar5 = DateComponents()
+        calendar5.year = 2025
+        calendar5.month = 12
+        calendar5.day = 24
+        myGoal3.plannedCompletionDate = Calendar.current.date(from: calendar5)!
         
         manager.saveContext()
         return manager

@@ -7,6 +7,7 @@
 
 import SwiftUI
 internal import CoreData
+import Charts
 
 struct GoalDetailView: View {
     @Environment(Coordinator.self) private var coordinator
@@ -56,6 +57,23 @@ struct GoalDetailView: View {
         }
         .padding()
         
+        if let transactions = vm.transactionHistory {
+            Chart {
+                ForEach(transactions) { transaction in
+                    LineMark(x: .value("Dátum", Calendar.current.startOfDay(for: transaction.date)),
+                             y: .value("Összeg", transaction.total))
+                }
+            }
+            .chartXAxis {
+                    AxisMarks(values: .stride(by: .day)) { _ in
+                        AxisGridLine()
+                        AxisValueLabel(format: .dateTime.month().day())
+                    }
+                }
+        }
+        
+        Text("Tranzakciók száma: \(vm.transactionHistory?.count)")
+        
         if let description = vm.goal.desc {
             Section("Leírás") {
                 Text(description)
@@ -75,18 +93,18 @@ struct GoalDetailView: View {
                 vm.container.saveContext() // Azonnali mentés a Toggle átváltásakor
             }
         ))
-        
         .buttonStyle(.borderedProminent)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 Menu {
                     // Törlés gomb a menüben
                     Button(role: .destructive) {
-                        coordinator.goalPop()
-                        
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                             vm.deleteGoal()
                         }
+                        
+                        coordinator.goalPop()
+                        
                     } label: {
                         Label("Cél törlése", systemImage: "trash")
                     }

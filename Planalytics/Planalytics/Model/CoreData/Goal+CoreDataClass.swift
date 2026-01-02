@@ -2,7 +2,7 @@
 //  Goal+CoreDataClass.swift
 //  Planalytics
 //
-//  Created by Szabó Balázs on 2025. 12. 01..
+//  Created by Szabó Balázs on 2026. 01. 01..
 //
 //
 

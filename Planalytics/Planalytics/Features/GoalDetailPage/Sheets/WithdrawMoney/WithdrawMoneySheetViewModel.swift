@@ -34,6 +34,9 @@ class WithdrawMoneySheetViewModel {
         newTransaction.date = Date()
         newTransaction.name = "Utalás \(goal.name) célból"
         newTransaction.transactionType = .income
+        newTransaction.goal = goal
+        
+        errorMessage = nil
         
         goal.saving = (goal.saving ?? 0) as Decimal - amount as NSDecimalNumber
         container.saveContext()

@@ -2,7 +2,7 @@
 //  Goal+CoreDataProperties.swift
 //  Planalytics
 //
-//  Created by Szabó Balázs on 2025. 12. 01..
+//  Created by Szabó Balázs on 2026. 01. 01..
 //
 //
 
@@ -19,13 +19,14 @@ extension Goal {
     }
 
     @NSManaged public var amount: NSDecimalNumber
+    @NSManaged public var creationDate: Date
+    @NSManaged public var desc: String?
+    @NSManaged public var iconName: String?
+    @NSManaged public var isFinished: Bool
     @NSManaged public var name: String
     @NSManaged public var plannedCompletionDate: Date
     @NSManaged public var saving: NSDecimalNumber?
-    @NSManaged public var desc: String?
-    @NSManaged public var isFinished: Bool
-    @NSManaged public var iconName: String?
-    @NSManaged public var creationDate: Date
+    @NSManaged public var transactions: NSSet?
     
     var progress: Decimal {
         get {
@@ -47,8 +48,24 @@ extension Goal {
             iconName = newValue
         }
     }
-}
 
-extension Goal : Identifiable {
 
 }
+
+// MARK: Generated accessors for transactions
+extension Goal: Identifiable {
+
+    @objc(addTransactionsObject:)
+    @NSManaged public func addToTransactions(_ value: Transaction)
+
+    @objc(removeTransactionsObject:)
+    @NSManaged public func removeFromTransactions(_ value: Transaction)
+
+    @objc(addTransactions:)
+    @NSManaged public func addToTransactions(_ values: NSSet)
+
+    @objc(removeTransactions:)
+    @NSManaged public func removeFromTransactions(_ values: NSSet)
+
+}
+

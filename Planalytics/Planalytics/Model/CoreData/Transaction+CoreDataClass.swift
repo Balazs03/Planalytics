@@ -2,7 +2,7 @@
 //  Transaction+CoreDataClass.swift
 //  Planalytics
 //
-//  Created by Szabó Balázs on 2025. 11. 29..
+//  Created by Szabó Balázs on 2026. 01. 01..
 //
 //
 

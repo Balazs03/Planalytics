@@ -2,9 +2,10 @@
 //  Transaction+CoreDataProperties.swift
 //  Planalytics
 //
-//  Created by Szabó Balázs on 2025. 11. 29..
+//  Created by Szabó Balázs on 2026. 01. 01..
 //
 //
+
 
 public import Foundation
 public import CoreData
@@ -111,6 +112,7 @@ extension Transaction: Identifiable {
     @NSManaged public var name: String?
     @NSManaged public var type: Int16
     @NSManaged public var category: Int16
+    @NSManaged public var goal: Goal?
     
     var transactionType: TransactionType {
         get {

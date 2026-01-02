@@ -18,11 +18,10 @@ class GoalsMainViewModel {
     var filteredGoals: [Goal] {
         switch selectedFilter {
         case .all: return goals
-        case .active: return goals.filter { !$0.isFinished && !$0.isDeleted }
-        case .finished: return goals.filter { !$0.isDeleted && $0.isFinished }
+        case .active: return goals.filter { !$0.isFinished }
+        case .finished: return goals.filter { $0.isFinished }
         }
     }
-    
     
     init(container: CoreDataManager) {
         self.container = container
