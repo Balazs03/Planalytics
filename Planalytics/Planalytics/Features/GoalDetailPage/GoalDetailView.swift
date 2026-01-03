@@ -18,99 +18,142 @@ struct GoalDetailView: View {
     }
     
     var body: some View {
-        VStack {
-            Text(vm.goal.name)
-                .font(.system(.largeTitle, design: .rounded, weight: .bold))
-            
-            Text("Tervezett összeg: \(vm.goal.amount) Ft")
-                .font(.system(.title, design: .rounded, weight: .bold))
-                .multilineTextAlignment(.center)
-            
-            Text("\((vm.goal.progress * 100).formatted())%")
-                .font(.system(.title, design: .rounded, weight: .bold))
-
-            LinearProgressView(value: NSDecimalNumber(decimal: vm.goal.progress).doubleValue, shape: Capsule())
-                        .tint(Gradient(colors: [.purple, .blue]))
-                        .frame(height: 64)
-        }
-
-        HStack {
-            VStack {
-                Button {
-                    coordinator.present(sheet: .addMoney(vm.goal))
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .buttonStyle(.glassProminent)
-                Text("Pénz hozzáadása")
-            }
-            
-            VStack {
-                Button {
-                    coordinator.present(sheet: .withdrawMoney(vm.goal))
-                } label: {
-                    Image(systemName: "arrow.down")
-                }
-                .buttonStyle(.glassProminent)
-                Text("Pénz kivétele")
-            }
-        }
-        .padding()
-        
-        if let transactions = vm.transactionHistory {
-            Chart {
-                ForEach(transactions) { transaction in
-                    LineMark(x: .value("Dátum", Calendar.current.startOfDay(for: transaction.date)),
-                             y: .value("Összeg", transaction.total))
-                }
-            }
-            .chartXAxis {
-                    AxisMarks(values: .stride(by: .day)) { _ in
-                        AxisGridLine()
-                        AxisValueLabel(format: .dateTime.month().day())
+        ScrollView {
+            VStack(spacing: 25) {
+                
+                VStack(spacing: 10) {
+                    Text(vm.goal.name)
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                        .multilineTextAlignment(.center)
+                    
+                    Text("Tervezett összeg: \((vm.goal.amount as Decimal).formatted()) Ft")
+                        .font(.system(.title2, design: .rounded, weight: .bold))
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.secondary)
+                    
+                    VStack {
+                        Text("\((vm.goal.progress * 100).formatted())%")
+                            .font(.system(.title, design: .rounded, weight: .bold))
+                        
+                        LinearProgressView(value: NSDecimalNumber(decimal: vm.goal.progress).doubleValue, shape: Capsule())
+                            .tint(Gradient(colors: [.purple, .blue]))
+                            .frame(height: 64)
                     }
                 }
-        }
-        
-        Text("Tranzakciók száma: \(vm.transactionHistory?.count)")
-        
-        if let description = vm.goal.desc {
-            Section("Leírás") {
-                Text(description)
-            }
-        }
-        
-        Text("Eddig féltetett pénz: \(vm.goal.saving ?? 0.00)")
-        
-        Text("Tervezett befejezési dátum: \(vm.goal.plannedCompletionDate.formatted(date: .numeric, time: .omitted))")
-        
-        Text("Létrehozva: \(vm.goal.creationDate.formatted(date: .numeric, time: .omitted))")
-        
-        Toggle("Befejezett", isOn: Binding(
-            get: { vm.goal.isFinished },
-            set: { newValue in
-                vm.goal.isFinished = newValue
-                vm.container.saveContext() // Azonnali mentés a Toggle átváltásakor
-            }
-        ))
-        .buttonStyle(.borderedProminent)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Menu {
-                    // Törlés gomb a menüben
-                    Button(role: .destructive) {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                            vm.deleteGoal()
+                .padding(.horizontal)
+                
+                HStack(spacing: 40) {
+                    ActionButtonView(label: "Hozzáadás", icon: "plus", action: {
+                        coordinator.present(sheet: .addMoney(vm.goal))
+                    })
+                    
+                    ActionButtonView(label: "Kivétel", icon: "arrow.down", action: {
+                        coordinator.present(sheet: .withdrawMoney(vm.goal))
+                    })
+                }
+                .padding()
+                
+                if let transactions = vm.transactionHistory {
+                    
+                    VStack(alignment: .leading) {
+                        Text("Megtakarítási trend")
+                            .font(.headline)
+                        
+                        Chart {
+                            ForEach(transactions) { transaction in
+                                LineMark(x: .value("Dátum", Calendar.current.startOfDay(for: transaction.date)),
+                                         y: .value("Összeg", transaction.total))
+                                .foregroundStyle(.pink)
+                                
+                                AreaMark(x: .value("Dátum", Calendar.current.startOfDay(for: transaction.date)),
+                                         y: .value("Összeg", transaction.total))
+                                .foregroundStyle(.pink)
+                                .opacity(0.3)
+                                PointMark(
+                                    x: .value("Dátum", Calendar.current.startOfDay(for: transaction.date)),
+                                    y: .value("Összeg", transaction.total)
+                                )
+                            }
+                        }
+                        .chartXAxis {
+                            if vm.distinctDates > 5 {
+                                AxisMarks(values: .stride(by: .month)) { _ in
+                                    AxisGridLine()
+                                    AxisValueLabel(format: .dateTime.month())
+                                }
+                            } else {
+                                AxisMarks(values: .stride(by: .day)) { _ in
+                                    AxisGridLine()
+                                    AxisValueLabel(format: .dateTime.year().month().day())
+                                }
+                            }
+                        }
+                        if let firstDate = transactions.first?.date {
+                            InfoRowView(label: "Első megtaktarítás",
+                                        value: "\(firstDate.formatted(date: .numeric, time: .omitted))")
                         }
                         
-                        coordinator.goalPop()
+                        if let lastDate = transactions.last?.date,
+                            lastDate != transactions.first?.date {
+                            InfoRowView(label: "Utolsó megtakarítás",
+                                        value: "\(lastDate.formatted(date: .numeric, time: .omitted))")
+                        }
                         
-                    } label: {
-                        Label("Cél törlése", systemImage: "trash")
+                    }
+                    .padding()
+                    .background(Color(.secondarySystemBackground))
+                    .cornerRadius(15)
+                    .padding(.horizontal)
+                }
+                
+                VStack(alignment: .leading, spacing: 15) {
+                    if let description = vm.goal.desc {
+                        InfoGroupView(label: "Leírás", value: description)
+                        Divider()
+
                     }
                     
-                } label: {
-                    Image(systemName: "ellipsis.circle")
+                    InfoRowView(label: "Eddig félretett pénz" , value: "\((vm.goal.saving as Decimal? ?? 0.00).formatted())")
+                    
+                    InfoRowView(label: "Tervezett befejezési dátum",
+                                value: "\(vm.goal.plannedCompletionDate.formatted(date: .numeric, time: .omitted))")
+                    
+                    InfoRowView(label: "Létrehozva",
+                                value: "\(vm.goal.creationDate.formatted(date: .numeric, time: .omitted))")
+                    
+                    Toggle("Befejezett", isOn: Binding(
+                        get: { vm.goal.isFinished },
+                        set: { newValue in
+                            vm.goal.isFinished = newValue
+                            vm.container.saveContext() // Azonnali mentés a Toggle átváltásakor
+                        }
+                    ))
+                    .padding(.top)
+                }
+                .padding()
+                .background(Color(.secondarySystemBackground))
+                .cornerRadius(15)
+                .padding(.horizontal)
+                
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Menu {
+                            // Törlés gomb a menüben
+                            Button(role: .destructive) {
+                                coordinator.goalPop()
+                                
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                    vm.deleteGoal()
+                                }
+                                
+                            } label: {
+                                Label("Cél törlése", systemImage: "trash")
+                            }
+                            
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
+                        }
+                    }
                 }
             }
         }

@@ -16,12 +16,12 @@
   },
   "createdDate" : "2026-01-01T19:46:39Z",
   "evaluationContainerEntity" : {
-    "createdDate" : "2026-01-01T19:47:00Z",
+    "createdDate" : "2026-01-02T19:08:25Z",
     "evaluationEntities" : [
 
     ],
     "id" : "0659adcc-e60c-4429-bcdf-8caa8aaab795",
-    "modifiedDate" : "2026-01-01T19:47:00Z",
+    "modifiedDate" : "2026-01-02T19:08:25Z",
     "previewType" : "tabularRegressor",
     "testingEvaluationEntity" : {
       "analysedDataType" : "none",
@@ -53,7 +53,7 @@
     "dataResult" : {
 
     },
-    "id" : "154ab16f-3e99-4153-97ff-553ddf0c18ab"
+    "id" : "24f92595-ccfb-4d54-9c49-de8f11d9d564"
   },
   "evaluationState" : "uninitialized",
   "id" : "26291548-0976-4F6D-80A7-F1C8AB12520A",
@@ -65,7 +65,7 @@
     "title" : "",
     "version" : "1.0"
   },
-  "modifiedDate" : "2026-01-01T19:47:00Z",
+  "modifiedDate" : "2026-01-02T19:08:25Z",
   "preferredFilename" : "GoalPredictionModel 1",
   "settingEntity" : {
     "algorithmType" : "maxEnt",

@@ -21,8 +21,7 @@ struct TransactionMainView: View {
                 Text("Egyenleg HUF")
                 HStack {
                     Text("\(vm.transBalance.formatted()) Ft")
-                        .font(.system(.largeTitle ,design: .rounded))
-                        .fontWeight(.bold)
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
                         .contentTransition(.numericText())
                         .animation(.default, value: vm.transBalance)
                     
@@ -69,6 +68,11 @@ struct TransactionMainView: View {
                         Spacer()
                     }
                 }
+            }
+        }
+        .onChange(of: coordinator.dataVersion) {
+            withAnimation(.snappy) {
+                vm.refreshData()
             }
         }
     }

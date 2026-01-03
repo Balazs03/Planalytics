@@ -14,6 +14,15 @@ class GoalDetailViewModel {
     let container :CoreDataManager
     var transBalance: Decimal = 0
     var transactionHistory: [transHolder]?
+    var distinctDates: Int {
+        guard let transactions = transactionHistory else { return 0 }
+        
+        let dates = transactions.map { Calendar.current.startOfDay(for: $0.date) }
+        
+        let distinctDates = Set(dates)
+        
+        return distinctDates.count
+    }
     
     
     init(goal: Goal, container: CoreDataManager) {
@@ -51,10 +60,8 @@ class GoalDetailViewModel {
             }
             
             tempTransHolder.append(transHolder(id: UUID(), total: currentTotal, date: date))
-            
-            transactionHistory = tempTransHolder
-
         }
+        transactionHistory = tempTransHolder
     }
     
     func deleteGoal() {

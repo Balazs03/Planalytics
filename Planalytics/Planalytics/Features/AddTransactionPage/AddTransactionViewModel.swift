@@ -24,6 +24,8 @@ class AddTransactionViewModel {
         let transaction = Transaction(context: container.context)
         if transactionType == .income && name.isEmpty {
             transaction.name = "Névtelen bevétel"
+        } else {
+            transaction.name = name
         }
         transaction.amount = amount as NSDecimalNumber
         transaction.transactionType = transactionType
