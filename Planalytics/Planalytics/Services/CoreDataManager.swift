@@ -232,16 +232,16 @@ extension CoreDataManager {
         myGoal1.saving = ((myGoal1.saving ?? 0) as Decimal) - (goal1Transaction4.amount as Decimal) as NSDecimalNumber
         
         let transactionsData: [(amount: Double, type: TransactionType, day: Int, month: Int, year: Int, name: String)] = [
-            (5000.0, .expense, 5, 1, 2026, "Havi megtakarítás"),
-            (2500.0, .expense, 12, 1, 2026, "Extra bevételből"),
-            (1000.0, .income, 20, 1, 2026, "Szerviz költség"),
-            (10000.0, .expense, 1, 2, 2026, "Februári kezdő"),
-            (3000.0, .expense, 15, 2, 2026, "Szülinapi pénz"),
-            (15000.0, .expense, 2, 3, 2026, "Márciusi megtakarítás"),
-            (5000.0, .income, 25, 3, 2026, "Váratlan kiadás"),
+            (5000.0, .expense, 5, 1, 2026, "Szerviz költség"),
+            (2500.0, .expense, 12, 1, 2026, "Extra kiadás"),
+            (1000.0, .income, 20, 1, 2026, "Havi megtakarítás"),
+            (10000.0, .expense, 1, 2, 2026, "Februári számlák"),
+            (3000.0, .expense, 15, 2, 2026, "Ajándék vásárlás"),
+            (15000.0, .expense, 2, 3, 2026, "Márciusi számlák"),
+            (5000.0, .income, 25, 3, 2026, "Névnapi ajándék"),
             (8000.0, .expense, 5, 4, 2026, "Áprilisi részlet"),
-            (12000.0, .expense, 1, 5, 2026, "Májusi megtakarítás"),
-            (20000.0, .expense, 15, 6, 2026, "Féléves bónusz")
+            (12000.0, .expense, 1, 5, 2026, "Váratlan kiadás"),
+            (20000.0, .income, 15, 6, 2026, "Féléves bónusz")
         ]
 
         for (_, data) in transactionsData.enumerated() {
@@ -249,7 +249,9 @@ extension CoreDataManager {
             transaction.amount = NSDecimalNumber(value: data.amount)
             transaction.name = data.name
             transaction.transactionType = data.type
-            transaction.transactionCategory = .saving
+            if data.type == .expense {
+                transaction.transactionCategory = .saving
+            }
             
             var components = DateComponents()
             components.year = data.year

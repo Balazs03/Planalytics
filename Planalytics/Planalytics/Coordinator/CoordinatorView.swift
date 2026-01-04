@@ -57,9 +57,6 @@ struct CoordinatorView: View {
         case .goalDetail(let goal):
             let vm = GoalDetailViewModel(goal: goal, container: container)
             GoalDetailView(vm: vm)
-                .onChange(of: coordinator.dataVersion) {
-                    vm.refreshData()
-                }
             
         case .addGoal:
             let vm = AddGoalPageViewModel(container: container)

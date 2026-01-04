@@ -61,7 +61,9 @@ class GoalDetailViewModel {
             
             tempTransHolder.append(transHolder(id: UUID(), total: currentTotal, date: date))
         }
-        transactionHistory = tempTransHolder
+        if !tempTransHolder.isEmpty {
+            transactionHistory = tempTransHolder
+        }
     }
     
     func deleteGoal() {

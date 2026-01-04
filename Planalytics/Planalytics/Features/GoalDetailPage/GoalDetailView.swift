@@ -157,6 +157,12 @@ struct GoalDetailView: View {
                 }
             }
         }
+        .onChange(of: coordinator.dataVersion) {
+            withAnimation(.snappy) {
+                vm.refreshData()
+                vm.createRollingSaves()
+            }
+        }
     }
 }
 
