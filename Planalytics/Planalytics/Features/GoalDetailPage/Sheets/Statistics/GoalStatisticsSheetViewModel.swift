@@ -8,7 +8,7 @@
 import Foundation
 
 @Observable
-class StatisticsSheetViewModel {
+class GoalStatisticsSheetViewModel {
     let container: CoreDataManager
     let goal: Goal
     var model: LSMmodel

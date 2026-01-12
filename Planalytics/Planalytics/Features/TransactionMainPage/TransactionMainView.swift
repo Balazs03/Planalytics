@@ -56,7 +56,7 @@ struct TransactionMainView: View {
                             case .income:
                                 Text("+\(transaction.amount) Ft")
                             case .expense:
-                                Text("-\(transaction.amount) Ft")
+                                Text("-\(transaction.amount) Ft")                                    .foregroundStyle(.red)
                             }
                         }
                     }

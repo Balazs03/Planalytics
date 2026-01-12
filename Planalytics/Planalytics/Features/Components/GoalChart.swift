@@ -16,9 +16,9 @@ struct GoalChart: View {
     }
     
     let transactions: [transHolder]
-    private var vm: StatisticsSheetViewModel
+    private var vm: GoalStatisticsSheetViewModel
         
-    init(transactions: [transHolder], vm: StatisticsSheetViewModel) {
+    init(transactions: [transHolder], vm: GoalStatisticsSheetViewModel) {
         self.transactions = transactions
         self.vm = vm
     }
@@ -137,6 +137,6 @@ struct GoalChart: View {
 
 #Preview {
     let inMemoryContainer = CoreDataManager.goalsListPreview()
-    let vm = StatisticsSheetViewModel(container: inMemoryContainer, goal: inMemoryContainer.fetchGoals().first!)
+    let vm = GoalStatisticsSheetViewModel(container: inMemoryContainer, goal: inMemoryContainer.fetchGoals().first!)
     GoalChart(transactions: vm.dailyTransactions!, vm: vm)
 }

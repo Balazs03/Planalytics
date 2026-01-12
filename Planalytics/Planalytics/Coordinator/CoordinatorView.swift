@@ -70,6 +70,10 @@ struct CoordinatorView: View {
             let vm = AllTransactionsViewModel(container: container)
             AllTransactionsView(vm: vm)
                 .environment(\.managedObjectContext, vm.container.context)
+            
+        case .transactionStatistics:
+            let vm = TransactionStatisticsViewModel(container: container)
+            TransactionStatisticsView(vm: vm)
         }
     }
     
@@ -81,9 +85,9 @@ struct CoordinatorView: View {
         case .withdrawMoney(let goal):
             let vm = WithdrawMoneySheetViewModel(container: container, goal: goal)
             WithdrawMoneySheet(vm: vm)
-        case .statics(let goal):
-            let vm = StatisticsSheetViewModel(container: container, goal: goal)
-            StatisticsSheet(vm: vm)
+        case .statistics(let goal):
+            let vm = GoalStatisticsSheetViewModel(container: container, goal: goal)
+            GoalStatisticsSheet(vm: vm)
         }
     }
 }

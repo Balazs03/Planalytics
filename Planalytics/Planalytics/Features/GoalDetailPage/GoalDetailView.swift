@@ -103,7 +103,7 @@ struct GoalDetailView: View {
                     }
                     ToolbarItem(placement: .automatic) {
                         Button {
-                            coordinator.present(sheet: .statics(vm.goal))
+                            coordinator.present(sheet: .statistics(vm.goal))
                         } label: {
                             Image(systemName: "chart.bar.fill")
                         }

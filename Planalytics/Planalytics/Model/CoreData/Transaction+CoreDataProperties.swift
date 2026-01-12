@@ -39,6 +39,7 @@ enum TransactionCategory: Int16, CaseIterable, Hashable, Identifiable{
     case transportation = 3
     case healthAndEducation = 4
     case saving = 5
+    case other = 6
     
     var title : String {
         switch self {
@@ -54,6 +55,8 @@ enum TransactionCategory: Int16, CaseIterable, Hashable, Identifiable{
             return "Egészség és oktatás"
         case .saving:
             return "Megtakarítás"
+        case .other:
+            return "Egyéb"
         }
     }
     
@@ -71,6 +74,8 @@ enum TransactionCategory: Int16, CaseIterable, Hashable, Identifiable{
             return "cross.circle.fill"
         case .saving:
             return "dollarsign.bank.building.fill"
+        case .other:
+            return "creditcard.fill"
         }
     }
     
@@ -88,6 +93,8 @@ enum TransactionCategory: Int16, CaseIterable, Hashable, Identifiable{
             return .red
         case .saving:
             return .yellow
+        case .other:
+            return .purple
         }
     }
 }
@@ -100,9 +107,8 @@ extension Transaction: Identifiable {
     
     @objc var sect: String {
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium // Pl: "Dec 31, 2025" vagy rendszerbeállítás szerint
+        formatter.dateStyle = .medium
         formatter.timeStyle = .none
-        // Beállíthatod, hogy magyarul írja ki, ha fixen azt szeretnéd:
         formatter.locale = Locale(identifier: "hu_HU")
         return formatter.string(from: self.date)
     }
@@ -135,5 +141,9 @@ extension Transaction: Identifiable {
                 self.category = -1
             }
         }
+    }
+    
+    var categoryWrapper: TransactionCategory {
+        return TransactionCategory(rawValue: self.category) ?? .other
     }
 }

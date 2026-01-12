@@ -8,11 +8,11 @@
 import SwiftUI
 import Charts
 
-struct StatisticsSheet: View {
+struct GoalStatisticsSheet: View {
     @Environment(Coordinator.self) var coordinator
-    @State private var vm: StatisticsSheetViewModel
+    @State private var vm: GoalStatisticsSheetViewModel
     
-    init(vm: StatisticsSheetViewModel) {
+    init(vm: GoalStatisticsSheetViewModel) {
         self.vm = vm
     }
     
@@ -153,7 +153,7 @@ struct StatisticsSheet: View {
 
 #Preview {
     let inMemoryContainer = CoreDataManager.goalsListPreview()
-    let vm = StatisticsSheetViewModel(container: inMemoryContainer, goal: inMemoryContainer.fetchGoals().first!)
-    StatisticsSheet(vm : vm)
+    let vm = GoalStatisticsSheetViewModel(container: inMemoryContainer, goal: inMemoryContainer.fetchGoals().first!)
+    GoalStatisticsSheet(vm : vm)
         .environment(Coordinator())
 }
