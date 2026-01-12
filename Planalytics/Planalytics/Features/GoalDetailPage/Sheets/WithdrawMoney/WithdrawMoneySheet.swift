@@ -23,19 +23,21 @@ struct WithdrawMoneySheet: View {
                         .font(.largeTitle)
                         .multilineTextAlignment(.center)
                     Text("Ft")
-                        .opacity(vm.amount == 0 ? 0.3 : 1)
+                        .opacity(vm.amount != nil ? 1 : 0.3)
                         .font(.largeTitle)
                 }
                 
-                HStack{
-                    Image(systemName: "exclamationmark.triangle")
-                        .foregroundColor(.red)
-                    Text("Az kívánt összeg meghaladja a célre félretett összeget")
-                        .foregroundColor(.red)
+                if let amount = vm.amount, let saving = vm.goal.saving {
+                    HStack{
+                        Image(systemName: "exclamationmark.triangle")
+                            .foregroundColor(.red)
+                        Text("Az kívánt összeg meghaladja a célre félretett összeget")
+                            .foregroundColor(.red)
+                    }
+                    .opacity(amount < saving as Decimal ? 0: 1)
                 }
-                .opacity(vm.withdrawBalancePossible() ? 0: 1)
                 
-                Text("Eddig a célre féltetett összeg: \((vm.goal.saving ?? 0)) Ft")
+                Text("Eddig a célre féltetett összeg: \(((vm.goal.saving?.doubleValue.formatted()) ?? "0")) Ft")
                 
                 Button("Pénz kivétele") {
                     vm.withdrawBalance()
@@ -45,6 +47,7 @@ struct WithdrawMoneySheet: View {
                 .buttonStyle(.glassProminent)
             }
             .navigationTitle("Pénz kivétel")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar{
                 ToolbarItem(placement: .navigationBarLeading){
                     Button{
@@ -68,5 +71,5 @@ struct WithdrawMoneySheet: View {
     WithdrawMoneySheet(
         vm: vm
     )
-    .environment(Coordinator()) // Inject the coordinator to avoid crashing
+    .environment(Coordinator())
 }

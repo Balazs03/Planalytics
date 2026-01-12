@@ -81,6 +81,9 @@ struct CoordinatorView: View {
         case .withdrawMoney(let goal):
             let vm = WithdrawMoneySheetViewModel(container: container, goal: goal)
             WithdrawMoneySheet(vm: vm)
+        case .statics(let goal):
+            let vm = StatisticsSheetViewModel(container: container, goal: goal)
+            StatisticsSheet(vm: vm)
         }
     }
 }

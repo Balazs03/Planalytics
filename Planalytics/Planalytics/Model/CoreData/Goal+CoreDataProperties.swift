@@ -48,8 +48,6 @@ extension Goal {
             iconName = newValue
         }
     }
-
-
 }
 
 // MARK: Generated accessors for transactions

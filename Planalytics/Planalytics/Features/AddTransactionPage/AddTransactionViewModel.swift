@@ -11,8 +11,8 @@ internal import CoreData
 @Observable
 class AddTransactionViewModel {
     let container: CoreDataManager
-    var name : String = ""
-    var amount: Decimal = 0
+    var name : String?
+    var amount: Decimal?
     var transactionType: TransactionType = .income
     var transactionCategory: TransactionCategory?
     
@@ -21,6 +21,7 @@ class AddTransactionViewModel {
     }
     
     func saveTransaction() {
+        guard let name, let amount else { return }
         let transaction = Transaction(context: container.context)
         if transactionType == .income && name.isEmpty {
             transaction.name = "Névtelen bevétel"

@@ -30,11 +30,14 @@ enum Sheet: Hashable, Identifiable {
             return "addMoney_\(goal.id)"
         case .withdrawMoney(let goal):
             return "withdrawMoney_\(goal.id)"
+        case .statics(let goal):
+            return "statics_\(goal.id)"
         }
     }
     
     case addMoney(Goal)
     case withdrawMoney(Goal)
+    case statics(Goal)
 }
 
 @Observable

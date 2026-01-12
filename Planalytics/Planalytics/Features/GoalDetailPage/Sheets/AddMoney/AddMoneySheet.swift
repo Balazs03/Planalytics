@@ -25,22 +25,24 @@ struct AddMoneySheet: View {
                         .font(.largeTitle)
                         .multilineTextAlignment(.center)
                     Text("Ft")
-                        .opacity(vm.amount == 0 ? 0.3 : 1)
+                        .opacity(vm.amount == nil ? 0.3 : 1)
                         .font(.largeTitle)
                 }
                 
-                HStack{
-                    Image(systemName: "exclamationmark.triangle")
-                        .foregroundColor(.red)
-                    Text("A kívánt összeg meghaladja a jelenlegi egyenleget")
-                        .foregroundColor(.red)
+                if let amount = vm.amount {
+                    HStack{
+                        Image(systemName: "exclamationmark.triangle")
+                            .foregroundColor(.red)
+                        Text("A kívánt összeg meghaladja a jelenlegi egyenleget")
+                            .foregroundColor(.red)
+                    }
+                    .opacity(amount > vm.transBalance as Decimal ? 1 : 0)
                 }
-                .opacity(vm.addBalancePossible() ? 0: 1)
                 
                 Text("Egyenleg: \(vm.transBalance.formatted()) Ft")
                 
                 Button("Pénz hozzáadása") {
-                    if vm.amount > vm.goal.amount as Decimal {
+                    if let amount = vm.amount, amount > vm.goal.amount as Decimal {
                         showAmountAlert.toggle()
                     } else {
                         vm.addBalance()
@@ -48,7 +50,7 @@ struct AddMoneySheet: View {
                     }
                 }
                 .buttonStyle(.glassProminent)
-                .disabled(!vm.addBalancePossible() || vm.amount <= 0)
+                .disabled(!vm.addBalancePossible())
             }
             .alert("Túl nagy összeg", isPresented: $showAmountAlert) {
                 Button("OK", role: .cancel){
@@ -81,7 +83,7 @@ struct AddMoneySheet: View {
 
 #Preview {
     let container = CoreDataManager.goalsListPreview()
-    let vm = AddMoneySheetViewModel(container: container, goal: container.fetchGoals()[1])
+    let vm = AddMoneySheetViewModel(container: container, goal: container.fetchGoals()[0])
     AddMoneySheet(
         vm: vm
     )

@@ -13,57 +13,48 @@ class GoalDetailViewModel {
     var goal: Goal
     let container :CoreDataManager
     var transBalance: Decimal = 0
-    var transactionHistory: [transHolder]?
-    var distinctDates: Int {
-        guard let transactions = transactionHistory else { return 0 }
-        
-        let dates = transactions.map { Calendar.current.startOfDay(for: $0.date) }
-        
-        let distinctDates = Set(dates)
-        
-        return distinctDates.count
-    }
-    
     
     init(goal: Goal, container: CoreDataManager) {
         self.container = container
         self.goal = goal
         refreshData()
-        createRollingSaves()
     }
+    /*
+    func addGoals() {
+        let goal1Transaction = Transaction(context: container.context)
+        goal1Transaction.amount = 1000.0
+        goal1Transaction.name = "Teszt tranzakció első célhoz"
+        var calendar1 = DateComponents()
+        calendar1.year = 2025
+        calendar1.month = 12
+        calendar1.day = 31
+        goal1Transaction.date = Calendar.current.date(from: calendar1)!
+        goal1Transaction.transactionType = .expense
+        goal1Transaction.transactionCategory = .saving
+        goal.addToTransactions(goal1Transaction)
+        goal.saving = ((goal.saving ?? 0) as Decimal) + (goal1Transaction.amount as Decimal) as NSDecimalNumber
+        
+        let goal2Transaction = Transaction(context: container.context)
+        goal2Transaction.amount = 1000.0
+        goal2Transaction.name = "Teszt tranzakció első célhoz"
+        var calendar2 = DateComponents()
+        calendar2.year = 2026
+        calendar2.month = 01
+        calendar2.day = 04
+        goal2Transaction.date = Calendar.current.date(from: calendar1)!
+        goal2Transaction.transactionType = .expense
+        goal2Transaction.transactionCategory = .saving
+        goal.addToTransactions(goal2Transaction)
+        goal.saving = ((goal.saving ?? 0) as Decimal) + (goal2Transaction.amount as Decimal) as NSDecimalNumber
+        
+        container.saveContext()
+    }
+    */
     
     func refreshData() {
         container.context.refresh(goal, mergeChanges: true)
         let balances = container.calculateTotalBalance()
         transBalance = balances[1]
-    }
-    
-    func createRollingSaves() {
-        let transactions = goal.transactions as? Set<Transaction> ?? []
-        
-        let tempDict = Dictionary(grouping: transactions) { transaction in
-            Calendar.current.startOfDay(for: transaction.date)
-        } .mapValues { dayTransactions in
-            dayTransactions.reduce(0) { (sum, transaction) -> Decimal in
-                let amount = transaction.amount as Decimal
-                return sum + (transaction.transactionType == .income ? -amount : amount)
-            }
-        }
-        
-        let sortedDates = tempDict.keys.sorted()
-        var currentTotal: Decimal = 0.00
-        var tempTransHolder: [transHolder] = []
-        
-        for date in sortedDates {
-            if let value = tempDict[date] {
-                currentTotal += value
-            }
-            
-            tempTransHolder.append(transHolder(id: UUID(), total: currentTotal, date: date))
-        }
-        if !tempTransHolder.isEmpty {
-            transactionHistory = tempTransHolder
-        }
     }
     
     func deleteGoal() {
@@ -77,10 +68,4 @@ class GoalDetailViewModel {
         container.context.delete(goal)
         container.saveContext()
     }
-}
-
-struct transHolder: Identifiable {
-    var id: UUID
-    var total: Decimal
-    var date: Date
 }

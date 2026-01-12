@@ -12,10 +12,11 @@ struct AddTransactionView: View {
     @State private var vm : AddTransactionViewModel
     @State private var isAmountOnFocus: Bool = false
     var disableForm: Bool {
+        guard let amount = vm.amount, let name = vm.name else { return true }
         if vm.transactionType == .income {
-            vm.amount == 0
+            return amount == 0
         } else {
-            vm.amount == 0 || vm.name.isEmpty || (vm.transactionCategory == nil)
+            return amount == 0 || name.isEmpty || vm.transactionCategory == nil
         }
     }
     
@@ -46,7 +47,11 @@ struct AddTransactionView: View {
             }
             
             Section("Név") {
-                TextField(vm.transactionType == .income ? "Bevétel neve" : "Kiadás neve", text: $vm.name)
+                TextField(vm.transactionType == .income ? "Bevétel neve" : "Kiadás neve", text: Binding(
+                        get: { vm.name ?? "" }, // Ha nil, akkor üres stringet mutat
+                        set: { vm.name = $0.isEmpty ? nil : $0 } // Ha üresre törli, akkor nil legyen (vagy maradhat simán $0 is)
+                    )
+                )
             }
             
             if vm.transactionType == .expense {

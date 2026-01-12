@@ -12,18 +12,19 @@ internal import CoreData
 class AddMoneySheetViewModel {
     let container: CoreDataManager
     var goal: Goal
-    var amount: Decimal = 0
+    var amount: Decimal?
     var errorMessage: String?
     var finishedMessage: String?
-    var transBalance: Decimal = 0
+    var transBalance: Decimal
 
     init(container: CoreDataManager, goal: Goal) {
         self.container = container
         self.goal = goal
-        transBalance = container.calculateTotalBalance()[1]
+        self.transBalance = container.calculateTotalBalance()[1]
     }
     
     func addBalancePossible() -> Bool {
+        guard let amount else { return false}
         if amount <= transBalance {
             errorMessage = nil
             return true
@@ -33,8 +34,9 @@ class AddMoneySheetViewModel {
     }
     
     func addBalance() {
+        guard let amount else { return }
         let newTransaction = Transaction(context: container.context)
-        newTransaction.amount = self.amount as NSDecimalNumber
+        newTransaction.amount = amount as NSDecimalNumber
         newTransaction.date = Date()
         newTransaction.name = "Megtakarítás feltöltése a következő célra: \(goal.name)"
         newTransaction.transactionCategory = .saving
@@ -45,7 +47,7 @@ class AddMoneySheetViewModel {
 
         errorMessage = nil
         
-        goal.saving = (goal.saving ?? 0) as Decimal + self.amount as NSDecimalNumber
+        goal.saving = (goal.saving ?? 0) as Decimal + amount as NSDecimalNumber
         container.saveContext()
     }
 }

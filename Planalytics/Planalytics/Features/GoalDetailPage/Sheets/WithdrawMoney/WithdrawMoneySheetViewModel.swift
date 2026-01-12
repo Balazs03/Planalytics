@@ -13,7 +13,7 @@ class WithdrawMoneySheetViewModel {
     let container: CoreDataManager
     var goal: Goal
     var errorMessage: String?
-    var amount: Decimal = 0
+    var amount: Decimal?
     
     init(container: CoreDataManager, goal: Goal) {
         self.container = container
@@ -21,6 +21,8 @@ class WithdrawMoneySheetViewModel {
     }
     
     func withdrawBalancePossible() -> Bool {
+        guard let amount else { return false }
+        
         if amount <= (goal.saving ?? 0) as Decimal {
             return true
         }
@@ -29,6 +31,7 @@ class WithdrawMoneySheetViewModel {
     }
     
     func withdrawBalance() {
+        guard let amount else { return }
         let newTransaction = Transaction(context: container.context)
         newTransaction.amount = amount as NSDecimalNumber
         newTransaction.date = Date()

@@ -38,9 +38,9 @@ struct TransactionMainView: View {
                     coordinator.mainPush(.addTransaction)
                 }
             }
-            Spacer()
             if vm.transactions.isEmpty {
                 Text("Nincs megjeleníthető tranzakció")
+                Spacer()
             } else {
                 List {
                     ForEach(vm.transactions.reversed().prefix(3)) { transaction in
@@ -67,6 +67,14 @@ struct TransactionMainView: View {
                         }
                         Spacer()
                     }
+                }
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .automatic) {
+                Button {
+                } label: {
+                    Image(systemName: "chart.bar.fill")
                 }
             }
         }

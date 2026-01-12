@@ -53,64 +53,11 @@ struct GoalDetailView: View {
                 }
                 .padding()
                 
-                if let transactions = vm.transactionHistory {
-                    
-                    VStack(alignment: .leading) {
-                        Text("Megtakarítási trend")
-                            .font(.headline)
-                        
-                        Chart {
-                            ForEach(transactions) { transaction in
-                                LineMark(x: .value("Dátum", Calendar.current.startOfDay(for: transaction.date)),
-                                         y: .value("Összeg", transaction.total))
-                                .foregroundStyle(.pink)
-                                
-                                AreaMark(x: .value("Dátum", Calendar.current.startOfDay(for: transaction.date)),
-                                         y: .value("Összeg", transaction.total))
-                                .foregroundStyle(.pink)
-                                .opacity(0.3)
-                                PointMark(
-                                    x: .value("Dátum", Calendar.current.startOfDay(for: transaction.date)),
-                                    y: .value("Összeg", transaction.total)
-                                )
-                            }
-                        }
-                        .chartXAxis {
-                            if vm.distinctDates > 5 {
-                                AxisMarks(values: .stride(by: .month)) { _ in
-                                    AxisGridLine()
-                                    AxisValueLabel(format: .dateTime.month())
-                                }
-                            } else {
-                                AxisMarks(values: .stride(by: .day)) { _ in
-                                    AxisGridLine()
-                                    AxisValueLabel(format: .dateTime.year().month().day())
-                                }
-                            }
-                        }
-                        if let firstDate = transactions.first?.date {
-                            InfoRowView(label: "Első megtaktarítás",
-                                        value: "\(firstDate.formatted(date: .numeric, time: .omitted))")
-                        }
-                        
-                        if let lastDate = transactions.last?.date,
-                            lastDate != transactions.first?.date {
-                            InfoRowView(label: "Utolsó megtakarítás",
-                                        value: "\(lastDate.formatted(date: .numeric, time: .omitted))")
-                        }
-                        
-                    }
-                    .padding()
-                    .background(Color(.secondarySystemBackground))
-                    .cornerRadius(15)
-                    .padding(.horizontal)
-                }
-                
                 VStack(alignment: .leading, spacing: 15) {
                     if let description = vm.goal.desc {
                         InfoGroupView(label: "Leírás", value: description)
                         Divider()
-
+                        
                     }
                     
                     InfoRowView(label: "Eddig félretett pénz" , value: "\((vm.goal.saving as Decimal? ?? 0.00).formatted())")
@@ -136,7 +83,7 @@ struct GoalDetailView: View {
                 .padding(.horizontal)
                 
                 .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
+                    ToolbarItem(placement: .topBarTrailing) {
                         Menu {
                             // Törlés gomb a menüben
                             Button(role: .destructive) {
@@ -154,13 +101,19 @@ struct GoalDetailView: View {
                             Image(systemName: "ellipsis.circle")
                         }
                     }
+                    ToolbarItem(placement: .automatic) {
+                        Button {
+                            coordinator.present(sheet: .statics(vm.goal))
+                        } label: {
+                            Image(systemName: "chart.bar.fill")
+                        }
+                    }
                 }
             }
         }
         .onChange(of: coordinator.dataVersion) {
             withAnimation(.snappy) {
                 vm.refreshData()
-                vm.createRollingSaves()
             }
         }
     }
