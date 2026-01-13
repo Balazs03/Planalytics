@@ -9,30 +9,33 @@ import SwiftUI
 import Charts
 
 struct TransactionsChart: View {
-    let expenses: [Transaction]
+    let groupedTransactions: [(category: TransactionCategory, amount: Decimal)]
+    let totalExpenses: Decimal
     
-    var allCategoryTitles: [String] {
-        expenses.map(\.categoryWrapper.title)
+    var categoryTitles: [String] {
+        groupedTransactions.map { $0.category.title }
     }
     
-    var allCategoryColors: [Color] {
-        expenses.map(\.categoryWrapper.diagramColor)
+    var categoryColors: [Color] {
+        groupedTransactions.map { $0.category.diagramColor }
     }
     
     var body: some View {
         Chart {
-            ForEach(expenses) { expense in
-                let category = expense.categoryWrapper
-                SectorMark(angle: .value("Kiadáspok", expense.amount.decimalValue), angularInset: 2)
-                    .foregroundStyle(by: .value("Kategória", category.title))
+            ForEach(groupedTransactions, id: \.category) { item in
+                SectorMark(angle: .value("Kiadáspok", item.amount), innerRadius: .ratio(0.5), angularInset: 2)
+                    .foregroundStyle(by: .value("Kategória", item.category.title))
+                    .cornerRadius(10)
+                    .annotation(position: .overlay) {
+                        Text("\((item.amount / totalExpenses) * 100, format: .number.precision(.fractionLength(2)))%")
+                            .font(.caption)
+                            .foregroundStyle(.placeholder)
+                            .shadow(radius: 2)
+                            .fontWeight(.semibold)
+                    }
             }
         }
-        .chartForegroundStyleScale(domain: allCategoryTitles, range: allCategoryColors)
+        .chartForegroundStyleScale(domain: categoryTitles, range: categoryColors)
+        .frame(height: 250)
     }
 }
-
-#Preview {
-    let mockManager = CoreDataManager.transactionListPreview()
-    TransactionsChart(expenses: mockManager.fetchTransactions(year: nil, month: nil))
-}
-

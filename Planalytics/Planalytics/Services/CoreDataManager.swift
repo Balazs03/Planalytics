@@ -156,7 +156,14 @@ extension CoreDataManager {
         myTransaction4.name = "Mozi"
         myTransaction4.date = Date()
         myTransaction4.transactionType = .expense
-        myTransaction3.category = TransactionCategory.entertainment.rawValue
+        myTransaction4.category = TransactionCategory.entertainment.rawValue
+        
+        let myTransaction5 = Transaction(context: previewContext)
+        myTransaction5.amount = 1000.5
+        myTransaction5.name = "Tankönyvek"
+        myTransaction5.date = Date()
+        myTransaction5.transactionType = .expense
+        myTransaction5.category = TransactionCategory.healthAndEducation.rawValue
         
         manager.saveContext()
         return manager

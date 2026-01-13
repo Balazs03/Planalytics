@@ -17,11 +17,57 @@ struct TransactionStatisticsView: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 25) {
+            VStack(alignment: .leading,spacing: 25) {
+                YearMonthPickerView(selectedDate: $vm.selectedDate)
+                
                 if !vm.transactions.isEmpty {
-                    TransactionsChart(expenses: vm.expenses)
+                    TransactionsChart(groupedTransactions: vm.groupedTransactions, totalExpenses: vm.totalExpenses)
+                } else {
+                    Text("Az adott időszakban még nincsenek tranzakciók")
                 }
+                
+                Divider()
+                InfoRowView(label: "Kiadások", value: vm.totalExpenses.formatted())
+                
+                InfoRowView(label: "Bevételek", value: vm.totalIncomes.formatted())
             }
+            .padding()
+            .background(Color.appSlate.brightness(0.4))
+            .clipShape(RoundedRectangle(cornerRadius: 15))
+            .padding()
+            
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())]) {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Nettó pénzforgalom")
+                        .font(.caption)
+                    Text("\((vm.totalIncomes - vm.totalExpenses).formatted())")
+                    if vm.balance {
+                        Label {
+                            Text("Pozitív")
+                        } icon: {
+                            Image(systemName: "plus.circle.fill")
+                        }
+                            .foregroundStyle(.green)
+                    } else {
+                        Label {
+                            Text("Negatív")
+                        } icon: {
+                            Image(systemName: "minus.circle.fill")
+                        }
+                        .foregroundStyle(.red)
+                    }
+                    
+                }
+                .padding()
+                .background(Color.appSlate.brightness(0.4))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+        }
+        .navigationTitle("Statisztikák")
+        .navigationBarTitleDisplayMode(.inline)
+        .background(Color.appBackground)
+        .onChange(of: vm.selectedDate) {
+            vm.refreshData()
         }
     }
 }

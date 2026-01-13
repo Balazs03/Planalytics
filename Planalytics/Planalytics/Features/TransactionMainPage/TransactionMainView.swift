@@ -16,63 +16,80 @@ struct TransactionMainView: View {
     }
     
     var body: some View {
-        VStack {
-            VStack {
-                Text("Egyenleg HUF")
-                HStack {
-                    Text("\(vm.transBalance.formatted()) Ft")
-                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                        .contentTransition(.numericText())
-                        .animation(.default, value: vm.transBalance)
-                    
-                    if vm.transBalance < 0 {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.red)
-                            .font(.largeTitle)
-                    }
-                }
-            }
+        ZStack {
+            LinearGradient(gradient: Gradient(colors: [Color.appBackground, Color.appAccent, Color.appSlate]), startPoint: .bottom, endPoint: .top)
+                .ignoresSafeArea()
             
-            HStack {
-                Button("Hozzáadás") {
-                    coordinator.mainPush(.addTransaction)
-                }
-            }
-            if vm.transactions.isEmpty {
-                Text("Nincs megjeleníthető tranzakció")
-                Spacer()
-            } else {
-                List {
-                    ForEach(vm.transactions.reversed().prefix(3)) { transaction in
-                        HStack {
-                            VStack(alignment: .leading){
-                                
-                                Text(transaction.name ?? "Névtelen")
-                                Text(transaction.date, style: .date)
-                            }
-                            Spacer()
-                            
-                            switch (transaction.transactionType) {
-                            case .income:
-                                Text("+\(transaction.amount) Ft")
-                            case .expense:
-                                Text("-\(transaction.amount) Ft")                                    .foregroundStyle(.red)
-                            }
-                        }
-                    }
+            VStack {
+                VStack {
+                    Text("Egyenleg HUF")
                     HStack {
-                        Spacer()
-                        Button("Összes") {
-                            coordinator.mainPush(.allTransactions)
+                        Text("\(vm.transBalance.formatted()) Ft")
+                            .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                            .contentTransition(.numericText())
+                            .animation(.default, value: vm.transBalance)
+                        
+                        if vm.transBalance < 0 {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.red)
+                                .font(.largeTitle)
                         }
-                        Spacer()
                     }
+                }
+                
+                HStack {
+                    Button("Hozzáadás") {
+                        coordinator.mainPush(.addTransaction)
+                    }
+                    .padding()
+                    .buttonStyle(.glass)
+                    .fontWeight(.semibold)
+                }
+                if vm.transactions.isEmpty {
+                    Text("Nincs megjeleníthető tranzakció")
+                    Spacer()
+                } else {
+                    List {
+                        ForEach(vm.transactions.reversed().prefix(3)) { transaction in
+                            HStack {
+                                VStack(alignment: .leading){
+                                    
+                                    Text(transaction.name ?? "Névtelen")
+                                    Text(transaction.date, style: .date)
+                                }
+                                Spacer()
+                                
+                                switch (transaction.transactionType) {
+                                case .income:
+                                    Text("+\(transaction.amount) Ft")
+                                        .foregroundStyle(.green)
+                                case .expense:
+                                    Text("-\(transaction.amount) Ft")                                    .foregroundStyle(.red)
+                                }
+                            }
+                        }
+                        .foregroundStyle(Color.appText)
+
+                        HStack {
+                            Spacer()
+                            Button("Összes") {
+                                coordinator.mainPush(.allTransactions)
+                            }
+                            .buttonStyle(.borderless)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.black)
+                            Spacer()
+                        }
+                    }
+                    .scrollContentBackground(.hidden)
                 }
             }
         }
+        .fontDesign(.rounded)
         .toolbar {
             ToolbarItem(placement: .automatic) {
                 Button {
+                    coordinator.mainPush(.transactionStatistics)
                 } label: {
                     Image(systemName: "chart.bar.fill")
                 }
