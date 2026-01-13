@@ -26,13 +26,6 @@ struct TransactionsChart: View {
                 SectorMark(angle: .value("Kiadáspok", item.amount), innerRadius: .ratio(0.5), angularInset: 2)
                     .foregroundStyle(by: .value("Kategória", item.category.title))
                     .cornerRadius(10)
-                    .annotation(position: .overlay) {
-                        Text("\((item.amount / totalExpenses) * 100, format: .number.precision(.fractionLength(2)))%")
-                            .font(.caption)
-                            .foregroundStyle(.placeholder)
-                            .shadow(radius: 2)
-                            .fontWeight(.semibold)
-                    }
             }
         }
         .chartForegroundStyleScale(domain: categoryTitles, range: categoryColors)

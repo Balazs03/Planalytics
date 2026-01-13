@@ -49,7 +49,9 @@ struct AddMoneySheet: View {
                         coordinator.dismissSheet()
                     }
                 }
-                .buttonStyle(.glassProminent)
+                .padding()
+                .buttonStyle(.glass)
+                .fontWeight(.semibold)
                 .disabled(!vm.addBalancePossible())
             }
             .alert("Túl nagy összeg", isPresented: $showAmountAlert) {
@@ -66,6 +68,7 @@ struct AddMoneySheet: View {
             
             
             .navigationTitle("Pénz hozzáadása")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading){
                     Button {
@@ -73,10 +76,13 @@ struct AddMoneySheet: View {
                     } label: {
                         Image(systemName: "arrow.backward")
                     }
-                    .buttonStyle(.glassProminent)
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Image(vm.goal.iconName ?? "")
                 }
             }
         }
+        .fontDesign(.rounded)
         .padding()
     }
 }

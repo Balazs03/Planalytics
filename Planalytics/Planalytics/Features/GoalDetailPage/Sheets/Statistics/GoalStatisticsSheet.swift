@@ -49,10 +49,12 @@ struct GoalStatisticsSheet: View {
                             // INFO SOROK
                             Divider()
                             if let firstDate = dailyTransactions.first?.date {
-                                InfoRowView(label: "Első megtakarítás", value: firstDate.formatted(date: .numeric, time: .omitted))
+                                InfoRowView(label: "Első megtakarítás", value: firstDate.formatted(date: .numeric, time: .omitted)
+                                )
                             }
                             if let lastDate = dailyTransactions.last?.date {
-                                InfoRowView(label: "Utolsó megtakarítás", value: lastDate.formatted(date: .numeric, time: .omitted))
+                                InfoRowView(label: "Utolsó megtakarítás", value: lastDate.formatted(date: .numeric, time: .omitted)
+                                )
                             }
                             
                             if let saving = vm.goal.saving, saving.doubleValue < vm.goal.amount.doubleValue {
@@ -106,8 +108,9 @@ struct GoalStatisticsSheet: View {
                             }
                         }
                         .padding()
-                        .background(Color(.secondarySystemBackground))
-                        .cornerRadius(15)
+                        .background(Color.appBackground.grayscale(0.05))
+                        .clipShape(RoundedRectangle(cornerRadius: 15))
+                        .padding()
                     }
                     
                     // FIGYELMEZTETŐ SZÖVEG (A kártyán kívül)
@@ -124,20 +127,22 @@ struct GoalStatisticsSheet: View {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 15) {
                         
                         if let monthySavingPlan = vm.calculaterequiredMonthlySaving(), !monthySavingPlan.isNaN  {
-                            StaticCardView(text: "Szükséges havi összeg a célért", value: monthySavingPlan)
+                            StaticCardView(text: "Szükséges havi összeg a célért", value: "\(monthySavingPlan.formatted(.number.precision(.fractionLength(2)))) Ft")
                         }
                         
                         if let maxTransactionAmount = vm.maxTransactionAmount {
-                            StaticCardView(text: "Legnagyobb megtakarítás", value: maxTransactionAmount)
+                            StaticCardView(text: "Legnagyobb megtakarítás", value: "\(maxTransactionAmount.formatted(.number.precision(.fractionLength(2)))) Ft")
                         }
                         
                         if let remainingDays = vm.daysUntilCompletion, remainingDays > 0 {
-                            StaticCardView(text: "Hátravévő napok", value: Decimal(remainingDays))
+                            StaticCardView(text: "Hátravévő napok", value: "\(remainingDays)")
                         }
                     }
+                    .padding(.horizontal)
                 }
                 .padding()
             }
+            .fontDesign(.rounded)
             .navigationTitle("Statisztikák")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

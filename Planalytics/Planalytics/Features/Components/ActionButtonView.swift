@@ -18,8 +18,9 @@ struct ActionButtonView: View {
                     .font(.title2)
                     .frame(width: 60, height: 60)
             }
-            .buttonStyle(.glassProminent)
-            .tint(.purple)
+            .padding()
+            .buttonStyle(.glass)
+            .fontWeight(.semibold)
             Text(label)
                 .font(.caption)
                 .fontWeight(.medium)

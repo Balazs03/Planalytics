@@ -34,17 +34,17 @@ struct GoalChart: View {
                     VStack{
                         Text("\(selectedTransHolder.date.formatted(date: .numeric, time: .omitted))")
                         Text("Összeg")
-                        Text("\(selectedTransHolder.total.formatted())")
+                        Text("\(selectedTransHolder.total.formatted()) Ft")
                     }
                     .fontWeight(.bold)
                     .foregroundStyle(.white)
-                    .padding(10)
-                    .background(.pink)
+                    .padding()
+                    .background(Color.appText)
+                    .shadow(radius: 2)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 
             }
-            // 1. TÉNYLEGES ADATOK
             ForEach(transactions) { transaction in
                 LineMark(
                     x: .value("Dátum", Calendar.current.startOfDay(for: transaction.date)),
@@ -64,7 +64,7 @@ struct GoalChart: View {
                     y: .value("Összeg", transaction.total)
                 )
                 .symbolSize(100)
-                .foregroundStyle(.purple)
+                .foregroundStyle(.blue)
                 .opacity(selectedDate == nil || selectedTransHolder?.date == transaction.date ? 1 : 0.3)
 
             }
@@ -89,8 +89,8 @@ struct GoalChart: View {
             }
         }
         .chartForegroundStyleScale(
-            vm.distinctDates > 7 ? ["Tényleges": .purple, "Becsült": .green] :
-                ["Tényleges": .purple]
+            vm.distinctDates > 7 ? ["Tényleges": Color.appSlate, "Becsült": Color.appAccent] :
+                ["Tényleges": Color.appSlate]
         )
         .chartScrollableAxes(.horizontal)
         .chartXVisibleDomain(length: vm.selectedFilter.axisLength)

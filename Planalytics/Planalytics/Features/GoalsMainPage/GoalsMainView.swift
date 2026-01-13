@@ -17,46 +17,55 @@ struct GoalsMainView: View {
     }
     
     var body: some View {
-        VStack {
-            VStack {
-                Text("Aktív célok: \(vm.activeGoalNumber)")
-                    .contentTransition(.numericText())
-                    .animation(.default, value: vm.activeGoalNumber)
-                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                
-                Text("Eddig befejezettek: \(vm.finishedGoalNumber)")
-                    .contentTransition(.numericText())
-                    .animation(.default, value: vm.finishedGoalNumber)
-                    .font(.system(.title2, design: .rounded, weight: .bold))
-                    .multilineTextAlignment(.center)
-            }
-            .padding()
-            
-            Button("Hozzáadás") {
-                coordinator.goalPush(.addGoal)
-            }
+        ZStack {
+            LinearGradient(gradient: Gradient(colors: [Color.appBackground, Color.appAccent, Color.appSlate]), startPoint: .bottom, endPoint: .top)
+                .ignoresSafeArea()
             
             VStack {
-                Picker("Szűrés", selection: $vm.selectedFilter) {
-                    ForEach(GoalFilter.allCases, id: \.self) { filter in
-                        Text(filter.rawValue).tag(filter)
+                VStack {
+                    Text("Aktív célok: \(vm.activeGoalNumber)")
+                        .contentTransition(.numericText())
+                        .animation(.default, value: vm.activeGoalNumber)
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                    
+                    Text("Eddig befejezettek: \(vm.finishedGoalNumber)")
+                        .contentTransition(.numericText())
+                        .animation(.default, value: vm.finishedGoalNumber)
+                        .font(.system(.title2, design: .rounded, weight: .bold))
+                        .multilineTextAlignment(.center)
+                    
+                    Button("Hozzáadás") {
+                        coordinator.goalPush(.addGoal)
                     }
+                    .padding()
+                    .buttonStyle(.glass)
+                    .fontWeight(.semibold)
                 }
-                .pickerStyle(.segmented)
                 
-                if vm.goals.isEmpty {
-                    Text("Nincsenek megadott célok")
-                } else {
-                    List {
-                        ForEach(vm.filteredGoals, id: \.objectID) { goal in
-                            NavigationLink(value: Page.goalDetail(goal)){
-                                GoalRowView(goal: goal)
-                            }
+                VStack {
+                    Picker("Szűrés", selection: $vm.selectedFilter) {
+                        ForEach(GoalFilter.allCases, id: \.self) { filter in
+                            Text(filter.rawValue).tag(filter)
                         }
                     }
-                    .animation(.default, value: vm.filteredGoals)
+                    .pickerStyle(.segmented)
+                    
+                    if vm.goals.isEmpty {
+                        Text("Nincsenek megadott célok")
+                    } else {
+                        List {
+                            ForEach(vm.filteredGoals, id: \.objectID) { goal in
+                                NavigationLink(value: Page.goalDetail(goal)){
+                                    GoalRowView(goal: goal)
+                                }
+                            }
+                        }
+                        .scrollContentBackground(.hidden)
+                        .animation(.default, value: vm.filteredGoals)
+                    }
                 }
             }
+            .padding()
         }
         .onChange(of: coordinator.dataVersion) {
             withAnimation(.snappy) { // Itt adjuk meg az animációt

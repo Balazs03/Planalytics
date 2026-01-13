@@ -27,9 +27,9 @@ struct TransactionStatisticsView: View {
                 }
                 
                 Divider()
-                InfoRowView(label: "Kiadások", value: vm.totalExpenses.formatted())
+                InfoRowView(label: "Kiadások", value: "\(vm.totalExpenses.formatted()) Ft")
                 
-                InfoRowView(label: "Bevételek", value: vm.totalIncomes.formatted())
+                InfoRowView(label: "Bevételek", value: "\(vm.totalIncomes.formatted()) Ft")
             }
             .padding()
             .background(Color.appSlate.brightness(0.4))
@@ -39,8 +39,9 @@ struct TransactionStatisticsView: View {
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())]) {
                 VStack(alignment: .leading, spacing: 10) {
                     Text("Nettó pénzforgalom")
-                        .font(.caption)
-                    Text("\((vm.totalIncomes - vm.totalExpenses).formatted())")
+                        .foregroundStyle(.secondary)
+                    Text("\((vm.totalIncomes - vm.totalExpenses).formatted()) Ft")
+                        .fontWeight(.semibold)
                     if vm.balance {
                         Label {
                             Text("Pozitív")
@@ -56,11 +57,11 @@ struct TransactionStatisticsView: View {
                         }
                         .foregroundStyle(.red)
                     }
-                    
                 }
                 .padding()
                 .background(Color.appSlate.brightness(0.4))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
+                .padding(.horizontal)
             }
         }
         .navigationTitle("Statisztikák")

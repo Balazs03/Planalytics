@@ -39,6 +39,8 @@ struct CoordinatorView: View {
             }
             .tag(Tab.goals)
         }
+        .fontDesign(.rounded)
+        .tabViewStyle(.automatic)
         .sheet(item: Bindable(coordinator).sheet) { sheet in
             sheetFactory(sheet)
         }

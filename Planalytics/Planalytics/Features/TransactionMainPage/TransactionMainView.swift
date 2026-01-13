@@ -85,7 +85,6 @@ struct TransactionMainView: View {
                 }
             }
         }
-        .fontDesign(.rounded)
         .toolbar {
             ToolbarItem(placement: .automatic) {
                 Button {

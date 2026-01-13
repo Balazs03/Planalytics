@@ -44,7 +44,9 @@ struct WithdrawMoneySheet: View {
                     coordinator.dismissSheet()
                 }
                 .disabled(!vm.withdrawBalancePossible() || vm.amount == 0)
-                .buttonStyle(.glassProminent)
+                .padding()
+                .buttonStyle(.glass)
+                .fontWeight(.semibold)
             }
             .navigationTitle("Pénz kivétel")
             .navigationBarTitleDisplayMode(.inline)

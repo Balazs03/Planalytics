@@ -41,20 +41,29 @@ struct YearMonthPickerView: View {
                     .onTapGesture {
                         showPicker.toggle()
                     }
-            }.padding(15)
+            }
+            .padding()
+            .background(Color.appAccent)
+            .clipShape(RoundedRectangle(cornerRadius: 15))
+            .padding()
+            
             
             if showPicker {
                 //month picker
                 LazyVGrid(columns: columns, spacing: 20) {
-                   ForEach(months, id: \.self) { item in
+                    ForEach(months, id: \.self) { item in
                         Text(item)
-                        .font(.headline)
-                        .frame(width: 60, height: 33)
-                        .bold()
-                        .cornerRadius(8)
-                        .onTapGesture {
-                            changeMonth(to: item)
-                        }
+                            .font(.headline)
+                            .frame(width: 60, height: 33)
+                            .fontWeight(.semibold)
+                            .background(
+                                months.firstIndex(of: item) == Calendar.current.component(.month, from: selectedDate) - 1 ?
+                                Color.appAccent: Color.appSlate
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .onTapGesture {
+                                changeMonth(to: item)
+                            }
                    }
                 }
                 .padding(.horizontal)

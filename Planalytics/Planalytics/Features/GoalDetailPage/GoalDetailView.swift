@@ -18,94 +18,98 @@ struct GoalDetailView: View {
     }
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 25) {
-                
-                VStack(spacing: 10) {
-                    Text(vm.goal.name)
-                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                        .multilineTextAlignment(.center)
+        ZStack{
+            LinearGradient(colors: [.appBackground, .appSlate], startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+            ScrollView {
+                VStack(spacing: 25) {
                     
-                    Text("Tervezett összeg: \((vm.goal.amount as Decimal).formatted()) Ft")
-                        .font(.system(.title2, design: .rounded, weight: .bold))
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.secondary)
-                    
-                    VStack {
-                        Text("\((vm.goal.progress * 100).formatted())%")
-                            .font(.system(.title, design: .rounded, weight: .bold))
+                    VStack(spacing: 10) {
+                        Text(vm.goal.name)
+                            .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                            .multilineTextAlignment(.center)
                         
-                        LinearProgressView(value: NSDecimalNumber(decimal: vm.goal.progress).doubleValue, shape: Capsule())
-                            .tint(Gradient(colors: [.purple, .blue]))
-                            .frame(height: 64)
-                    }
-                }
-                .padding(.horizontal)
-                
-                HStack(spacing: 40) {
-                    ActionButtonView(label: "Hozzáadás", icon: "plus", action: {
-                        coordinator.present(sheet: .addMoney(vm.goal))
-                    })
-                    
-                    ActionButtonView(label: "Kivétel", icon: "arrow.down", action: {
-                        coordinator.present(sheet: .withdrawMoney(vm.goal))
-                    })
-                }
-                .padding()
-                
-                VStack(alignment: .leading, spacing: 15) {
-                    if let description = vm.goal.desc {
-                        InfoGroupView(label: "Leírás", value: description)
-                        Divider()
+                        Text("Tervezett összeg: \((vm.goal.amount as Decimal).formatted(.number.precision(.fractionLength(2)))) Ft")
+                            .font(.system(.title2, design: .rounded, weight: .bold))
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.secondary)
                         
-                    }
-                    
-                    InfoRowView(label: "Eddig félretett pénz" , value: "\((vm.goal.saving as Decimal? ?? 0.00).formatted())")
-                    
-                    InfoRowView(label: "Tervezett befejezési dátum",
-                                value: "\(vm.goal.plannedCompletionDate.formatted(date: .numeric, time: .omitted))")
-                    
-                    InfoRowView(label: "Létrehozva",
-                                value: "\(vm.goal.creationDate.formatted(date: .numeric, time: .omitted))")
-                    
-                    Toggle("Befejezett", isOn: Binding(
-                        get: { vm.goal.isFinished },
-                        set: { newValue in
-                            vm.goal.isFinished = newValue
-                            vm.container.saveContext() // Azonnali mentés a Toggle átváltásakor
+                        VStack {
+                            Text("\((vm.goal.progress * 100).formatted(.number.precision(.fractionLength(2)))) %")
+                                .font(.system(.title, design: .rounded, weight: .bold))
+                            
+                            LinearProgressView(value: NSDecimalNumber(decimal: vm.goal.progress).doubleValue, shape: Capsule())
+                                .tint(Gradient(colors: [.blue, .appAccent]))
+                                .frame(height: 64)
                         }
-                    ))
-                    .padding(.top)
-                }
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .cornerRadius(15)
-                .padding(.horizontal)
-                
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Menu {
-                            // Törlés gomb a menüben
-                            Button(role: .destructive) {
-                                coordinator.goalPop()
-                                
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                    vm.deleteGoal()
+                    }
+                    .padding(.horizontal)
+                    
+                    HStack(spacing: 40) {
+                        ActionButtonView(label: "Hozzáadás", icon: "plus", action: {
+                            coordinator.present(sheet: .addMoney(vm.goal))
+                        })
+                        
+                        ActionButtonView(label: "Kivétel", icon: "arrow.down", action: {
+                            coordinator.present(sheet: .withdrawMoney(vm.goal))
+                        })
+                    }
+                    .padding()
+                    
+                    VStack(alignment: .leading, spacing: 15) {
+                        if let description = vm.goal.desc {
+                            InfoGroupView(label: "Leírás", value: description)
+                            Divider()
+                            
+                        }
+                        
+                        InfoRowView(label: "Eddig félretett pénz" , value: "\((vm.goal.saving as Decimal? ?? 0.00).formatted())")
+                        
+                        InfoRowView(label: "Tervezett befejezési dátum",
+                                    value: "\(vm.goal.plannedCompletionDate.formatted(date: .numeric, time: .omitted))")
+                        
+                        InfoRowView(label: "Létrehozva",
+                                    value: "\(vm.goal.creationDate.formatted(date: .numeric, time: .omitted))")
+                        
+                        Toggle("Befejezett", isOn: Binding(
+                            get: { vm.goal.isFinished },
+                            set: { newValue in
+                                vm.goal.isFinished = newValue
+                                vm.container.saveContext() // Azonnali mentés a Toggle átváltásakor
+                            }
+                        ))
+                        .padding(.top)
+                    }
+                    .padding()
+                    .background(Color(.secondarySystemBackground))
+                    .cornerRadius(15)
+                    .padding(.horizontal)
+                    
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Menu {
+                                // Törlés gomb a menüben
+                                Button(role: .destructive) {
+                                    coordinator.goalPop()
+                                    
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                        vm.deleteGoal()
+                                    }
+                                    
+                                } label: {
+                                    Label("Cél törlése", systemImage: "trash")
                                 }
                                 
                             } label: {
-                                Label("Cél törlése", systemImage: "trash")
+                                Image(systemName: "ellipsis.circle")
                             }
-                            
-                        } label: {
-                            Image(systemName: "ellipsis.circle")
                         }
-                    }
-                    ToolbarItem(placement: .automatic) {
-                        Button {
-                            coordinator.present(sheet: .statistics(vm.goal))
-                        } label: {
-                            Image(systemName: "chart.bar.fill")
+                        ToolbarItem(placement: .automatic) {
+                            Button {
+                                coordinator.present(sheet: .statistics(vm.goal))
+                            } label: {
+                                Image(systemName: "chart.bar.fill")
+                            }
                         }
                     }
                 }

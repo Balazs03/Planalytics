@@ -9,7 +9,7 @@ import SwiftUI
 
 struct StaticCardView: View {
     var text: String
-    var value: Decimal
+    var value: String
     var color: Color?
     var icon: String?
     
@@ -25,18 +25,18 @@ struct StaticCardView: View {
             Text(text)
                 .foregroundStyle(.secondary)
             
-            Text("\((value as NSDecimalNumber).doubleValue, specifier: "%.2f")")
+            Text(value)
                 .fontWeight(.bold)
                 .minimumScaleFactor(0.8)
                 .lineLimit(1)
         }
         .padding()
-        .background(Color(.secondarySystemBackground))
-        .cornerRadius(12)
+        .background(Color.appBackground.grayscale(0.05))
+        .clipShape(RoundedRectangle(cornerRadius: 15))
         
     }
 }
 
 #Preview {
-    StaticCardView(text: "Átlagos befizetés", value: 3000, color: .red, icon: "creditcard.circle")
+    StaticCardView(text: "Átlagos befizetés", value: "3000", color: .red, icon: "creditcard.circle")
 }
