@@ -23,23 +23,29 @@ struct YearMonthPickerView: View {
                 Image(systemName: "chevron.left")
                     .frame(width: 24.0)
                     .onTapGesture {
-                        changeYear(by: -1)
+                        withAnimation {
+                            changeYear(by: -1)
+                        }
                     }
                 
                 Text(String(Calendar.current.component(.year, from: selectedDate)))
-                         .fontWeight(.bold)
-                         .transition(.move(edge: .trailing))
+                    .fontWeight(.bold)
+                    .contentTransition(.numericText())
                 
                 Image(systemName: "chevron.right")
                     .frame(width: 24.0)
                     .onTapGesture {
-                        changeYear(by: 1)
+                        withAnimation {
+                            changeYear(by: 1)
+                        }
                     }
                 
                 Image(systemName: showPicker ? "chevron.up" : "chevron.down" )
                     .frame(width: 24)
                     .onTapGesture {
-                        showPicker.toggle()
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                            showPicker.toggle()
+                        }
                     }
             }
             .padding()

@@ -22,53 +22,96 @@ struct AddGoalView: View {
     }
     
     var body: some View {
-        Form {
-            Section("Név") {
-                TextField("Cél nevének megadása", text: $vm.name)
-            }
-            
-            Section("Összeg") {
-                HStack {
-                    TextField("0.0", value: $vm.amount, format: .number)
-                        .font(.system(size: 28))
-                        .multilineTextAlignment(.center)
-                    Text("Ft")
-                        .font(.system(size: 28))
-                        .opacity(vm.amount == 0 ? 0.3 : 1)
-                }
-            }
-            
-            Section("Tervezett befejezés") {
-                DatePicker(
-                    "Tervezett dátum",
-                    selection: $vm.plannedCompletionDate,
-                    displayedComponents: .date
-                )
-                .datePickerStyle(.graphical)
-            }
-            
-            Section("Ikon") {
-                VStack{
-                    Button("Kiválasztás") {
-                        showIconPicker.toggle()
+        ZStack{
+            LinearGradient(gradient: Gradient(colors: [Color.appBackground, Color.appAccent]), startPoint: .bottom, endPoint: .top)
+                .ignoresSafeArea()
+            VStack {
+                Form {
+                    Section {
+                        TextField("Cél nevének megadása", text: $vm.name)
+                    } header: {
+                        Text("Név")
+                            .foregroundStyle(Color.appText)
                     }
                     
-                    Image(systemName: vm.iconNameWrapper)
-                        .font(.system(size: 100))
-                        .padding()
+                    Section {
+                        HStack {
+                            TextField("0.0", value: $vm.amount, format: .number)
+                                .font(.title)
+                                .multilineTextAlignment(.center)
+                            Text("Ft")
+                                .font(.title)
+                                .opacity(vm.amount != nil ? 1 : 0.3)
+                        }
+                    } header: {
+                        Text("Összeg")
+                            .foregroundStyle(Color.appText)
+                    }
+                    
+                    Section {
+                        DatePicker(
+                            "Tervezett dátum",
+                            selection: $vm.plannedCompletionDate,
+                            in: Date()...,
+                            displayedComponents: .date
+                        )
+                        .datePickerStyle(.compact)
+                    }
+                    
+                    Section {
+                        HStack {
+                            Button("Kiválasztás") {
+                                showIconPicker.toggle()
+                            }
+                            .padding()
+                            .buttonStyle(.glass)
+                            .fontWeight(.semibold)
+                            Spacer()
+                            
+                            ZStack {
+                                Circle()
+                                    .frame(width: 48, height: 48)
+                                    .foregroundStyle(Color.appAccent)
+                                    .shadow(color: .black.opacity(0.7), radius: 2)
+                                    
+                                Image(systemName: vm.iconNameWrapper)
+                                    .font(.title)
+
+                            }
+                        }
+                    } header: {
+                        Text("Ikon")
+                    }
                 }
+                .tint(.appSlate)
+                .fontDesign(.rounded)
+                .scrollContentBackground(.hidden)
+                .sheet(isPresented: $showIconPicker) {
+                    SymbolsPicker(selection: $vm.iconNameWrapper, title: "Válassz egy ikont", searchLabel: "Keresés", autoDismiss: true)
+                }
+                .padding()
+                
+                Button {
+                    vm.addGoal()
+                    coordinator.goalPop()
+                } label: {
+                    Text("Mentés")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity) // Teljes szélesség
+                        .padding()
+                        // Ha le van tiltva, szürke, ha aktív, akkor az appAccent szín
+                        .background(disableForm ? Color.appSlate.opacity(0.5) : Color.appSlate)
+                        .cornerRadius(16)
+                        .shadow(color: disableForm ? .clear : Color.appAccent.opacity(0.4), radius: 8, y: 4)
+                }
+                .padding()
+                .disabled(disableForm)
             }
-            
-            Button("Mentés") {
-                vm.addGoal()
-                coordinator.goalPop()
-            }
-            .disabled(disableForm)
         }
-        .sheet(isPresented: $showIconPicker) {
-            SymbolsPicker(selection: $vm.iconNameWrapper, title: "Válassz egy ikont", searchLabel: "Keresés", autoDismiss: true)
-        }
-        .padding()
+        .navigationTitle("Új cél")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

@@ -69,9 +69,8 @@ struct CoordinatorView: View {
             AddTransactionView(vm: vm)
             
         case .allTransactions:
-            let vm = AllTransactionsViewModel(container: container)
-            AllTransactionsView(vm: vm)
-                .environment(\.managedObjectContext, vm.container.context)
+            AllTransactionsView()
+                .environment(\.managedObjectContext, container.context)
             
         case .transactionStatistics:
             let vm = TransactionStatisticsViewModel(container: container)

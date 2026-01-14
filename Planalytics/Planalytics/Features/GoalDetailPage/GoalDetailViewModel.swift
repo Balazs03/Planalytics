@@ -21,35 +21,48 @@ class GoalDetailViewModel {
     }
     /*
     func addGoals() {
-        let goal1Transaction = Transaction(context: container.context)
-        goal1Transaction.amount = 1000.0
-        goal1Transaction.name = "Teszt tranzakció első célhoz"
-        var calendar1 = DateComponents()
-        calendar1.year = 2025
-        calendar1.month = 12
-        calendar1.day = 31
-        goal1Transaction.date = Calendar.current.date(from: calendar1)!
-        goal1Transaction.transactionType = .expense
-        goal1Transaction.transactionCategory = .saving
-        goal.addToTransactions(goal1Transaction)
-        goal.saving = ((goal.saving ?? 0) as Decimal) + (goal1Transaction.amount as Decimal) as NSDecimalNumber
-        
-        let goal2Transaction = Transaction(context: container.context)
-        goal2Transaction.amount = 1000.0
-        goal2Transaction.name = "Teszt tranzakció első célhoz"
-        var calendar2 = DateComponents()
-        calendar2.year = 2026
-        calendar2.month = 01
-        calendar2.day = 04
-        goal2Transaction.date = Calendar.current.date(from: calendar1)!
-        goal2Transaction.transactionType = .expense
-        goal2Transaction.transactionCategory = .saving
-        goal.addToTransactions(goal2Transaction)
-        goal.saving = ((goal.saving ?? 0) as Decimal) + (goal2Transaction.amount as Decimal) as NSDecimalNumber
+        let transactionsData: [(amount: Double, type: TransactionType, day: Int, month: Int, year: Int, name: String)] = [
+            (5000.0, .expense, 5, 11, 2025, "Szerviz költség"),
+            (2500.0, .expense, 12, 12, 2025, "Extra kiadás"),
+            (1000.0, .income, 20, 1, 2026, "Havi megtakarítás"),
+            (10000.0, .expense, 1, 2, 2026, "Februári számlák"),
+            (3000.0, .expense, 15, 2, 2026, "Ajándék vásárlás"),
+            (15000.0, .expense, 2, 3, 2026, "Márciusi számlák"),
+            (5000.0, .income, 25, 3, 2026, "Névnapi ajándék"),
+            (8000.0, .expense, 5, 4, 2026, "Áprilisi részlet"),
+            (12000.0, .expense, 1, 5, 2026, "Váratlan kiadás"),
+            (20000.0, .income, 15, 6, 2026, "Féléves bónusz")
+        ]
+
+        for (_, data) in transactionsData.enumerated() {
+            let transaction = Transaction(context: container.context)
+            transaction.amount = NSDecimalNumber(value: data.amount)
+            transaction.name = data.name
+            transaction.transactionType = data.type
+            if data.type == .expense {
+                transaction.transactionCategory = .saving
+            }
+            
+            var components = DateComponents()
+            components.year = data.year
+            components.month = data.month
+            components.day = data.day
+            transaction.date = Calendar.current.date(from: components)!
+            
+            self.goal.addToTransactions(transaction)
+            
+            // Egyenleg frissítése a típus alapján
+            let currentSaving = (self.goal.saving ?? 0) as Decimal
+            if data.type == .expense {
+                self.goal.saving = (currentSaving + Decimal(data.amount)) as NSDecimalNumber
+            } else {
+                self.goal.saving = (currentSaving - Decimal(data.amount)) as NSDecimalNumber
+            }
+        }
         
         container.saveContext()
     }
-    */
+     */
     
     func refreshData() {
         container.context.refresh(goal, mergeChanges: true)

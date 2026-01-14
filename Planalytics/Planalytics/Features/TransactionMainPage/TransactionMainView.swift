@@ -51,22 +51,7 @@ struct TransactionMainView: View {
                 } else {
                     List {
                         ForEach(vm.transactions.reversed().prefix(3)) { transaction in
-                            HStack {
-                                VStack(alignment: .leading){
-                                    
-                                    Text(transaction.name ?? "Névtelen")
-                                    Text(transaction.date, style: .date)
-                                }
-                                Spacer()
-                                
-                                switch (transaction.transactionType) {
-                                case .income:
-                                    Text("+\(transaction.amount) Ft")
-                                        .foregroundStyle(.green)
-                                case .expense:
-                                    Text("-\(transaction.amount) Ft")                                    .foregroundStyle(.red)
-                                }
-                            }
+                            TransactionRowView(transaction: transaction)
                         }
                         .foregroundStyle(Color.appText)
 

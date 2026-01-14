@@ -11,7 +11,7 @@ internal import CoreData
 @Observable
 class AddGoalPageViewModel {
     var name: String = ""
-    var amount: Decimal = 0.0
+    var amount: Decimal?
     var plannedCompletionDate = Date()
     var desc: String?
     var iconNameWrapper: String = "pointer.arrow.click.2"
@@ -22,9 +22,10 @@ class AddGoalPageViewModel {
     }
     
     func addGoal() {
+        guard let amount else { return }
         let newGoal = Goal(context: container.context)
         newGoal.name = self.name
-        newGoal.amount = self.amount as NSDecimalNumber
+        newGoal.amount = amount as NSDecimalNumber
         newGoal.plannedCompletionDate = self.plannedCompletionDate
         newGoal.creationDate = Date()
         if let desc = desc {

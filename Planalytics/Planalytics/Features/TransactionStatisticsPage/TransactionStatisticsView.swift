@@ -27,9 +27,9 @@ struct TransactionStatisticsView: View {
                 }
                 
                 Divider()
-                InfoRowView(label: "Kiadások", value: "\(vm.totalExpenses.formatted()) Ft")
+                InfoRowView(label: "Kiadások", value: "\(vm.totalExpenses.formatted(.number.precision(.fractionLength(2)))) Ft")
                 
-                InfoRowView(label: "Bevételek", value: "\(vm.totalIncomes.formatted()) Ft")
+                InfoRowView(label: "Bevételek", value: "\(vm.totalIncomes.formatted(.number.precision(.fractionLength(2)))) Ft")
             }
             .padding()
             .background(Color.appSlate.brightness(0.4))

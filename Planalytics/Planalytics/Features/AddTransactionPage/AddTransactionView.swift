@@ -25,61 +25,84 @@ struct AddTransactionView: View {
     }
     
     var body: some View {
-        Form {
-            Section("Típus"){
-                Picker(selection: $vm.transactionType, label: Text("Válaszd ki a típust")) {
-                    ForEach(TransactionType.allCases, id: \.self) { type in
-                        Text(type.title)
+        ZStack {
+            LinearGradient(gradient: Gradient(colors: [Color.appBackground, Color.appAccent]), startPoint: .bottom, endPoint: .top)
+                .ignoresSafeArea()
+            VStack {
+                Form {
+                    Section("Típus"){
+                        Picker(selection: $vm.transactionType, label: Text("Válaszd ki a típust")) {
+                            ForEach(TransactionType.allCases, id: \.self) { type in
+                                Text(type.title)
+                            }
+                        }
+                        .pickerStyle(.segmented)
                     }
-                }
-                .pickerStyle(.segmented)
-            }
-            
-            Section("Összeg") {
-                HStack{
-                    TextField("0.0", value: $vm.amount, format: .number)
-                        .font(.system(size: 28))
-                        .multilineTextAlignment(.center)
-                    Text("Ft")
-                        .opacity(vm.amount == 0 ? 0.3 : 1)
-                        .font(.system(size: 28))
-                }
-            }
-            
-            Section("Név") {
-                TextField(vm.transactionType == .income ? "Bevétel neve" : "Kiadás neve", text: Binding(
-                        get: { vm.name ?? "" }, // Ha nil, akkor üres stringet mutat
-                        set: { vm.name = $0.isEmpty ? nil : $0 } // Ha üresre törli, akkor nil legyen (vagy maradhat simán $0 is)
-                    )
-                )
-            }
-            
-            if vm.transactionType == .expense {
-                Section("Kategória") {
-                    Picker(selection: $vm.transactionCategory, label: Text("Válaszd ki a kategóriát")) {
-                        ForEach(TransactionCategory.allCases) { category in
-                            Label {
-                                    // A szöveg (title) rész - itt feketén hagyjuk vagy kényszerítjük
-                                    Text(category.title)
-                                        .foregroundStyle(.black)
-                                } icon: {
-                                    // Az ikon rész - itt alkalmazzuk a kategória színét
-                                    Image(systemName: category.iconName)
-                                        .foregroundStyle(category.diagramColor)
-                                }
-                                .tag(category as TransactionCategory?)
+                    
+                    Section("Összeg") {
+                        HStack{
+                            TextField("0.0", value: $vm.amount, format: .number)
+                                .font(.title)
+                                .multilineTextAlignment(.center)
+                            Text("Ft")
+                                .opacity(vm.amount != nil ? 1 : 0.3)
+                                .font(.title)
                         }
                     }
-                    .pickerStyle(.inline)
+                    
+                    Section("Név") {
+                        TextField(vm.transactionType == .income ? "Bevétel neve" : "Kiadás neve", text: Binding(
+                                get: { vm.name ?? "" }, // Ha nil, akkor üres stringet mutat
+                                set: { vm.name = $0.isEmpty ? nil : $0 } // Ha üresre törli, akkor nil legyen (vagy maradhat simán $0 is)
+                            )
+                        )
+                    }
+                    
+                    if vm.transactionType == .expense {
+                        Section("Kategória") {
+                            Picker(selection: $vm.transactionCategory, label: Text("Válaszd ki a kategóriát")) {
+                                ForEach(TransactionCategory.allCases) { category in
+                                    Label {
+                                            // A szöveg (title) rész - itt feketén hagyjuk vagy kényszerítjük
+                                            Text(category.title)
+                                                .foregroundStyle(.black)
+                                        } icon: {
+                                            // Az ikon rész - itt alkalmazzuk a kategória színét
+                                            Image(systemName: category.iconName)
+                                                .foregroundStyle(category.diagramColor)
+                                        }
+                                        .tag(category as TransactionCategory?)
+                                }
+                            }
+                            .pickerStyle(.inline)
+                        }
+                    }
                 }
+                .scrollContentBackground(.hidden)
+                .tint(.appSlate)
+                .fontDesign(.rounded)
+                
+                Button {
+                    vm.saveTransaction()
+                    coordinator.mainPop()
+                } label: {
+                    Text("Mentés")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity) // Teljes szélesség
+                        .padding()
+                        // Ha le van tiltva, szürke, ha aktív, akkor az appAccent szín
+                        .background(disableForm ? Color.appSlate.opacity(0.5) : Color.appSlate)
+                        .cornerRadius(16)
+                        .shadow(color: disableForm ? .clear : Color.appAccent.opacity(0.4), radius: 8, y: 4)
+                }
+                .padding()
+                .disabled(disableForm)
             }
-            
-            Button("Mentés") {
-                vm.saveTransaction()
-                coordinator.mainPop()
-            }
-            .disabled(disableForm)
         }
+        .navigationTitle("Új tranzakció")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

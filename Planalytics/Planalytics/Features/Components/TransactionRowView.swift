@@ -9,27 +9,35 @@ import SwiftUI
 
 struct TransactionRowView: View {
     @ObservedObject var transaction: Transaction // Kulcsfontosságú a frissítéshez!
+    var isFistDayOfMonth: Bool {
+        Calendar.current.component(.day, from: transaction.date) == 1
+    }
+    
+    var isFirstMonthofYear: Bool {
+        Calendar.current.component(.month, from: transaction.date) == 1
+    }
 
     var body: some View {
         HStack {
-            // Ikon a kategória alapján (opcionális logika)
-            Image(systemName: "circle.fill") 
-                .font(.caption)
-                .foregroundColor(transaction.transactionType == .income ? .green : .red)
-            
-            VStack(alignment: .leading) {
-                Text(transaction.name ?? "Névtelen")
-                    .font(.headline)
-                Text(transaction.date.formatted(date: .omitted, time: .shortened))
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            
+            Text(transaction.name ?? "Névtelen")
             Spacer()
-            
-            Text("\(transaction.amount) Ft")
-                .bold()
-                .foregroundColor(transaction.transactionType == .income ? .green : .primary)
+            if transaction.transactionType == .income {
+                Text("+\(transaction.amount.doubleValue.formatted()) Ft")
+                    .foregroundStyle(.green)
+            } else {
+                if let category = transaction.transactionCategory {
+                    Image(systemName: transaction.transactionCategory?.iconName ?? "")
+                        .foregroundStyle(category.diagramColor)
+                    
+                    Text(category.title)
+                }
+                      
+                Text("-\(transaction.amount.doubleValue.formatted()) Ft")
+                    .foregroundStyle(.red)
+            }
         }
+        .fontDesign(.rounded)
+        .foregroundStyle(Color.appText)
+        .background(Color.appBackground)
     }
 }
