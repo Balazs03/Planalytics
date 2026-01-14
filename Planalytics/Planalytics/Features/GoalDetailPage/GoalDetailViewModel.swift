@@ -19,6 +19,9 @@ class GoalDetailViewModel {
         self.goal = goal
         refreshData()
     }
+    
+    // Becslés funkció tesztelésére
+    // Amikor egy úr célt megnyit valaki, hozzáad különböző dátumokkal tranzakciókat, amik alapján utána történhet a becslés
     /*
     func addGoals() {
         let transactionsData: [(amount: Double, type: TransactionType, day: Int, month: Int, year: Int, name: String)] = [

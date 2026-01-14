@@ -96,17 +96,13 @@ class GoalStatisticsSheetViewModel {
     }
     
     func calcualtePredictions() {
-        guard let dailyTransactions,
-              let monthlyTransactions,
-              let yearlyTransactions,
-              let lastDayEntry = dailyTransactions.last,
-              let lastMonthEntry = monthlyTransactions.last,
-              let lastYearEntry = yearlyTransactions.last,
-              distinctDates > 7 else { return }
+        guard distinctDates > 7 else { return }
         
         
         switch selectedFilter {
         case .yearly:
+            guard let yearlyTransactions, let lastYearEntry = yearlyTransactions.last else { return }
+            
             model = LSMmodel(transactions: yearlyTransactions)
                         
             let endDate = model.predict(forX: self.goal.amount as Decimal)
@@ -118,6 +114,8 @@ class GoalStatisticsSheetViewModel {
                 transHolder(id: UUID(), total: goal.amount as Decimal, date: endDate)
             ]
         case .monthly:
+            guard let monthlyTransactions, let lastMonthEntry = monthlyTransactions.last else { return }
+            
             model = LSMmodel(transactions: monthlyTransactions)
                         
             let endDate = model.predict(forX: self.goal.amount as Decimal)
@@ -129,6 +127,8 @@ class GoalStatisticsSheetViewModel {
                 transHolder(id: UUID(), total: goal.amount as Decimal, date: endDate)
             ]
         case .daily:
+            guard let dailyTransactions, let lastDayEntry = dailyTransactions.last else { return }
+            
             model = LSMmodel(transactions: dailyTransactions)
 
             let endDate = model.predict(forX: self.goal.amount as Decimal)

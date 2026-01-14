@@ -127,7 +127,7 @@ struct GoalStatisticsSheet: View {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 15) {
                         
                         if let monthlySaving = vm.monthlySavingplan  {
-                            StaticCardView(text: "Szükséges havi összeg a célért", value: "\(monthlySaving.formatted()) Ft")
+                            StaticCardView(text: "Szükséges havi összeg a célért", value: "\(monthlySaving.formatted(.number.precision(.fractionLength(2)))) Ft")
                         }
                         
                         if let maxTransactionAmount = vm.maxTransactionAmount {
