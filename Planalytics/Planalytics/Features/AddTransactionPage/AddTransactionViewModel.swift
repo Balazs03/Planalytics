@@ -1,0 +1,44 @@
+//
+//  AddTransactionViewModel.swift
+//  Planalytics
+//
+//  Created by Szabó Balázs on 2025. 11. 29..
+//
+
+import Foundation
+internal import CoreData
+
+@Observable
+class AddTransactionViewModel {
+    let container: CoreDataManager
+    var name : String?
+    var amount: Decimal?
+    var transactionType: TransactionType = .income
+    var transactionCategory: TransactionCategory?
+    let transBalance: Decimal
+    
+    init(container: CoreDataManager) {
+        self.container = container
+        _ = container.fetchTransactions(year: nil, month: nil)
+        self.transBalance = container.calculateTotalBalance()[1]
+    }
+    
+    func saveTransaction() {
+        guard let name, let amount else { return }
+        let transaction = Transaction(context: container.context)
+        if transactionType == .income && name.isEmpty {
+            transaction.name = "Névtelen bevétel"
+        } else {
+            transaction.name = name
+        }
+        transaction.amount = amount as NSDecimalNumber
+        transaction.transactionType = transactionType
+        transaction.date = Date()
+        
+        if transactionType == .expense {
+            transaction.transactionCategory = transactionCategory
+        }
+        
+        container.saveContext()
+    }
+}
