@@ -16,7 +16,7 @@ struct AddTransactionView: View {
         if vm.transactionType == .income {
             return amount == 0
         } else {
-            return amount == 0 || name.isEmpty || vm.transactionCategory == nil
+            return amount == 0 || name.isEmpty || vm.transactionCategory == nil || amount > vm.transBalance
         }
     }
     
@@ -47,6 +47,15 @@ struct AddTransactionView: View {
                             Text("Ft")
                                 .opacity(vm.amount != nil ? 1 : 0.3)
                                 .font(.title)
+                        }
+                        
+                        if let amount = vm.amount, amount > vm.transBalance, vm.transactionType == .expense {
+                            Label{
+                                Text("Az adott összeg meghaladja a jelenlegi egyenleget")
+                            }icon: {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                            }
+                            .foregroundStyle(.red)
                         }
                     }
                     

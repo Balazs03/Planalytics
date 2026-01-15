@@ -23,15 +23,17 @@ struct StaticCardView: View {
                 }
             }
             Text(text)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.appText.mix(with: .black, by: 0.2))
             
             Text(value)
+                .font(.title2)
                 .fontWeight(.bold)
                 .minimumScaleFactor(0.8)
                 .lineLimit(1)
         }
         .padding()
-        .background(Color.appBackground.grayscale(0.05))
+        .frame(width: .infinity, height: 140)
+        .background(Color.appBackground.mix(with: .blue, by: 0.05))
         .clipShape(RoundedRectangle(cornerRadius: 15))
         
     }

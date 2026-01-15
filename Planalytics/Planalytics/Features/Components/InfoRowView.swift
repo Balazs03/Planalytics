@@ -13,7 +13,7 @@ struct InfoRowView: View {
     var body: some View {
         HStack {
             Text(label)
-                .foregroundStyle(Color.appText)
+                .foregroundStyle(Color.appText.mix(with: .black, by: 0.2))
             Spacer()
             Text(value)
                 .fontWeight(.semibold)

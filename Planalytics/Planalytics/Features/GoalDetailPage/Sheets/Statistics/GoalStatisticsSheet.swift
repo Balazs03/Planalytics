@@ -55,23 +55,24 @@ struct GoalStatisticsSheet: View {
                             if let lastDate = dailyTransactions.last?.date {
                                 InfoRowView(label: "Utolsó megtakarítás", value: lastDate.formatted(date: .numeric, time: .omitted)
                                 )
+                                Divider()
                             }
                             
                             if let saving = vm.goal.saving, saving.doubleValue < vm.goal.amount.doubleValue {
-                                if let lower = vm.predictionBoundaries.last,
-                                   let upper = vm.predictionBoundaries.first  {
+                                if let lower = vm.predictionBoundaries.min(),
+                                   let upper = vm.predictionBoundaries.max()  {
                                     HStack {
                                         Text("Becsült befejezés")
-                                            .foregroundStyle(.secondary)
+                                            .foregroundStyle(Color.appText.mix(with: .black, by: 0.2))
                                         Spacer()
                                         Text("\(lower.formatted(date: .numeric, time: .omitted)) - \(upper.formatted(date: .numeric, time: .omitted))")
                                             .fontWeight(.semibold)
                                             .multilineTextAlignment(.trailing)
                                     }
-                                    
+                                                                        
                                     if vm.goal.plannedCompletionDate > upper {
                                         Label {
-                                            Text("Az eddigi megtakarítsi trend alapján a cél a tervezett dátum után fog teljesülni")
+                                            Text("Az eddigi megtakarítási trend alapján a cél a tervezett dátum után fog teljesülni")
                                         } icon: {
                                             Image(systemName: "exclamationmark.circle")
                                                 .foregroundStyle(.yellow)
@@ -90,7 +91,7 @@ struct GoalStatisticsSheet: View {
                                     else {
                                         Label {
                                             Text("Az eddigi megtakarítási trendet követve a cél a tervezett dátum előtt teljesülhet")
-                                                .foregroundStyle(.secondary)
+                                                .foregroundStyle(Color.appText.mix(with: .black, by: 0.2))
                                         } icon: {
                                             Image(systemName: "checkmark.seal.fill")
                                                 .foregroundStyle(.blue)
@@ -108,7 +109,7 @@ struct GoalStatisticsSheet: View {
                             }
                         }
                         .padding()
-                        .background(Color.appBackground.grayscale(0.05))
+                        .background(Color.appBackground.mix(with: .blue, by: 0.05))
                         .clipShape(RoundedRectangle(cornerRadius: 15))
                         .padding()
                     }
@@ -130,11 +131,12 @@ struct GoalStatisticsSheet: View {
                             StaticCardView(text: "Szükséges havi összeg a célért", value: "\(monthlySaving.formatted(.number.precision(.fractionLength(2)))) Ft")
                         }
                         
-                        if let maxTransactionAmount = vm.maxTransactionAmount {
-                            StaticCardView(text: "Legnagyobb megtakarítás", value: "\(maxTransactionAmount.formatted()) Ft")
-                        }
-                        
                         StaticCardView(text: "Hátravévő napok", value: "\(vm.daysUntilCompletion)")
+
+                        if let maxTransactionAmount = vm.maxTransactionAmount {
+                            StaticCardView(text: "Eddig fetöltött legnagyobb összeg", value: "\(maxTransactionAmount.formatted()) Ft")
+
+                        }
                     }
                     .padding(.horizontal)
                 }

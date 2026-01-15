@@ -63,7 +63,7 @@ struct GoalDetailView: View {
                             
                         }
                         
-                        InfoRowView(label: "Eddig félretett pénz" , value: "\((vm.goal.saving as Decimal? ?? 0.00).formatted())")
+                        InfoRowView(label: "Eddig félretett pénz" , value: "\((vm.goal.saving as Decimal? ?? 0.00).formatted()) Ft")
                         
                         InfoRowView(label: "Tervezett befejezési dátum",
                                     value: "\(vm.goal.plannedCompletionDate.formatted(date: .numeric, time: .omitted))")

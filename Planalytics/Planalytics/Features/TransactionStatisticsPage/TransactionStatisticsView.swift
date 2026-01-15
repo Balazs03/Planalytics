@@ -20,28 +20,40 @@ struct TransactionStatisticsView: View {
             VStack(alignment: .leading,spacing: 25) {
                 YearMonthPickerView(selectedDate: $vm.selectedDate)
                 
-                if !vm.transactions.isEmpty {
+                if !vm.expenses.isEmpty {
                     TransactionsChart(groupedTransactions: vm.groupedTransactions, totalExpenses: vm.totalExpenses)
                 } else {
-                    Text("Az adott időszakban még nincsenek tranzakciók")
+                    Text("Az adott időszakban nem történtek kiadások")
                 }
                 
                 Divider()
                 InfoRowView(label: "Kiadások", value: "\(vm.totalExpenses.formatted(.number.precision(.fractionLength(2)))) Ft")
-                
-                InfoRowView(label: "Bevételek", value: "\(vm.totalIncomes.formatted(.number.precision(.fractionLength(2)))) Ft")
             }
             .padding()
-            .background(Color.appSlate.brightness(0.4))
+            .background(Color.appBackground.mix(with: .blue, by: 0.05))
             .clipShape(RoundedRectangle(cornerRadius: 15))
             .padding()
             
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())]) {
                 VStack(alignment: .leading, spacing: 10) {
+                    Text("Bevételek")
+                        .foregroundStyle(Color.appText)
+                    Text("\(vm.totalIncomes.formatted(.number.precision(.fractionLength(2)))) Ft")
+                        .fontWeight(.semibold)
+                        .font(.title2)
+                }
+                .padding()
+                .frame(width: .infinity, height: 150, alignment: .top)
+                .background(Color.appBackground.mix(with: .blue, by: 0.05))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .padding(.horizontal)
+                
+                VStack(alignment: .leading, spacing: 10) {
                     Text("Nettó pénzforgalom")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.appText)
                     Text("\((vm.totalIncomes - vm.totalExpenses).formatted()) Ft")
                         .fontWeight(.semibold)
+                        .font(.title2)
                     if vm.balance {
                         Label {
                             Text("Pozitív")
@@ -59,7 +71,8 @@ struct TransactionStatisticsView: View {
                     }
                 }
                 .padding()
-                .background(Color.appSlate.brightness(0.4))
+                .frame(width: .infinity, height: 150)
+                .background(Color.appBackground.mix(with: .blue, by: 0.05))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .padding(.horizontal)
             }

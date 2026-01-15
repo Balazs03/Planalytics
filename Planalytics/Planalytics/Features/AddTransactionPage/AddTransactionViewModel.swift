@@ -15,9 +15,12 @@ class AddTransactionViewModel {
     var amount: Decimal?
     var transactionType: TransactionType = .income
     var transactionCategory: TransactionCategory?
+    let transBalance: Decimal
     
     init(container: CoreDataManager) {
         self.container = container
+        _ = container.fetchTransactions(year: nil, month: nil)
+        self.transBalance = container.calculateTotalBalance()[1]
     }
     
     func saveTransaction() {
