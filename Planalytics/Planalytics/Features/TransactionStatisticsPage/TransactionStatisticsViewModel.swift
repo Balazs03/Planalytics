@@ -31,6 +31,7 @@ class TransactionStatisticsViewModel {
     }
     
     var totalExpenses: Decimal {
+        
         expenses.reduce(0) { $0 + $1.amount.decimalValue }
     }
     
@@ -46,8 +47,8 @@ class TransactionStatisticsViewModel {
         self.container = container
         let fetchedTransactions = container.fetchTransactions(year: nil, month: nil)
         transactions = fetchedTransactions
-        incomes = fetchedTransactions.filter { $0.transactionType == .income }
-        expenses = fetchedTransactions.filter { $0.transactionType == .expense }
+        incomes = fetchedTransactions.filter { $0.transactionType == .income && $0.isRecurrent == false }
+        expenses = fetchedTransactions.filter { $0.transactionType == .expense && $0.isRecurrent == false }
     }
     
     func refreshData() {
@@ -55,7 +56,7 @@ class TransactionStatisticsViewModel {
         let yearSelector = dateComponents.year
         let monthSelector = dateComponents.month
         self.transactions = container.fetchTransactions(year: yearSelector, month: monthSelector)
-        incomes = transactions.filter { $0.transactionType == .income }
-        expenses = transactions.filter { $0.transactionType == .expense }
+        incomes = transactions.filter { $0.transactionType == .income && $0.isRecurrent == false }
+        expenses = transactions.filter { $0.transactionType == .expense && $0.isRecurrent == false }
     }
 }

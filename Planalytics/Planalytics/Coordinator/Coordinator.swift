@@ -15,7 +15,7 @@ enum Page: Hashable {
     case main
     case addGoal
     case addTransaction
-    case allTransactions
+    case allTransactions(showRecurrentOnly: Bool)
     case transactionStatistics
 }
 

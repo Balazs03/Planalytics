@@ -58,7 +58,27 @@ struct TransactionMainView: View {
                         HStack {
                             Spacer()
                             Button("Összes") {
-                                coordinator.mainPush(.allTransactions)
+                                coordinator.mainPush(.allTransactions(showRecurrentOnly: false))
+                            }
+                            .buttonStyle(.borderless)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.black)
+                            Spacer()
+                        }
+                    }
+                    .scrollContentBackground(.hidden)
+                }
+                
+                if !vm.recurrentTransactions.isEmpty {
+                    List {
+                        ForEach(vm.recurrentTransactions.reversed().prefix(3)) { recurrentTransaction in
+                            TransactionRowView(transaction: recurrentTransaction)
+                        }
+                        
+                        HStack {
+                            Spacer()
+                            Button("Összes") {
+                                coordinator.mainPush(.allTransactions(showRecurrentOnly: true))
                             }
                             .buttonStyle(.borderless)
                             .fontWeight(.semibold)

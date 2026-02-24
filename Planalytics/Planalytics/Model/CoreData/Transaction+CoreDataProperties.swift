@@ -28,7 +28,7 @@ enum TransactionType: Int16, CaseIterable{
     }
 }
 
-enum TransactionCategory: Int16, CaseIterable, Hashable, Identifiable{
+enum TransactionCategory: Int16, CaseIterable, Identifiable{
     var id: Int16 {
         self.rawValue
     }
@@ -99,6 +99,27 @@ enum TransactionCategory: Int16, CaseIterable, Hashable, Identifiable{
     }
 }
 
+enum RecurrenceFrequency: String, Identifiable, CaseIterable {
+    var id: String {
+        self.rawValue
+    }
+    
+    case daily = "Napi"
+    case weekly = "Heti"
+    case monthly = "Havi"
+    
+    var value: Calendar.Component {
+        switch self {
+        case .daily:
+            return .day
+        case .weekly:
+            return Calendar.Component.weekOfYear
+        case .monthly:
+            return .month
+        }
+    }
+}
+
 extension Transaction: Identifiable {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Transaction> {
@@ -119,6 +140,9 @@ extension Transaction: Identifiable {
     @NSManaged public var type: Int16
     @NSManaged public var category: Int16
     @NSManaged public var goal: Goal?
+    @NSManaged public var isRecurrent: Bool
+    @NSManaged public var recurrenceFrequency: String?
+    @NSManaged public var recurrenceStartDate: Date?
     
     var transactionType: TransactionType {
         get {
@@ -145,5 +169,18 @@ extension Transaction: Identifiable {
     
     var categoryWrapper: TransactionCategory {
         return TransactionCategory(rawValue: self.category) ?? .other
+    }
+    
+    var recurrenceWrapper: RecurrenceFrequency? {
+        get {
+            if let recFreq = self.recurrenceFrequency {
+                return RecurrenceFrequency(rawValue: recFreq)
+            }
+            return nil
+        }
+        
+        set {
+            self.recurrenceFrequency = newValue?.rawValue
+        }
     }
 }

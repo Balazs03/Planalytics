@@ -43,8 +43,8 @@ struct TransactionStatisticsView: View {
                         .font(.title2)
                 }
                 .padding()
-                .frame(width: .infinity, height: 150, alignment: .top)
-                .background(Color.appBackground.mix(with: .blue, by: 0.05))
+                .frame(height: 150, alignment: .top)
+                .background(Color.appBackground.mix(with:.blue,by:0.05))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .padding(.horizontal)
                 
@@ -71,7 +71,7 @@ struct TransactionStatisticsView: View {
                     }
                 }
                 .padding()
-                .frame(width: .infinity, height: 150)
+                .frame(height: 150)
                 .background(Color.appBackground.mix(with: .blue, by: 0.05))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .padding(.horizontal)

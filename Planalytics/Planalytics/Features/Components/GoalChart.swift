@@ -68,38 +68,15 @@ struct GoalChart: View {
                 .opacity(selectedDate == nil || selectedTransHolder?.date == transaction.date ? 1 : 0.3)
 
             }
-            
-            if let saving = vm.goal.saving, saving.doubleValue < vm.goal.amount.doubleValue, vm.distinctDates > 7 {
-                ForEach(vm.predictedDates) { pred in
-                    LineMark(
-                        x: .value("Dátum", pred.date) ,
-                        y: .value("Összeg", pred.total)
-                    )
-                    .foregroundStyle(by: .value("Típus", "Becsült"))
-                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [5,5]))
-                    
-                    if pred.total == vm.goal.amount as Decimal {
-                        PointMark(
-                            x: .value("Dátum", pred.date),
-                            y: .value("Összeg", pred.total)
-                        )
-                        .foregroundStyle(by: .value("Típus", "Tényleges"))
-                    }
-                }
-            }
         }
-        .chartForegroundStyleScale(
-            vm.distinctDates > 7 ? ["Tényleges": Color.appSlate, "Becsült": Color.appAccent] :
-                ["Tényleges": Color.appSlate]
-        )
-        .chartScrollableAxes(.horizontal)
+        .chartScrollableAxes(vm.selectedFilter == .daily ? []: .horizontal)
         .chartXVisibleDomain(length: vm.selectedFilter.axisLength)
         .chartXSelection(value: $selectedDate)
         .chartYScale(domain: 0...max(((vm.goal.amount).decimalValue * 1.2), ((vm.goal.saving)?.decimalValue ?? 1) * 1.2, (vm.maxGoalSaving)))
         .chartXAxis {
-            AxisMarks(values: .stride(by: vm.selectedFilter.date)) { value in
+            AxisMarks(values: .stride(by: vm.selectedFilter.date, count: vm.selectedFilter.count)) { value in
                 if let date = value.as(Date.self) {
-                    let components = Calendar.current.dateComponents([.day, .month, .year, .hour], from: date)
+                    let components = Calendar.current.dateComponents([.day, .month, .year], from: date)
                     AxisValueLabel {
                         VStack(alignment: .leading) {
                             if value.index == 0 {
@@ -111,12 +88,6 @@ struct GoalChart: View {
                                 case .daily:
                                     Text(date, format: .dateTime.day())
                                     
-                                    if components.day == 1 && (value.index > 1 || value.index > 4) {
-                                        Text(date, format: .dateTime.month())
-                                        if components.month == 1 {
-                                            Text(date, format: .dateTime.year())
-                                        }
-                                    }
                                 case .monthly:
                                     Text(date, format: .dateTime.month())
                                     

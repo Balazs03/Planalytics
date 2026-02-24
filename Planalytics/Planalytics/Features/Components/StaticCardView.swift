@@ -32,7 +32,7 @@ struct StaticCardView: View {
                 .lineLimit(1)
         }
         .padding()
-        .frame(width: .infinity, height: 140)
+        .frame(height: 140)
         .background(Color.appBackground.mix(with: .blue, by: 0.05))
         .clipShape(RoundedRectangle(cornerRadius: 15))
         

@@ -8,18 +8,15 @@
 import SwiftUI
 
 struct TransactionRowView: View {
-    @ObservedObject var transaction: Transaction // Kulcsfontosságú a frissítéshez!
-    var isFistDayOfMonth: Bool {
-        Calendar.current.component(.day, from: transaction.date) == 1
-    }
-    
-    var isFirstMonthofYear: Bool {
-        Calendar.current.component(.month, from: transaction.date) == 1
-    }
+    @ObservedObject var transaction: Transaction
 
     var body: some View {
         HStack {
             Text(transaction.name ?? "Névtelen")
+            if transaction.isRecurrent {
+                Image(systemName: "repeat.circle.fill")
+            }
+            
             Spacer()
             if transaction.transactionType == .income {
                 Text("+\(transaction.amount.doubleValue.formatted()) Ft")
@@ -38,6 +35,5 @@ struct TransactionRowView: View {
         }
         .fontDesign(.rounded)
         .foregroundStyle(Color.appText)
-        .background(Color.appBackground)
     }
 }

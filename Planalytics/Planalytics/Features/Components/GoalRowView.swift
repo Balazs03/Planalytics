@@ -8,7 +8,6 @@
 import SwiftUI
 internal import CoreData
 
-
 struct GoalRowView: View {
     @ObservedObject var goal: Goal
 
@@ -74,7 +73,6 @@ struct GoalRowView: View {
                 }
             }
             .padding()
-
         }
     }
 }

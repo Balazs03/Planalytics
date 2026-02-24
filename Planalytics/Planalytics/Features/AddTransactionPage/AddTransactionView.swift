@@ -11,6 +11,7 @@ struct AddTransactionView: View {
     @Environment(Coordinator.self) private var coordinator
     @State private var vm : AddTransactionViewModel
     @State private var isAmountOnFocus: Bool = false
+    
     var disableForm: Bool {
         guard let amount = vm.amount, let name = vm.name else { return true }
         if vm.transactionType == .income {
@@ -65,6 +66,34 @@ struct AddTransactionView: View {
                                 set: { vm.name = $0.isEmpty ? nil : $0 } // Ha üresre törli, akkor nil legyen (vagy maradhat simán $0 is)
                             )
                         )
+                    }
+                    
+                    Section("Ismétlés") {
+                        
+                        VStack {
+                            Toggle("Ismétlődő fizetés beállítása", isOn: $vm.isRecurrent)
+                            
+                            if vm.isRecurrent {
+                                VStack {
+                                    Picker("Gyakoriság", selection: $vm.recurrencyFrequency) {
+                                        ForEach(RecurrenceFrequency.allCases, id: \.id) { frequency in
+                                            Text(frequency.rawValue)
+                                        }
+                                    }
+                                    DatePicker("Kezdő dátum", selection: Binding<Date>(
+                                        get: {
+                                            vm.startDate ?? Date()
+                                        }, set: {
+                                            vm.startDate = $0
+                                        }
+                                    ),
+                                    in: Date()...,
+                                    displayedComponents: [.date]
+                                    )
+                                }
+                            }
+
+                        }
                     }
                     
                     if vm.transactionType == .expense {

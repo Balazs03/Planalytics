@@ -20,15 +20,29 @@ struct GoalStatisticsSheet: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    
-                    if let dailyTransactions = vm.dailyTransactions, let monthlyTransactions = vm.monthlyTransactions, let yearlyTransactions = vm.yearlyTransactions {
+
+                    if let dailyTransactions = vm.dailyTransactions, let filteredTransactions = vm.filteredTransactions, let monthlyTransactions = vm.monthlyTransactions, let yearlyTransactions = vm.yearlyTransactions, let datesDict = vm.datesDictionary {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Megtakarítási trend")
                                 .font(.headline)
                             
                             switch vm.selectedFilter {
                             case .daily:
-                                GoalChart(transactions: dailyTransactions, vm: vm)
+                                HStack {
+                                    Picker("Szűrés év", selection: $vm.selectedYear) {
+                                        ForEach(Array(datesDict.keys).sorted(by: >), id:\.self) { year in
+                                            Text("\(year)")
+                                        }
+                                    }
+                                    
+                                    Picker("Hónap szűrés", selection: $vm.selectedMonth) {
+                                        ForEach(Array(datesDict[vm.selectedYear]!).sorted(by: <), id:\.self) { month in
+                                            Text("\(month)")
+                                        }
+                                    }
+
+                                }
+                                GoalChart(transactions: filteredTransactions, vm: vm)
                                     .frame(minHeight: 200)
                             case .monthly:
                                 GoalChart(transactions: monthlyTransactions, vm: vm)
@@ -58,9 +72,9 @@ struct GoalStatisticsSheet: View {
                                 Divider()
                             }
                             
-                            if let saving = vm.goal.saving, saving.doubleValue < vm.goal.amount.doubleValue {
-                                if let lower = vm.predictionBoundaries.min(),
-                                   let upper = vm.predictionBoundaries.max()  {
+                            if let saving = vm.goal.saving, saving.doubleValue < vm.goal.amount.doubleValue, let predictions = vm.predictionBoundaries {
+                                if let lower = predictions.min(),
+                                   let upper = predictions.max()  {
                                     HStack {
                                         Text("Becsült befejezés")
                                             .foregroundStyle(Color.appText.mix(with: .black, by: 0.2))
@@ -131,7 +145,7 @@ struct GoalStatisticsSheet: View {
                             StaticCardView(text: "Szükséges havi összeg a célért", value: "\(monthlySaving.formatted(.number.precision(.fractionLength(2)))) Ft")
                         }
                         
-                        StaticCardView(text: "Hátravévő napok", value: "\(vm.daysUntilCompletion)")
+                        StaticCardView(text: "Hátravévő napok", value: "\(vm.daysUntilCompletion > 0 ? vm.daysUntilCompletion: 0 )")
 
                         if let maxTransactionAmount = vm.maxTransactionAmount {
                             StaticCardView(text: "Eddig fetöltött legnagyobb összeg", value: "\(maxTransactionAmount.formatted()) Ft")

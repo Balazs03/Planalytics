@@ -68,8 +68,8 @@ struct CoordinatorView: View {
             let vm = AddTransactionViewModel(container: container)
             AddTransactionView(vm: vm)
             
-        case .allTransactions:
-            AllTransactionsView()
+        case .allTransactions(let showRecurrentOnly):
+            AllTransactionsView(showRecurrentOnly: showRecurrentOnly)
                 .environment(\.managedObjectContext, container.context)
             
         case .transactionStatistics:

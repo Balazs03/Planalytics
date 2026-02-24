@@ -15,7 +15,18 @@ class GoalStatisticsSheetViewModel {
     var dailyTransactions: [transHolder]?
     var monthlyTransactions: [transHolder]?
     var yearlyTransactions: [transHolder]?
-    var YAxisMaxValue: Decimal = 0
+    var filteredTransactions: [transHolder]?
+    var datesDictionary: [Int: Set<Int>]?
+    var selectedYear: Int {
+        didSet {
+            updateSelectedMonth()
+        }
+    }
+    var selectedMonth: Int {
+        didSet {
+            updateFilteredTransactions()
+        }
+    }
     var daysUntilCompletion: Int
     var monthlySavingplan: Decimal?
     var maxTransactionAmount: Decimal? {
@@ -36,41 +47,59 @@ class GoalStatisticsSheetViewModel {
         return transactions.map { $0.total }.max() ?? 0
     }
     
-    var selectedFilter: ChartDateFilter = .daily {
-        didSet{
-            calculateYAxisValues()
-            calcualtePredictions()
-        }
-    }
+    var selectedFilter: ChartDateFilter = .monthly
     
     var distinctDates: Int = 0
     
-    var predictedDates: [transHolder] = []
-    var predictionBoundaries: [Date] = []
+    var isLoading = false
+    
+    var predictionBoundaries: [Date]?
     
     init(container: CoreDataManager, goal: Goal) {
         self.container = container
         self.goal = goal
         self.model = LSMmodel(transactions: [])
         daysUntilCompletion = Calendar.current.dateComponents([.day], from: Date(), to: goal.plannedCompletionDate).day ?? 1
+        let currentDate = Calendar.current.dateComponents([.year, .month], from: Date())
+        selectedYear = currentDate.year!
+        selectedMonth = currentDate.month!
         updateAllData()
-        if distinctDates < 7 {
+        if distinctDates < 5 {
             selectedFilter = .daily
+        }
+    }
+    
+    func updateFilteredTransactions() {
+        if let dailyTransactions = dailyTransactions {
+                        
+            let year = selectedYear
+            let month = selectedMonth
+            self.filteredTransactions = dailyTransactions.filter{
+                let components = Calendar.current.dateComponents([.year, .month], from: $0.date)
+                return components.year == year && components.month == month
+            }
+        }
+    }
+    
+    func updateSelectedMonth() {
+        if let datesDict = datesDictionary, let months = datesDict[selectedYear], let minMonth = months.min() {
+                selectedMonth = minMonth
         }
     }
     
     func updateAllData() {
         createTransactionHistory()
         calculateDistinctDates()
-        calculateYAxisValues()
-        monthlySavingplan = calculaterequiredMonthlySaving()
+        monthlySavingplan = calculateRequiredMonthlySaving()
+        datesDictionary = calculateYearsAndMonthsPickerDates()
         if distinctDates > 7 {
             calculatePredictionBoundaries()
-            calcualtePredictions()
         }
+        updateFilteredTransactions()
     }
+
     
-    func calculaterequiredMonthlySaving() -> Decimal {
+    func calculateRequiredMonthlySaving() -> Decimal {
         // 1. Hátralévő összeg kiszámítása
         let remainingAmount = self.goal.amount.doubleValue - (self.goal.saving?.doubleValue ?? 0)
         
@@ -89,70 +118,33 @@ class GoalStatisticsSheetViewModel {
         return Decimal(remainingAmount) / Decimal(monthsUntilCompletion)
     }
     
+    func calculateYearsAndMonthsPickerDates() -> [Int: Set<Int>]? {
+        guard let yearlyTransactions, let monthlyTransactions else {
+            return nil
+        }
+        
+        var dateDict : [Int: Set<Int>] = [:]
+        
+        for transaction in yearlyTransactions {
+            dateDict[Calendar.current.component(.year, from: transaction.date)] = []
+        }
+        
+        for transaction in monthlyTransactions {
+            dateDict[Calendar.current.component(.year, from: transaction.date)]?.insert(Calendar.current.component(.month, from: transaction.date))
+        }
+        
+        if let firstYear = dateDict.keys.first, let firstMonth = dateDict[firstYear]?.min(){
+            selectedYear = firstYear
+            selectedMonth = firstMonth
+        }
+        
+        return dateDict
+    }
+    
     func calculatePredictionBoundaries() {
         guard let dailyTransactions else { return }
         model = LSMmodel(transactions: dailyTransactions)
         predictionBoundaries = model.predictConfidenceIntervals(forX: self.goal.amount as Decimal)
-    }
-    
-    func calcualtePredictions() {
-        guard distinctDates > 7 else { return }
-        
-        
-        switch selectedFilter {
-        case .yearly:
-            guard let yearlyTransactions, let lastYearEntry = yearlyTransactions.last else { return }
-            
-            model = LSMmodel(transactions: yearlyTransactions)
-                        
-            let endDate = model.predict(forX: self.goal.amount as Decimal)
-            
-            guard endDate > lastYearEntry.date else { return }
-            
-            self.predictedDates =  [
-                transHolder(id: UUID(), total: lastYearEntry.total, date: lastYearEntry.date),
-                transHolder(id: UUID(), total: goal.amount as Decimal, date: endDate)
-            ]
-        case .monthly:
-            guard let monthlyTransactions, let lastMonthEntry = monthlyTransactions.last else { return }
-            
-            model = LSMmodel(transactions: monthlyTransactions)
-                        
-            let endDate = model.predict(forX: self.goal.amount as Decimal)
-            
-            guard endDate > lastMonthEntry.date else { return }
-            
-            self.predictedDates =  [
-                transHolder(id: UUID(), total: lastMonthEntry.total, date: lastMonthEntry.date),
-                transHolder(id: UUID(), total: goal.amount as Decimal, date: endDate)
-            ]
-        case .daily:
-            guard let dailyTransactions, let lastDayEntry = dailyTransactions.last else { return }
-            
-            model = LSMmodel(transactions: dailyTransactions)
-
-            let endDate = model.predict(forX: self.goal.amount as Decimal)
-            
-            guard endDate > lastDayEntry.date else { return }
-            
-            self.predictedDates =  [
-                transHolder(id: UUID(), total: lastDayEntry.total, date: lastDayEntry.date),
-                transHolder(id: UUID(), total: goal.amount as Decimal, date: endDate)
-            ]
-        }
-    }
-    
-    func calculateYAxisValues() {
-        guard let dailyTransactions, let monthlyTransactions, let yearlyTransactions else { return }
-        
-        self.YAxisMaxValue = switch selectedFilter {
-        case .daily:
-            dailyTransactions.map(\.total).max() ?? 0
-        case .monthly:
-            monthlyTransactions.map(\.total).max() ?? 0
-        case .yearly:
-            yearlyTransactions.map(\.total).max() ?? 0
-        }
     }
     
     func calculateDistinctDates() {
@@ -177,13 +169,10 @@ class GoalStatisticsSheetViewModel {
         yearlyTransactions = createRollingSaves(interval: intervalSet[2])
     }
     
-    func progressPercentage(progress: Decimal) -> Double {
-        return ((progress as NSDecimalNumber).doubleValue  / self.goal.amount.doubleValue) * 100
-    }
-    
     func createRollingSaves(interval: Set<Calendar.Component>) -> [transHolder] {
         let transactions = goal.transactions as? Set<Transaction> ?? []
         
+        // Első closureben megadjuk, hogy szeretnénk groupolni a dictionaryt, másodikban mapeljük a value-kat
         let tempDict = Dictionary(grouping: transactions) { transaction in
             let components = Calendar.current.dateComponents(interval, from: transaction.date)
             
@@ -207,26 +196,6 @@ class GoalStatisticsSheetViewModel {
             tempTransHolder.append(transHolder(id: UUID(), total: currentTotal, date: date))
         }
         return tempTransHolder
-    }
-    
-    func generateDates() -> [Date]? {
-        if let dailyTransactions = self.dailyTransactions {
-            model = LSMmodel(transactions: dailyTransactions)
-            var dates: [Date] = []
-            
-            var currentDate = dailyTransactions.last!.date
-            let endDate = model.predict(forX: self.goal.amount as Decimal)
-            
-            while currentDate <= endDate {
-                dates.append(currentDate)
-                
-                guard let nextDate = Calendar.current.date(byAdding: .day, value: 1, to: currentDate) else { break }
-                currentDate = nextDate
-            }
-            
-            return dates
-        }
-        return nil
     }
 }
 
@@ -254,6 +223,17 @@ enum ChartDateFilter: String, CaseIterable {
             return 60 * 60 * 24 * 150
         case .yearly:
             return 60 * 60 * 24 * 730
+        }
+    }
+    
+    var count: Int {
+        switch self {
+        case .daily:
+            return 7
+        case .monthly:
+            return 1
+        case .yearly:
+            return 1
         }
     }
 }

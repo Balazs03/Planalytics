@@ -16,6 +16,9 @@ class AddTransactionViewModel {
     var transactionType: TransactionType = .income
     var transactionCategory: TransactionCategory?
     let transBalance: Decimal
+    var recurrencyFrequency: RecurrenceFrequency?
+    var startDate: Date?
+    var isRecurrent: Bool = false
     
     init(container: CoreDataManager) {
         self.container = container
@@ -31,6 +34,13 @@ class AddTransactionViewModel {
         } else {
             transaction.name = name
         }
+        
+        if isRecurrent, let recFreq = recurrencyFrequency {
+            transaction.recurrenceWrapper = recFreq
+        }
+        
+        transaction.isRecurrent = isRecurrent
+        transaction.recurrenceStartDate = startDate
         transaction.amount = amount as NSDecimalNumber
         transaction.transactionType = transactionType
         transaction.date = Date()
