@@ -31,7 +31,7 @@ struct GoalStatisticsSheet: View {
                                 HStack {
                                     Picker("Szűrés év", selection: $vm.selectedYear) {
                                         ForEach(Array(datesDict.keys).sorted(by: >), id:\.self) { year in
-                                            Text("\(year)")
+                                            Text(String(year))
                                         }
                                     }
                                     

@@ -9,50 +9,47 @@ import WidgetKit
 import SwiftUI
 
 struct Provider: TimelineProvider {
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), emoji: "😀")
+    func placeholder(in context: Context) -> GoalEntry {
+        GoalEntry(date: Date(), goal: getData().first)
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entry = SimpleEntry(date: Date(), emoji: "😀")
+    func getSnapshot(in context: Context, completion: @escaping (GoalEntry) -> ()) {
+        let entry = GoalEntry(date: Date(), goal: getData().first)
         completion(entry)
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        var entries: [SimpleEntry] = []
+        var entries: [GoalEntry] = []
 
         // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, emoji: "😀")
-            entries.append(entry)
-        }
+        let entry = GoalEntry(date: Date(), goal: getData().first)
+        entries.append(entry)
 
-        let timeline = Timeline(entries: entries, policy: .atEnd)
+        let timeline = Timeline(entries: entries, policy: .never)
         completion(timeline)
     }
-
-//    func relevances() async -> WidgetRelevances<Void> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
+    
+    func getData() -> [Goal] {
+        let container = CoreDataManager.shared
+        return container.fetchGoals()
+    }
 }
 
-struct SimpleEntry: TimelineEntry {
-    let date: Date
-    let emoji: String
+struct GoalEntry: TimelineEntry {
+    var date: Date
+    let goal: Goal?
 }
 
 struct PlanalyticsWidgetEntryView : View {
-    var entry: Provider.Entry
+    var entry: GoalEntry
 
     var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
-
-            Text("Emoji:")
-            Text(entry.emoji)
+        if let goal = entry.goal {
+            VStack {
+                Text("Cél teszt vaaaa")
+            }
+        } else {
+            Text("Jelenleg nincs aktív célod")
         }
     }
 }
@@ -79,6 +76,6 @@ struct PlanalyticsWidget: Widget {
 #Preview(as: .systemSmall) {
     PlanalyticsWidget()
 } timeline: {
-    SimpleEntry(date: .now, emoji: "😀")
-    SimpleEntry(date: .now, emoji: "🤩")
+    let container = CoreDataManager.shared
+    GoalEntry(date: .now, goal: container.fetchGoals().first)
 }

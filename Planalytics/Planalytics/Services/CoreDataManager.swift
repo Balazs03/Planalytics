@@ -14,6 +14,11 @@ class CoreDataManager {
     
     private init(inMemory: Bool = false) {
         container = NSPersistentContainer(name: "Finance")
+        let url = URL.storeURL(appGroup: "group.bme.nagyhazi.Planalytics", databaseName: "Finance")
+        if let url = url {
+            let storeDescription = NSPersistentStoreDescription(url: url)
+            container.persistentStoreDescriptions = [storeDescription]
+        }
         
         if inMemory {
             container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
