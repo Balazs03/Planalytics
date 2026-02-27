@@ -63,6 +63,7 @@
 		60F9F1D22F4DCCFC00B23F9F /* Exceptions for "Planalytics" folder in "PlanalyticsWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Assets.xcassets,
 				Model/CoreData/Finance.xcdatamodeld,
 				"Model/CoreData/Goal+CoreDataClass.swift",
 				"Model/CoreData/Goal+CoreDataProperties.swift",

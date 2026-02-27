@@ -7,26 +7,36 @@
 
 import WidgetKit
 import SwiftUI
+internal import CoreData
 
-struct Provider: TimelineProvider {
+struct GoalTimelineProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> GoalEntry {
         GoalEntry(date: Date(), goal: getData().first)
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (GoalEntry) -> ()) {
-        let entry = GoalEntry(date: Date(), goal: getData().first)
-        completion(entry)
+    func snapshot(for configuration: SelectGoalIntent, in context: Context) async -> GoalEntry {
+        GoalEntry(date: Date(), goal: getData().first)
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        var entries: [GoalEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let entry = GoalEntry(date: Date(), goal: getData().first)
-        entries.append(entry)
-
-        let timeline = Timeline(entries: entries, policy: .never)
-        completion(timeline)
+    func timeline(for configuration: SelectGoalIntent, in context: Context) async -> Timeline<GoalEntry> {
+        let container = CoreDataManager.shared
+        let allGoals = container.fetchGoals()
+        var selectedRealGoal: Goal? = nil
+        
+        if let selectedWidgetGoal = configuration.widgetGoal {
+            selectedRealGoal = allGoals.first(where: { widgetGoal in
+                widgetGoal.objectID.uriRepresentation().absoluteString == selectedWidgetGoal.id
+            })
+        }
+        
+        if selectedRealGoal == nil {
+            selectedRealGoal = allGoals.first
+        }
+        
+        return Timeline(entries: [
+            GoalEntry(date: Date(), goal: selectedRealGoal)
+        ], policy: .never
+        )
     }
     
     func getData() -> [Goal] {
@@ -45,8 +55,17 @@ struct PlanalyticsWidgetEntryView : View {
 
     var body: some View {
         if let goal = entry.goal {
-            VStack {
-                Text("Cél teszt vaaaa")
+            VStack(alignment: .leading) {
+                ZStack {
+                    Circle()
+                        .fill(.secondaryBackground)
+                        .frame(width: 48, height: 48)
+                    Image(systemName: goal.iconNameWrapper)
+                        .foregroundStyle(.textBackground)
+                }
+                Text(goal.name)
+                Text("\((goal.progress * 100).formatted())%")
+                Text("\(goal.plannedCompletionDate.formatted(.dateTime.year().month().day()))")
             }
         } else {
             Text("Jelenleg nincs aktív célod")
@@ -55,27 +74,26 @@ struct PlanalyticsWidgetEntryView : View {
 }
 
 struct PlanalyticsWidget: Widget {
-    let kind: String = "PlanalyticsWidget"
+    let kind: String = "GoalWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: Provider()) { entry in
-            if #available(iOS 17.0, *) {
-                PlanalyticsWidgetEntryView(entry: entry)
-                    .containerBackground(.fill.tertiary, for: .widget)
-            } else {
-                PlanalyticsWidgetEntryView(entry: entry)
-                    .padding()
-                    .background()
-            }
+        AppIntentConfiguration(kind: "GoalWidget", intent: SelectGoalIntent.self, provider: GoalTimelineProvider()) { entry in
+            PlanalyticsWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("My Widget")
-        .description("This is an example widget.")
+        .configurationDisplayName("Cél Widget")
+        .description("Kövesd nyomon a kiválasztott célodat")
+        .supportedFamilies([.systemSmall])
+        .contentMarginsDisabled()
     }
+}
+
+struct PreviewData {
+    static let manager = CoreDataManager.goalsListPreview()
 }
 
 #Preview(as: .systemSmall) {
     PlanalyticsWidget()
 } timeline: {
-    let container = CoreDataManager.shared
-    GoalEntry(date: .now, goal: container.fetchGoals().first)
+    let goals = PreviewData.manager.fetchGoals()
+    GoalEntry(date: .now, goal: goals.first)
 }
