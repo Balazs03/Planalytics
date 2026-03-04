@@ -25,22 +25,16 @@ struct WidgetGoal: AppEntity {
 struct WidgetGoalQuery: EntityQuery {
     func entities(for identifiers: [WidgetGoal.ID]) async throws -> [WidgetGoal] {
         let goal = CoreDataManager.shared.fetchGoals()
-        return goal.compactMap { goal in
+        return goal.map { goal in
             let idString = goal.objectID.uriRepresentation().absoluteString
-            
-            if identifiers.contains(idString) {
-                return WidgetGoal(id: idString, name: goal.name)
-            }
-            return nil
+            return WidgetGoal(id: idString, name: goal.name)
         }
     }
     
     func suggestedEntities() async throws -> [WidgetGoal] {
         return CoreDataManager.shared.fetchGoals().map { goal in
-            WidgetGoal(
-                id: goal.objectID.uriRepresentation().absoluteString,
-                name: goal.name
-            )
+            let idString = goal.objectID.uriRepresentation().absoluteString
+            return WidgetGoal(id: idString, name: goal.name)
         }
     }
     

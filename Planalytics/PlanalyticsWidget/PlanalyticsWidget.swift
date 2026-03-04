@@ -19,13 +19,12 @@ struct GoalTimelineProvider: AppIntentTimelineProvider {
     }
 
     func timeline(for configuration: SelectGoalIntent, in context: Context) async -> Timeline<GoalEntry> {
-        let container = CoreDataManager.shared
-        let allGoals = container.fetchGoals()
+        let allGoals = getData()
         var selectedRealGoal: Goal? = nil
         
         if let selectedWidgetGoal = configuration.widgetGoal {
-            selectedRealGoal = allGoals.first(where: { widgetGoal in
-                widgetGoal.objectID.uriRepresentation().absoluteString == selectedWidgetGoal.id
+            selectedRealGoal = allGoals.first(where: { goal in
+                goal.objectID.uriRepresentation().absoluteString == selectedWidgetGoal.id
             })
         }
         
