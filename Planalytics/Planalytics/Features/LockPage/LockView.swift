@@ -6,47 +6,25 @@
 //
 
 import SwiftUI
+internal import LocalAuthentication
 
 struct LockView: View {
     @State var vm: LockViewModel
+    @AppStorage("isLockEnabled") private var isLockEnabled: Bool = false
+    @AppStorage("isPinCodeSet") private var isPinCodeSet: Bool = false
+    @AppStorage("pinCode") private var pinCode: String = ""
     
     var body: some View {
-        if vm.isEnabled && !vm.isUnlocked {
-            if vm.lockType == .both {
-                if vm.biometricAvailable {
-                    VStack {
-                        Button{
-                            
-                        } label: {
-                            VStack {
-                                Image(systemName: "lock")
-                                    .font(.largeTitle)
-                                Text("Érintsd meg a feloldáshoz")
-                            }
-                            .padding()
-                        }
-                        .background(.green, in: .rect(cornerRadius: 10))
-                        
-                        Button {
-                        } label: {
-                            Text("Feloldás pin kóddal")
-                                .padding()
-                        }
-                        .background(.green, in: .rect(cornerRadius: 10))
-                        
-                    }
-                } else {
-                    Text("Unlock biometric recongition in the Settings to use it")
-                }
-                
-            } else {
-                NumberPadView()
-            }
+        VStack {
+            NumberPadView()
+        }
+        .onAppear {
+            vm.unlockWithFaceID()
         }
     }
     
     @ViewBuilder
-    func NumberPadView() -> some View {
+    private func NumberPadView() -> some View {
         VStack(spacing: 15) {
             Spacer()
             Text("Pin megadása")
@@ -73,7 +51,7 @@ struct LockView: View {
             .padding()
             
             Button("Elfelejtett jelszó?") {
-                
+                vm.showAlert.toggle()
             }
             Spacer()
             
@@ -106,15 +84,31 @@ struct LockView: View {
                     Text("0")
                 }
                 .frame(width: 40, height: 40)
+                
+                Button {
+                    vm.unlockWithFaceID()
+                } label: {
+                    if let biometricType = vm.getBiometricType() {
+                        if biometricType == .faceID {
+                            Image(systemName: "faceid")
+                        } else if biometricType == .touchID {
+                            Image(systemName: "touchid")
+                        }
+                    }
+                }
+                .frame(width: 40, height: 40)
             }
             .padding()
         }
         .onChange(of: vm.currentPin) { oldValue, newValue in
             if vm.currentPin.count == 4 {
                 if vm.currentPin == vm.actualPin {
-                    print("Unlocked")
+                    withAnimation(.snappy, completionCriteria: .logicallyComplete) {
+                        vm.isUnlocked = true
+                    } completion: {
+                        vm.currentPin = ""
+                    }
                 } else {
-                    print("Wrong")
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
                         vm.currentPin = ""
                     }
@@ -122,10 +116,24 @@ struct LockView: View {
                 }
             }
         }
+        .alert("Elfelejtett jelszó",isPresented: $vm.showAlert) {
+            Button("Ok", role: .confirm) {
+                pinCode = ""
+                isPinCodeSet = false
+                isLockEnabled = false
+            }
+            
+            Button("Mégse", role: .cancel) {
+                vm.showAlert.toggle()
+            }
+        } message: {
+            Text("Törölni szeretné a jelszót és a pin kódos belépést?")
+        }
+
     }
 }
 
 #Preview {
-    let vm = LockViewModel(currentPin: "", lockType: .both, actualPin: "0123", isEnabled: true)
+    let vm = LockViewModel(lockType: .both, actualPin: "0123")
     LockView(vm: vm)
 }

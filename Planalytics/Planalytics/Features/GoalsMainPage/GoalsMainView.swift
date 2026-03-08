@@ -67,6 +67,15 @@ struct GoalsMainView: View {
             }
             .padding()
         }
+        .toolbar {
+            ToolbarItem(placement: .automatic) {
+                Button {
+                    coordinator.goalPush(.settings)
+                } label: {
+                    Label("Beállítások", systemImage: "gearshape.fill")
+                }
+            }
+        }
         .onChange(of: coordinator.dataVersion) {
             withAnimation(.snappy) { // Itt adjuk meg az animációt
                 vm.fetchGoals()

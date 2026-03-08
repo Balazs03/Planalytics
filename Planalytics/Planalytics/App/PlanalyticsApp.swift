@@ -14,6 +14,15 @@ struct PlanalyticsApp: App {
     // Belépési pontnál létrehozom a coordinatort, hogy az legyen a root view
     @State private var coordinator = Coordinator()
     let persistentController = CoreDataManager.shared
+    @AppStorage("isLockEnabled") private var isLockEnabled: Bool = false
+    @AppStorage("isPinCodeSet") private var isPinCodeSet: Bool = false
+    @AppStorage("pinCode") private var pinCode: String = ""
+    @Environment(\.scenePhase) var scenePhase
+    
+    @State private var lockVM = LockViewModel(
+        lockType: .both,
+        actualPin: UserDefaults.standard.string(forKey: "pinCode") ?? ""
+    )
     
     func scheduleAppRefresh() {
         let today = Calendar.current.startOfDay(for: .now)
@@ -77,12 +86,38 @@ struct PlanalyticsApp: App {
     
     var body: some Scene {
         WindowGroup {
-            CoordinatorView(container: persistentController)
-                .environment(coordinator)
-                .onAppear {
-                    scheduleAppRefresh()
-                    uploadTransactions()
+            ZStack {
+                CoordinatorView(container: persistentController)
+                    .environment(coordinator)
+                    .onAppear {
+                        scheduleAppRefresh()
+                        uploadTransactions()
+                    }
+                
+                if  isLockEnabled && isPinCodeSet && !lockVM.isUnlocked {
+                    LockView(vm: lockVM)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color(UIColor.systemBackground))
+                        .zIndex(1)
                 }
+            }
+            .onChange(of: pinCode, initial: false) { _, newPin in
+                lockVM.actualPin = newPin
+            }
+            
+            .onChange(of: isLockEnabled, { oldValue, newValue in
+                if newValue {
+                    lockVM.isUnlocked = true
+                }
+            })
+            
+            .onChange(of: scenePhase, initial: true) { _, newValue in
+                if newValue != .active && lockVM.lockWhenAppGoesBackground {
+                    lockVM.isUnlocked = false
+                }
+            }
+            
+            .animation(.easeInOut, value: lockVM.isUnlocked)
         }
         .backgroundTask(.appRefresh("UploadTransactions")) {
             await scheduleAppRefresh()

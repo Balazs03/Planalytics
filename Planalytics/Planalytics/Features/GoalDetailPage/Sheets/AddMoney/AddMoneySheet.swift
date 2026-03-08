@@ -55,7 +55,7 @@ struct AddMoneySheet: View {
                 .disabled(!vm.addBalancePossible())
             }
             .alert("Túl nagy összeg", isPresented: $showAmountAlert) {
-                Button("OK", role: .cancel){
+                Button("OK", role: .confirm){
                     vm.addBalance()
                     coordinator.dismissSheet()
                 }

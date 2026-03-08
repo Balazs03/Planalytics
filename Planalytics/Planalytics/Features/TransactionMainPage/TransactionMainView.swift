@@ -98,6 +98,13 @@ struct TransactionMainView: View {
                     Image(systemName: "chart.bar.fill")
                 }
             }
+            ToolbarItem(placement: .automatic) {
+                Button {
+                    coordinator.mainPush(.settings)
+                } label: {
+                    Label("Beállítások", systemImage: "gearshape.fill")
+                }
+            }
         }
         .onChange(of: coordinator.dataVersion) {
             withAnimation(.snappy) {

@@ -75,6 +75,9 @@ struct CoordinatorView: View {
         case .transactionStatistics:
             let vm = TransactionStatisticsViewModel(container: container)
             TransactionStatisticsView(vm: vm)
+            
+        case .settings:
+            SettingsView()
         }
     }
     
@@ -89,6 +92,9 @@ struct CoordinatorView: View {
         case .statistics(let goal):
             let vm = GoalStatisticsSheetViewModel(container: container, goal: goal)
             GoalStatisticsSheet(vm: vm)
+        case .setPinCode:
+            let vm = SetPinSheetViewModel()
+            SetPinSheet(vm: vm)
         }
     }
 }
