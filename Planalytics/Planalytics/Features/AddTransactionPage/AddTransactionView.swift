@@ -6,20 +6,12 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct AddTransactionView: View {
     @Environment(Coordinator.self) private var coordinator
     @State private var vm : AddTransactionViewModel
-    @State private var isAmountOnFocus: Bool = false
-    
-    var disableForm: Bool {
-        guard let amount = vm.amount, let name = vm.name else { return true }
-        if vm.transactionType == .income {
-            return amount == 0
-        } else {
-            return amount == 0 || name.isEmpty || vm.transactionCategory == nil || amount > vm.transBalance
-        }
-    }
+    @State private var photosPickerItem: PhotosPickerItem?
     
     init(vm: AddTransactionViewModel) {
         self.vm = vm
@@ -38,6 +30,42 @@ struct AddTransactionView: View {
                             }
                         }
                         .pickerStyle(.segmented)
+                    }
+                    
+                    if vm.transactionType == .expense {
+                        Section("Kép kiválasztás") {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text("Kép kiválasztása")
+                                    
+                                    PhotosPicker(selection: $photosPickerItem, matching: .any(of: [.images, .screenshots])) {
+                                        Label("Kiválasztás", systemImage: "photo.fill.on.rectangle.fill")
+                                    }
+                                }
+                                
+                                Spacer()
+                                
+                                if let receiptImage = vm.receiptImage {
+                                    Image(uiImage: receiptImage)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 200, height: 200)
+                                } else {
+                                    Image(systemName: "receipt")
+                                }
+                                
+                            }
+                            VStack {
+                                Button("szöveg felismerés") {
+                                    vm.recognizeText()
+                                }
+                                /*
+                                if let recognizedText = vm.recognizedText {
+                                    Label("Képben lévő szöveg: \(recognizedText)", systemImage: "doc.text.fill")
+                                }
+                                 */
+                            }
+                        }
                     }
                     
                     Section("Összeg") {
@@ -116,6 +144,15 @@ struct AddTransactionView: View {
                         }
                     }
                 }
+                .onChange(of: photosPickerItem, { _, _ in
+                    Task {
+                        if let photosPickerItem, let data = try? await photosPickerItem.loadTransferable(type: Data.self) {
+                            if let image = UIImage(data: data) {
+                                vm.receiptImage = image
+                            }
+                        }
+                    }
+                })
                 .scrollContentBackground(.hidden)
                 .tint(.appSlate)
                 .fontDesign(.rounded)
@@ -131,12 +168,12 @@ struct AddTransactionView: View {
                         .frame(maxWidth: .infinity) // Teljes szélesség
                         .padding()
                         // Ha le van tiltva, szürke, ha aktív, akkor az appAccent szín
-                        .background(disableForm ? Color.appSlate.opacity(0.5) : Color.appSlate)
+                        .background(vm.disableForm ? Color.appSlate.opacity(0.5) : Color.appSlate)
                         .cornerRadius(16)
-                        .shadow(color: disableForm ? .clear : Color.appAccent.opacity(0.4), radius: 8, y: 4)
+                        .shadow(color: vm.disableForm ? .clear : Color.appAccent.opacity(0.4), radius: 8, y: 4)
                 }
                 .padding()
-                .disabled(disableForm)
+                .disabled(vm.disableForm)
             }
         }
         .navigationTitle("Új tranzakció")
