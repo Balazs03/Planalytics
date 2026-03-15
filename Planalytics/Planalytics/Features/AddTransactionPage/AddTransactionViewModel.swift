@@ -22,6 +22,7 @@ class AddTransactionViewModel {
     var startDate: Date?
     var isRecurrent: Bool = false
     var receiptImage: UIImage?
+    var recognizedText: String?
     
     var disableForm: Bool {
         guard let amount = amount, let name = name else { return true }
@@ -66,9 +67,8 @@ class AddTransactionViewModel {
     
     func recognizeText() {
         if receiptImage == nil {
-            receiptImage = UIImage(resource: .englishReceipt)
+            receiptImage = UIImage(resource: .testReceipt2)
         }
-        
         guard let cgImage = self.receiptImage?.cgImage else { return }
         
         let handler = VNImageRequestHandler(cgImage: cgImage)
@@ -81,10 +81,11 @@ class AddTransactionViewModel {
             guard let observations = request.results as? [VNRecognizedTextObservation] else { return }
             
             let recognizedStringArray = observations.compactMap { $0.topCandidates(1).first?.string }
+            self.recognizedText = recognizedStringArray.joined(separator: "\n")
+
             
             DispatchQueue.main.async {
                 self.processResults(recognizedStrings: recognizedStringArray)
-
             }
         }
         
@@ -101,7 +102,7 @@ class AddTransactionViewModel {
     
     func processResults(recognizedStrings: [String]) {
         self.name = recognizedStrings.first
-        let totalIdx = recognizedStrings.firstIndex(where: { $0.localizedCaseInsensitiveContains("total") }) ?? recognizedStrings.firstIndex(where: { $0.localizedCaseInsensitiveContains("összesen") })
+        let totalIdx = recognizedStrings.firstIndex(where: { $0.localizedCaseInsensitiveContains("total") }) ?? recognizedStrings.firstIndex(where: { $0.localizedCaseInsensitiveContains("összesen") }) ?? recognizedStrings.firstIndex(where: { $0.localizedCaseInsensitiveContains("osszesen") })
         let numbersRegex = /[0-9]+([.,][0-9])?/
         if let totalIdx = totalIdx {
             for idx in totalIdx..<recognizedStrings.count {
@@ -110,7 +111,10 @@ class AddTransactionViewModel {
                     
                     let cleanedString = extractedString.replacingOccurrences(of: ",", with: ".")
                     
-                    if let number = Decimal(string: cleanedString) {
+                    let finalString = cleanedString.replacingOccurrences(of: " ", with: "")
+
+                    
+                    if let number = Decimal(string: finalString) {
                         self.amount = number
                         break
                     } else {

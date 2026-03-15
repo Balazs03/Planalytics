@@ -59,11 +59,9 @@ struct AddTransactionView: View {
                                 Button("szöveg felismerés") {
                                     vm.recognizeText()
                                 }
-                                /*
                                 if let recognizedText = vm.recognizedText {
                                     Label("Képben lévő szöveg: \(recognizedText)", systemImage: "doc.text.fill")
                                 }
-                                 */
                             }
                         }
                     }
