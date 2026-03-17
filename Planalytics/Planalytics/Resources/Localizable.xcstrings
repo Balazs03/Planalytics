@@ -135,7 +135,13 @@
         }
       }
     },
+    "Alapértelmezett" : {
+
+    },
     "Alkalmazás nyelv kiválasztása" : {
+
+    },
+    "Alkalmazás témája" : {
 
     },
     "Alkalmazás zárolása" : {
@@ -1022,6 +1028,9 @@
         }
       }
     },
+    "Sötét" : {
+
+    },
     "Statisztikák" : {
       "localizations" : {
         "en" : {
@@ -1053,6 +1062,9 @@
           }
         }
       }
+    },
+    "Téma" : {
+
     },
     "Tervezett dátum" : {
       "localizations" : {
@@ -1213,6 +1225,9 @@
           }
         }
       }
+    },
+    "Világos" : {
+
     }
   },
   "version" : "1.1"

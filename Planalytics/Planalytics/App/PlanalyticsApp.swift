@@ -15,6 +15,7 @@ struct PlanalyticsApp: App {
     @State private var coordinator = Coordinator()
     let persistentController = CoreDataManager.shared
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
+    @AppStorage("theme") private var theme: String = ""
     @AppStorage("isLockEnabled") private var isLockEnabled: Bool = false
     @AppStorage("isPinCodeSet") private var isPinCodeSet: Bool = false
     @AppStorage("pinCode") private var pinCode: String = ""
@@ -91,6 +92,7 @@ struct PlanalyticsApp: App {
                 CoordinatorView(container: persistentController)
                     .environment(coordinator)
                     .environment(\.locale, .init(identifier: appLanguage))
+                    .preferredColorScheme(theme == "" ? .none : theme == "light" ? .light : .dark)
                     .onAppear {
                         scheduleAppRefresh()
                         uploadTransactions()
