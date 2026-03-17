@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @AppStorage("appLanguage") private var appLanguage: String = "hu"
     
     @AppStorage("isLockEnabled") private var isLockEnabled: Bool = false
     @Environment(Coordinator.self) private var coordinator
@@ -26,7 +27,15 @@ struct SettingsView: View {
                     }
                 }
             }
+            
+            Section(header: Text("Nyelv")) {
+                Picker("Alkalmazás nyelv kiválasztása", selection: $appLanguage) {
+                    Text("Magyar").tag("hu")
+                    Text("Angol").tag("en")
+                }
+            }
         }
+        .navigationTitle("Beállítások")
     }
 }
 

@@ -28,7 +28,7 @@ struct AddGoalView: View {
             VStack {
                 Form {
                     Section {
-                        TextField("Cél nevének megadása", text: $vm.name)
+                        TextField("Cél neve", text: $vm.name)
                     } header: {
                         Text("Név")
                             .foregroundStyle(Color.appText)

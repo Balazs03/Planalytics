@@ -36,7 +36,7 @@ struct AddTransactionView: View {
                         Section("Kép kiválasztás") {
                             HStack {
                                 VStack(alignment: .leading) {
-                                    Text("Kép kiválasztása")
+                                    Text("Kép kiválasztás")
                                     
                                     PhotosPicker(selection: $photosPickerItem, matching: .any(of: [.images, .screenshots])) {
                                         Label("Kiválasztás", systemImage: "photo.fill.on.rectangle.fill")
@@ -52,15 +52,6 @@ struct AddTransactionView: View {
                                         .frame(width: 200, height: 200)
                                 } else {
                                     Image(systemName: "receipt")
-                                }
-                                
-                            }
-                            VStack {
-                                Button("szöveg felismerés") {
-                                    vm.recognizeText()
-                                }
-                                if let recognizedText = vm.recognizedText {
-                                    Label("Képben lévő szöveg: \(recognizedText)", systemImage: "doc.text.fill")
                                 }
                             }
                         }
@@ -147,6 +138,7 @@ struct AddTransactionView: View {
                         if let photosPickerItem, let data = try? await photosPickerItem.loadTransferable(type: Data.self) {
                             if let image = UIImage(data: data) {
                                 vm.receiptImage = image
+                                vm.recognizeText()
                             }
                         }
                     }

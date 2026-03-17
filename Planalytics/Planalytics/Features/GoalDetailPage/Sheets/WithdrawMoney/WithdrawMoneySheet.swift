@@ -31,15 +31,15 @@ struct WithdrawMoneySheet: View {
                     HStack{
                         Image(systemName: "exclamationmark.triangle")
                             .foregroundColor(.red)
-                        Text("Az kívánt összeg meghaladja a célre félretett összeget")
+                        Text("A kívánt összeg meghaladja a célre félretett összeget")
                             .foregroundColor(.red)
                     }
                     .opacity(amount < saving as Decimal ? 0: 1)
                 }
                 
-                Text("Eddig a célre féltetett összeg: \(((vm.goal.saving?.doubleValue.formatted()) ?? "0")) Ft")
+                Text("Eddig a célra féltetett összeg: \(((vm.goal.saving?.doubleValue.formatted()) ?? "0")) Ft")
                 
-                Button("Pénz kivétele") {
+                Button("Pénz kivétel") {
                     vm.withdrawBalance()
                     coordinator.dismissSheet()
                 }

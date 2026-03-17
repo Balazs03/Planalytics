@@ -23,7 +23,7 @@ struct TransactionsChart: View {
     var body: some View {
         Chart {
             ForEach(groupedTransactions, id: \.category) { item in
-                SectorMark(angle: .value("Kiadáspok", item.amount), innerRadius: .ratio(0.5), angularInset: 2)
+                SectorMark(angle: .value("Kiadások", item.amount), innerRadius: .ratio(0.5), angularInset: 2)
                     .foregroundStyle(by: .value("Kategória", item.category.title))
                     .cornerRadius(10)
             }

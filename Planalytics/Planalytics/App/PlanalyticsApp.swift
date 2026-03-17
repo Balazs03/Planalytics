@@ -14,6 +14,7 @@ struct PlanalyticsApp: App {
     // Belépési pontnál létrehozom a coordinatort, hogy az legyen a root view
     @State private var coordinator = Coordinator()
     let persistentController = CoreDataManager.shared
+    @AppStorage("appLanguage") private var appLanguage: String = "hu"
     @AppStorage("isLockEnabled") private var isLockEnabled: Bool = false
     @AppStorage("isPinCodeSet") private var isPinCodeSet: Bool = false
     @AppStorage("pinCode") private var pinCode: String = ""
@@ -89,6 +90,7 @@ struct PlanalyticsApp: App {
             ZStack {
                 CoordinatorView(container: persistentController)
                     .environment(coordinator)
+                    .environment(\.locale, .init(identifier: appLanguage))
                     .onAppear {
                         scheduleAppRefresh()
                         uploadTransactions()

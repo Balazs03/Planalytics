@@ -29,7 +29,7 @@ struct GoalStatisticsSheet: View {
                             switch vm.selectedFilter {
                             case .daily:
                                 HStack {
-                                    Picker("Szűrés év", selection: $vm.selectedYear) {
+                                    Picker("Év szűrés", selection: $vm.selectedYear) {
                                         ForEach(Array(datesDict.keys).sorted(by: >), id:\.self) { year in
                                             Text(String(year))
                                         }
