@@ -17,7 +17,7 @@ struct WithdrawMoneySheet: View {
     
     var body: some View {
         NavigationStack {
-            VStack(alignment: .center){
+            VStack(alignment: .center, spacing: 15){
                 HStack{
                     TextField("0.0", value: $vm.amount, format: .number)
                         .font(.largeTitle)
@@ -27,17 +27,17 @@ struct WithdrawMoneySheet: View {
                         .font(.largeTitle)
                 }
                 
-                if let amount = vm.amount, let saving = vm.goal.saving {
+                if let amount = vm.amount, let saving = vm.goal.saving, amount > saving.decimalValue {
                     HStack{
                         Image(systemName: "exclamationmark.triangle")
                             .foregroundColor(.red)
                         Text("A kívánt összeg meghaladja a célre félretett összeget")
                             .foregroundColor(.red)
                     }
-                    .opacity(amount < saving as Decimal ? 0: 1)
                 }
                 
                 Text("Eddig a célra féltetett összeg: \(((vm.goal.saving?.doubleValue.formatted()) ?? "0")) Ft")
+                    .padding()
                 
                 Button("Pénz kivétel") {
                     vm.withdrawBalance()
@@ -59,7 +59,7 @@ struct WithdrawMoneySheet: View {
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Image(vm.goal.iconName ?? "")
+                    Image(systemName: vm.goal.iconName ?? "chart.line.text.clipboard")
                 }
             }
         }

@@ -19,7 +19,7 @@ struct AddMoneySheet: View {
     
     var body: some View {
         NavigationStack {
-            VStack(alignment: .center) {
+            VStack(alignment: .center, spacing: 15) {
                 HStack{
                     TextField("0.0", value: $vm.amount, format: .number)
                         .font(.largeTitle)
@@ -29,14 +29,13 @@ struct AddMoneySheet: View {
                         .font(.largeTitle)
                 }
                 
-                if let amount = vm.amount {
-                    HStack{
+                if let amount = vm.amount, amount > vm.transBalance as Decimal {
+                    HStack {
                         Image(systemName: "exclamationmark.triangle")
                             .foregroundColor(.red)
                         Text("A kívánt összeg meghaladja a jelenlegi egyenleget")
                             .foregroundColor(.red)
                     }
-                    .opacity(amount > vm.transBalance as Decimal ? 1 : 0)
                 }
                 
                 Text("Egyenleg: \(vm.transBalance.formatted()) Ft")
@@ -52,7 +51,6 @@ struct AddMoneySheet: View {
                 .padding()
                 .buttonStyle(.glass)
                 .fontWeight(.semibold)
-                .disabled(!vm.addBalancePossible())
             }
             .alert("Túl nagy összeg", isPresented: $showAmountAlert) {
                 Button("Ok", role: .confirm){
@@ -65,8 +63,6 @@ struct AddMoneySheet: View {
             } message: {
                 Text("A megadott összeg meghaladja a cél összegét")
             }
-            
-            
             .navigationTitle("Pénz hozzáadása")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -78,7 +74,7 @@ struct AddMoneySheet: View {
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Image(vm.goal.iconName ?? "")
+                    Image(systemName:  vm.goal.iconName ?? "")
                 }
             }
         }

@@ -142,7 +142,11 @@ extension CoreDataManager {
         let myTransaction1 = Transaction(context: previewContext)
         myTransaction1.amount = 25000.2
         myTransaction1.name = "Bevásárlás"
-        myTransaction1.date = Date()
+        var datecomponent1 = DateComponents()
+        datecomponent1.year = 2025
+        datecomponent1.month = 12
+        datecomponent1.day = 11
+        myTransaction1.date = Calendar.current.date(from: datecomponent1)!
         myTransaction1.transactionType = .expense
         myTransaction1.category = TransactionCategory.food.rawValue
         myTransaction1.isRecurrent = false
@@ -150,7 +154,11 @@ extension CoreDataManager {
         let myTransaction2 = Transaction(context: previewContext)
         myTransaction2.amount = 100000.0
         myTransaction2.name = "Fizetés"
-        myTransaction2.date = Date()
+        var datecomponent2 = DateComponents()
+        datecomponent2.year = 2025
+        datecomponent2.month = 12
+        datecomponent2.day = 11
+        myTransaction2.date = Calendar.current.date(from: datecomponent2)!
         myTransaction2.transactionType = .income
         myTransaction2.isRecurrent = false
 

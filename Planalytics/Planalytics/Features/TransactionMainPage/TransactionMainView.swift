@@ -17,7 +17,7 @@ struct TransactionMainView: View {
     
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [Color.appBackground, Color.appAccent, Color.appSlate]), startPoint: .bottom, endPoint: .top)
+            LinearGradient(gradient: Gradient(colors: [.mainBackground, .textBackground]), startPoint: .bottom, endPoint: .top)
                 .ignoresSafeArea()
             
             VStack {
@@ -25,7 +25,7 @@ struct TransactionMainView: View {
                     Text("Egyenleg HUF")
                     HStack {
                         Text("\(vm.transBalance.formatted()) Ft")
-                            .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                            .font(.system(.largeTitle, weight: .bold))
                             .contentTransition(.numericText())
                             .animation(.default, value: vm.transBalance)
                         
@@ -36,58 +36,72 @@ struct TransactionMainView: View {
                         }
                     }
                 }
+            
+                Button {
+                    coordinator.mainPush(.addTransaction)
+                } label: {
+                    HStack {
+                        Image(systemName: "plus.circle.fill")
+                        Text("Hozzáadás")
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .buttonStyle(.glass)
+                .fontWeight(.semibold)
                 
-                HStack {
-                    Button("Hozzáadás") {
-                        coordinator.mainPush(.addTransaction)
-                    }
-                    .padding()
-                    .buttonStyle(.glass)
-                    .fontWeight(.semibold)
-                }
-                if vm.transactions.isEmpty {
-                    Text("Nincs megjeleníthető tranzakció")
-                    Spacer()
-                } else {
-                    List {
-                        ForEach(vm.transactions.reversed().prefix(3)) { transaction in
-                            TransactionRowView(transaction: transaction)
-                        }
-                        .foregroundStyle(Color.appText)
-
-                        HStack {
-                            Spacer()
-                            Button("Összes") {
-                                coordinator.mainPush(.allTransactions(showRecurrentOnly: false))
+                List {
+                    if vm.transactions.isEmpty {
+                        Text("Nincs megjeleníthető tranzakció")
+                        Spacer()
+                    } else {
+                        Section {
+                            ForEach(vm.transactions.reversed().prefix(3)) { transaction in
+                                TransactionRowView(transaction: transaction)
                             }
-                            .buttonStyle(.borderless)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.black)
-                            Spacer()
-                        }
-                    }
-                    .scrollContentBackground(.hidden)
-                }
-                
-                if !vm.recurrentTransactions.isEmpty {
-                    List {
-                        ForEach(vm.recurrentTransactions.reversed().prefix(3)) { recurrentTransaction in
-                            TransactionRowView(transaction: recurrentTransaction)
-                        }
-                        
-                        HStack {
-                            Spacer()
-                            Button("Összes") {
-                                coordinator.mainPush(.allTransactions(showRecurrentOnly: true))
+                            
+                            HStack {
+                                Spacer()
+                                Button {
+                                    coordinator.mainPush(.allTransactions(showRecurrentOnly: false))
+                                } label: {
+                                    Text("Összes")
+                                }
+                                .buttonStyle(.borderless)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.primary)
+                                Spacer()
                             }
-                            .buttonStyle(.borderless)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.black)
-                            Spacer()
+                        } header: {
+                            Text("Tranzakciók")
                         }
                     }
-                    .scrollContentBackground(.hidden)
+                    
+                    if !vm.recurrentTransactions.isEmpty {
+                        Section {
+                            ForEach(vm.recurrentTransactions.reversed().prefix(3)) { recurrentTransaction in
+                                TransactionRowView(transaction: recurrentTransaction)
+                            }
+                            
+                            HStack {
+                                Spacer()
+                                Button {
+                                    coordinator.mainPush(.allTransactions(showRecurrentOnly: true))
+                                } label: {
+                                    Text("Összes")
+                                }
+                                .buttonStyle(.borderless)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.primary)
+                                Spacer()
+                            }
+                        } header: {
+                            Text("Ismétlődő tranzakciók")
+                        }
+                    }
                 }
+                .scrollDisabled(true)
+                .scrollContentBackground(.hidden)
             }
         }
         .toolbar {

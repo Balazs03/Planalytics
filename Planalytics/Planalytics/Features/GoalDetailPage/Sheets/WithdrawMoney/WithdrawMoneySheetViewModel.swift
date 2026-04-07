@@ -12,7 +12,6 @@ internal import CoreData
 class WithdrawMoneySheetViewModel {
     let container: CoreDataManager
     var goal: Goal
-    var errorMessage: String?
     var amount: Decimal?
     
     init(container: CoreDataManager, goal: Goal) {
@@ -26,7 +25,6 @@ class WithdrawMoneySheetViewModel {
         if amount <= (goal.saving ?? 0) as Decimal {
             return true
         }
-        errorMessage = "Nincs elegendő pénz a költségköltségből!"
         return false
     }
     
@@ -38,9 +36,7 @@ class WithdrawMoneySheetViewModel {
         newTransaction.name = "Utalás \(goal.name) célból"
         newTransaction.transactionType = .income
         newTransaction.goal = goal
-        
-        errorMessage = nil
-        
+                
         goal.saving = (goal.saving ?? 0) as Decimal - amount as NSDecimalNumber
         container.saveContext()
     }

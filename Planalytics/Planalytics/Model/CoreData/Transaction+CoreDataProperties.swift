@@ -18,12 +18,21 @@ enum TransactionType: Int16, CaseIterable{
     case income = 0
     case expense = 1
     
-    var title: String {
+    var titleHU: String {
         switch self {
         case .income:
             return "Bevétel"
         case .expense:
             return "Kiadás"
+        }
+    }
+    
+    var titleEN: String {
+        switch self {
+        case .income:
+            return "Income"
+        case .expense:
+            return "Expense"
         }
     }
 }
@@ -41,7 +50,7 @@ enum TransactionCategory: Int16, CaseIterable, Identifiable{
     case saving = 5
     case other = 6
     
-    var title : String {
+    var titleHU : String {
         switch self {
         case .food:
             return "Élelmiszer"
@@ -57,6 +66,25 @@ enum TransactionCategory: Int16, CaseIterable, Identifiable{
             return "Megtakarítás"
         case .other:
             return "Egyéb"
+        }
+    }
+    
+    var titleEN : String {
+        switch self {
+        case .food:
+            return "Food"
+        case .entertainment:
+            return "Leisure"
+        case .housing:
+            return "Housing"
+        case .transportation:
+            return "Transport"
+        case .healthAndEducation:
+            return "Healthcare and Education"
+        case .saving:
+            return "Saving"
+        case .other:
+            return "Other"
         }
     }
     

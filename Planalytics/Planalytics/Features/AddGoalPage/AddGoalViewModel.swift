@@ -14,8 +14,11 @@ class AddGoalPageViewModel {
     var amount: Decimal?
     var plannedCompletionDate = Date()
     var desc: String?
-    var iconNameWrapper: String = "pointer.arrow.click.2"
+    var iconName: String?
     let container: CoreDataManager
+    var disableForm: Bool {
+        name.isEmpty || amount == nil
+    }
     
     init(container: CoreDataManager) {
         self.container = container
@@ -31,9 +34,7 @@ class AddGoalPageViewModel {
         if let desc = desc {
             newGoal.desc = desc
         }
-        if self.iconNameWrapper != "pointer.arrow.click.2" {
-            newGoal.iconNameWrapper = iconNameWrapper
-        }
+        newGoal.iconName = self.iconName
         
         container.saveContext()
     }

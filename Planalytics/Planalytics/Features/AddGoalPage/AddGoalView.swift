@@ -13,17 +13,13 @@ struct AddGoalView: View {
     @State private var vm : AddGoalPageViewModel
     @State private var showIconPicker: Bool = false
     
-    var disableForm: Bool {
-        vm.name.isEmpty || vm.amount == 0
-    }
-    
     init(vm: AddGoalPageViewModel) {
         self.vm = vm
     }
     
     var body: some View {
         ZStack{
-            LinearGradient(gradient: Gradient(colors: [Color.appBackground, Color.appAccent]), startPoint: .bottom, endPoint: .top)
+            LinearGradient(gradient: Gradient(colors: [.mainBackground, .textBackground]), startPoint: .bottom, endPoint: .top)
                 .ignoresSafeArea()
             VStack {
                 Form {
@@ -31,7 +27,7 @@ struct AddGoalView: View {
                         TextField("Cél neve", text: $vm.name)
                     } header: {
                         Text("Név")
-                            .foregroundStyle(Color.appText)
+                            .foregroundStyle(.black)
                     }
                     
                     Section {
@@ -45,7 +41,7 @@ struct AddGoalView: View {
                         }
                     } header: {
                         Text("Összeg")
-                            .foregroundStyle(Color.appText)
+                            .foregroundStyle(.black)
                     }
                     
                     Section {
@@ -55,7 +51,10 @@ struct AddGoalView: View {
                             in: Date()...,
                             displayedComponents: .date
                         )
-                        .datePickerStyle(.compact)
+                        .datePickerStyle(.graphical)
+                    } header: {
+                        Text("Dátum")
+                            .foregroundStyle(.black)
                     }
                     
                     Section {
@@ -71,23 +70,27 @@ struct AddGoalView: View {
                             ZStack {
                                 Circle()
                                     .frame(width: 48, height: 48)
-                                    .foregroundStyle(Color.appAccent)
+                                    .foregroundStyle(.secondaryBackground)
                                     .shadow(color: .black.opacity(0.7), radius: 2)
                                     
-                                Image(systemName: vm.iconNameWrapper)
+                                Image(systemName: vm.iconName ?? "chart.line.text.clipboard")
                                     .font(.title)
 
                             }
                         }
                     } header: {
                         Text("Ikon")
+                            .foregroundStyle(.black)
                     }
                 }
                 .tint(.appSlate)
                 .fontDesign(.rounded)
                 .scrollContentBackground(.hidden)
                 .sheet(isPresented: $showIconPicker) {
-                    SymbolsPicker(selection: $vm.iconNameWrapper, title: "Válassz egy ikont", searchLabel: "Keresés", autoDismiss: true)
+                    SymbolsPicker(selection: Binding(
+                        get: { vm.iconName ?? "" }, // Ha nil, akkor üres stringet mutat
+                        set: { vm.iconName = $0.isEmpty ? nil : $0 } // Ha üresre törli, akkor nil legyen (vagy maradhat simán $0 is)
+                    ), title: "Válassz egy ikont", searchLabel: "Keresés", autoDismiss: true)
                 }
                 .padding()
                 
@@ -98,16 +101,16 @@ struct AddGoalView: View {
                     Text("Mentés")
                         .font(.headline)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity) // Teljes szélesség
+                        .foregroundColor(vm.disableForm ? .none :  .black)
+                        .frame(maxWidth: .infinity)
                         .padding()
                         // Ha le van tiltva, szürke, ha aktív, akkor az appAccent szín
-                        .background(disableForm ? Color.appSlate.opacity(0.5) : Color.appSlate)
+                        .background(.secondaryBackground)
                         .cornerRadius(16)
-                        .shadow(color: disableForm ? .clear : Color.appAccent.opacity(0.4), radius: 8, y: 4)
+                        .shadow(color: vm.disableForm ? .clear : .secondaryBackground, radius: 8, y: 4)
                 }
                 .padding()
-                .disabled(disableForm)
+                .disabled(vm.disableForm)
             }
         }
         .navigationTitle("Új cél")

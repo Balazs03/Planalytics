@@ -27,6 +27,11 @@ class GoalStatisticsSheetViewModel {
             updateFilteredTransactions()
         }
     }
+    var firstYear: Int? {
+        guard let datesDictionary else { return nil }
+        
+        return datesDictionary.keys.sorted().min()
+    }
     var daysUntilCompletion: Int
     var monthlySavingplan: Decimal?
     var maxTransactionAmount: Decimal? {
@@ -41,6 +46,12 @@ class GoalStatisticsSheetViewModel {
         return maxTransaction?.amount.decimalValue
     }
     
+    var showChartsCondition: Bool {
+        guard let dailyTransactions = dailyTransactions, let filteredTransactions = filteredTransactions, let monthlyTransactions = monthlyTransactions, let yearlyTransactions = yearlyTransactions, let datesDict = datesDictionary, !dailyTransactions.isEmpty, !filteredTransactions.isEmpty, !monthlyTransactions.isEmpty, !yearlyTransactions.isEmpty, !datesDict.isEmpty else {return false}
+        
+        return true
+    }
+    
     var maxGoalSaving: Decimal {
         guard let transactions = dailyTransactions else {return 0}
         
@@ -50,9 +61,7 @@ class GoalStatisticsSheetViewModel {
     var selectedFilter: ChartDateFilter = .monthly
     
     var distinctDates: Int = 0
-    
-    var isLoading = false
-    
+        
     var predictionBoundaries: [Date]?
     
     init(container: CoreDataManager, goal: Goal) {
@@ -72,11 +81,9 @@ class GoalStatisticsSheetViewModel {
     func updateFilteredTransactions() {
         if let dailyTransactions = dailyTransactions {
                         
-            let year = selectedYear
-            let month = selectedMonth
             self.filteredTransactions = dailyTransactions.filter{
                 let components = Calendar.current.dateComponents([.year, .month], from: $0.date)
-                return components.year == year && components.month == month
+                return components.year == selectedYear && components.month == selectedMonth
             }
         }
     }
@@ -98,7 +105,6 @@ class GoalStatisticsSheetViewModel {
         updateFilteredTransactions()
     }
 
-    
     func calculateRequiredMonthlySaving() -> Decimal {
         // 1. Hátralévő összeg kiszámítása
         let remainingAmount = self.goal.amount.doubleValue - (self.goal.saving?.doubleValue ?? 0)
@@ -126,11 +132,14 @@ class GoalStatisticsSheetViewModel {
         var dateDict : [Int: Set<Int>] = [:]
         
         for transaction in yearlyTransactions {
-            dateDict[Calendar.current.component(.year, from: transaction.date)] = []
+            let yearComponent = Calendar.current.component(.year, from: transaction.date)
+            dateDict[yearComponent] = []
         }
         
         for transaction in monthlyTransactions {
-            dateDict[Calendar.current.component(.year, from: transaction.date)]?.insert(Calendar.current.component(.month, from: transaction.date))
+            let yearComponent = Calendar.current.component(.year, from: transaction.date)
+            let monthComponent = Calendar.current.component(.month, from: transaction.date)
+            dateDict[yearComponent, default: []].insert(monthComponent)
         }
         
         if let firstYear = dateDict.keys.first, let firstMonth = dateDict[firstYear]?.min(){

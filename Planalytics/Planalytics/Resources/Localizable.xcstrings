@@ -120,6 +120,7 @@
       }
     },
     "Aktív célok: %lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -387,6 +388,9 @@
         }
       }
     },
+    "Csatolmány" : {
+
+    },
     "Dátum" : {
       "localizations" : {
         "en" : {
@@ -420,6 +424,7 @@
       }
     },
     "Eddig befejezettek: %lld" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -499,7 +504,11 @@
         }
       }
     },
+    "Év" : {
+
+    },
     "Év szűrés" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -542,7 +551,11 @@
         }
       }
     },
+    "Hónap" : {
+
+    },
     "Hónap szűrés" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -638,6 +651,9 @@
         }
       }
     },
+    "Ismétlődő tranzakciók" : {
+
+    },
     "Kategória" : {
       "localizations" : {
         "en" : {
@@ -655,6 +671,7 @@
       }
     },
     "Kép kiválasztás" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -733,6 +750,12 @@
           }
         }
       }
+    },
+    "Koppints ide a fotó kiválasztásához" : {
+
+    },
+    "Leírás" : {
+
     },
     "Magyar" : {
 
@@ -882,6 +905,9 @@
       }
     },
     "Nyelv" : {
+
+    },
+    "Nyugta beolvasása" : {
 
     },
     "Ok" : {
@@ -1177,6 +1203,9 @@
           }
         }
       }
+    },
+    "Új cél hozzáadása" : {
+
     },
     "Új tranzakció" : {
       "localizations" : {

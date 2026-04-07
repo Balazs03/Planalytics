@@ -13,7 +13,9 @@ class TransactionStatisticsViewModel {
     var transactions: [Transaction]
     var expenses: [Transaction]
     var incomes: [Transaction]
-    var selectedDate: Date = Date()
+    var selectedYear: Int
+    var selectedMonth: Int
+    var firstTransactionYear: Int?
     
     var groupedTransactions: [(category: TransactionCategory, amount: Decimal)] {
         let groupedDict = Dictionary(grouping: expenses, by: \.categoryWrapper)
@@ -31,7 +33,6 @@ class TransactionStatisticsViewModel {
     }
     
     var totalExpenses: Decimal {
-        
         expenses.reduce(0) { $0 + $1.amount.decimalValue }
     }
     
@@ -44,18 +45,24 @@ class TransactionStatisticsViewModel {
     }
     
     init(container: CoreDataManager) {
+        let currentYear = Calendar.current.component(.year, from: Date())
+        let currentMonth = Calendar.current.component(.month, from: Date())
+        let fetchedTransactions = container.fetchTransactions(year: currentYear, month: currentMonth)
+        
         self.container = container
-        let fetchedTransactions = container.fetchTransactions(year: nil, month: nil)
-        transactions = fetchedTransactions
+        self.selectedYear = currentYear
+        self.selectedMonth = currentMonth
+        self.transactions = fetchedTransactions
+        if let firstYear = fetchedTransactions.first?.date {
+            self.firstTransactionYear = Calendar.current.component(.year, from: firstYear)
+        }
+        
         incomes = fetchedTransactions.filter { $0.transactionType == .income && $0.isRecurrent == false }
         expenses = fetchedTransactions.filter { $0.transactionType == .expense && $0.isRecurrent == false }
     }
     
     func refreshData() {
-        let dateComponents = Calendar.current.dateComponents([.year, .month], from: selectedDate)
-        let yearSelector = dateComponents.year
-        let monthSelector = dateComponents.month
-        self.transactions = container.fetchTransactions(year: yearSelector, month: monthSelector)
+        transactions = container.fetchTransactions(year: selectedYear, month: selectedMonth)
         incomes = transactions.filter { $0.transactionType == .income && $0.isRecurrent == false }
         expenses = transactions.filter { $0.transactionType == .expense && $0.isRecurrent == false }
     }

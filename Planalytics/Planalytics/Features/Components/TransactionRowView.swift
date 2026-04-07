@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TransactionRowView: View {
+    @AppStorage("appLanguage") private var appLanguage: String = "hu"
     @ObservedObject var transaction: Transaction
 
     var body: some View {
@@ -23,17 +24,16 @@ struct TransactionRowView: View {
                     .foregroundStyle(.green)
             } else {
                 if let category = transaction.transactionCategory {
-                    Image(systemName: transaction.transactionCategory?.iconName ?? "")
+                    Image(systemName: category.iconName)
                         .foregroundStyle(category.diagramColor)
                     
-                    Text(category.title)
+                    Text(appLanguage == "hu" ? category.titleHU : category.titleEN)
+                        .foregroundStyle(.secondary)
                 }
                       
                 Text("-\(transaction.amount.doubleValue.formatted()) Ft")
                     .foregroundStyle(.red)
             }
         }
-        .fontDesign(.rounded)
-        .foregroundStyle(Color.appText)
     }
 }

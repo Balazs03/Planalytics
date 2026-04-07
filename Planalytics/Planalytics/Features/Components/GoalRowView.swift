@@ -15,7 +15,7 @@ struct GoalRowView: View {
     var statusColor: Color {
         if goal.isFinished { return .green }
         if goal.isDeleted { return .red }
-        return .appAccent
+        return .thirdBackground
     }
 
     var body: some View {
@@ -26,12 +26,11 @@ struct GoalRowView: View {
             HStack(spacing: 16) {
                 ZStack {
                     Circle()
-                        .fill(Color.blue.opacity(0.15))
+                        .fill(.secondaryBackground)
                         .frame(width: 48, height: 48)
                     
                     Image(systemName: goal.iconName ?? "target")
                         .fontWeight(.semibold)
-                        .foregroundStyle(Color.blue)
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
@@ -49,7 +48,6 @@ struct GoalRowView: View {
                         )
                     }
                     .font(.caption)
-                    .foregroundStyle(Color.appSlate)
                 }
                 
                 Spacer()
@@ -68,7 +66,6 @@ struct GoalRowView: View {
                     } else {
                         Text("\((goal.progress * 100).formatted(.number.precision(.fractionLength(0))))%")
                             .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(Color.appText)
                     }
                 }
             }

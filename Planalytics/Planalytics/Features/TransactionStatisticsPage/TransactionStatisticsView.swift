@@ -18,7 +18,11 @@ struct TransactionStatisticsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading,spacing: 25) {
-                YearMonthPickerView(selectedDate: $vm.selectedDate)
+                    
+                if let firstYear = vm.firstTransactionYear {
+                    YearMonthSelection(selectedYear: $vm.selectedYear, selectedMonth: $vm.selectedMonth, firstYear: firstYear)
+                }
+
                 
                 if !vm.expenses.isEmpty {
                     TransactionsChart(groupedTransactions: vm.groupedTransactions, totalExpenses: vm.totalExpenses)
@@ -80,7 +84,10 @@ struct TransactionStatisticsView: View {
         .navigationTitle("Statisztikák")
         .navigationBarTitleDisplayMode(.inline)
         .background(Color.appBackground)
-        .onChange(of: vm.selectedDate) {
+        .onChange(of: vm.selectedYear) {
+            vm.refreshData()
+        }
+        .onChange(of: vm.selectedMonth) {
             vm.refreshData()
         }
     }

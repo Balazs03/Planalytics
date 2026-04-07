@@ -17,153 +17,140 @@ struct GoalStatisticsSheet: View {
     }
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
+        ScrollView {
+            VStack(spacing: 20) {
 
-                    if let dailyTransactions = vm.dailyTransactions, let filteredTransactions = vm.filteredTransactions, let monthlyTransactions = vm.monthlyTransactions, let yearlyTransactions = vm.yearlyTransactions, let datesDict = vm.datesDictionary {
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("Megtakarítási trend")
-                                .font(.headline)
-                            
-                            switch vm.selectedFilter {
-                            case .daily:
-                                HStack {
-                                    Picker("Év szűrés", selection: $vm.selectedYear) {
-                                        ForEach(Array(datesDict.keys).sorted(by: >), id:\.self) { year in
-                                            Text(String(year))
-                                        }
-                                    }
-                                    
-                                    Picker("Hónap szűrés", selection: $vm.selectedMonth) {
-                                        ForEach(Array(datesDict[vm.selectedYear]!).sorted(by: <), id:\.self) { month in
-                                            Text("\(month)")
-                                        }
-                                    }
-
-                                }
-                                GoalChart(transactions: filteredTransactions, vm: vm)
-                                    .frame(minHeight: 200)
-                            case .monthly:
-                                GoalChart(transactions: monthlyTransactions, vm: vm)
-                                    .frame(minHeight: 200)
-                            case .yearly:
-                                GoalChart(transactions: yearlyTransactions, vm: vm)
-                                    .frame(minHeight: 200)
+                if vm.showChartsCondition {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Megtakarítási trend")
+                            .font(.headline)
+                        
+                        switch vm.selectedFilter {
+                        case .daily:
+                            if let firstYear = vm.firstYear {
+                                YearMonthSelection(selectedYear: $vm.selectedYear, selectedMonth: $vm.selectedMonth, firstYear: firstYear)
                             }
-                            
-                            Picker("Szűrés", selection: $vm.selectedFilter) {
-                                ForEach(ChartDateFilter.allCases, id: \.self) { filter in
-                                    Text(filter.rawValue).tag(filter)
-                                }
+                            GoalChart(transactions: vm.filteredTransactions ?? [], vm: vm)
+                                .frame(minHeight: 200)
+                        case .monthly:
+                            GoalChart(transactions: vm.monthlyTransactions ?? [], vm: vm)
+                                .frame(minHeight: 200)
+                        case .yearly:
+                            GoalChart(transactions: vm.yearlyTransactions ?? [], vm: vm)
+                                .frame(minHeight: 200)
+                        }
+                        
+                        Picker("Szűrés", selection: $vm.selectedFilter) {
+                            ForEach(ChartDateFilter.allCases, id: \.self) { filter in
+                                Text(filter.rawValue).tag(filter)
                             }
-                            .pickerStyle(.segmented)
-                            
-                            
-                            // INFO SOROK
+                        }
+                        .pickerStyle(.segmented)
+                        
+                        
+                        // INFO SOROK
+                        Divider()
+                        if let firstDate = vm.dailyTransactions?.first?.date {
+                            InfoRowView(label: "Első megtakarítás", value: firstDate.formatted(date: .numeric, time: .omitted)
+                            )
+                        }
+                        if let lastDate = vm.dailyTransactions?.last?.date {
+                            InfoRowView(label: "Utolsó megtakarítás", value: lastDate.formatted(date: .numeric, time: .omitted)
+                            )
                             Divider()
-                            if let firstDate = dailyTransactions.first?.date {
-                                InfoRowView(label: "Első megtakarítás", value: firstDate.formatted(date: .numeric, time: .omitted)
-                                )
-                            }
-                            if let lastDate = dailyTransactions.last?.date {
-                                InfoRowView(label: "Utolsó megtakarítás", value: lastDate.formatted(date: .numeric, time: .omitted)
-                                )
-                                Divider()
-                            }
-                            
-                            if let saving = vm.goal.saving, saving.doubleValue < vm.goal.amount.doubleValue, let predictions = vm.predictionBoundaries {
-                                if let lower = predictions.min(),
-                                   let upper = predictions.max()  {
-                                    HStack {
-                                        Text("Becsült befejezés")
+                        }
+                        
+                        if let saving = vm.goal.saving, saving.doubleValue < vm.goal.amount.doubleValue, let predictions = vm.predictionBoundaries {
+                            if let lower = predictions.min(),
+                               let upper = predictions.max()  {
+                                HStack {
+                                    Text("Becsült befejezés")
+                                        .foregroundStyle(Color.appText.mix(with: .black, by: 0.2))
+                                    Spacer()
+                                    Text("\(lower.formatted(date: .numeric, time: .omitted)) - \(upper.formatted(date: .numeric, time: .omitted))")
+                                        .fontWeight(.semibold)
+                                        .multilineTextAlignment(.trailing)
+                                }
+                                                                    
+                                if vm.goal.plannedCompletionDate > upper {
+                                    Label {
+                                        Text("Az eddigi megtakarítási trend alapján a cél a tervezett dátum után fog teljesülni")
+                                    } icon: {
+                                        Image(systemName: "exclamationmark.circle")
+                                            .foregroundStyle(.yellow)
+                                    }
+
+                                } else if vm.goal.plannedCompletionDate > lower {
+                                    Label {
+                                        Text("Az eddigi megtakarítási trend alapján a cél a tervezett időn belül teljesülhet")
+                                    } icon: {
+                                        Image(systemName: "checkmark.circle")
+                                            .foregroundStyle(.green)
+                                    }
+
+                                }
+                                
+                                else {
+                                    Label {
+                                        Text("Az eddigi megtakarítási trendet követve a cél a tervezett dátum előtt teljesülhet")
                                             .foregroundStyle(Color.appText.mix(with: .black, by: 0.2))
-                                        Spacer()
-                                        Text("\(lower.formatted(date: .numeric, time: .omitted)) - \(upper.formatted(date: .numeric, time: .omitted))")
-                                            .fontWeight(.semibold)
-                                            .multilineTextAlignment(.trailing)
+                                    } icon: {
+                                        Image(systemName: "checkmark.seal.fill")
+                                            .foregroundStyle(.blue)
                                     }
-                                                                        
-                                    if vm.goal.plannedCompletionDate > upper {
-                                        Label {
-                                            Text("Az eddigi megtakarítási trend alapján a cél a tervezett dátum után fog teljesülni")
-                                        } icon: {
-                                            Image(systemName: "exclamationmark.circle")
-                                                .foregroundStyle(.yellow)
-                                        }
 
-                                    } else if vm.goal.plannedCompletionDate > lower {
-                                        Label {
-                                            Text("Az eddigi megtakarítási trend alapján a cél a tervezett időn belül teljesülhet")
-                                        } icon: {
-                                            Image(systemName: "checkmark.circle")
-                                                .foregroundStyle(.green)
-                                        }
-
-                                    }
-                                    
-                                    else {
-                                        Label {
-                                            Text("Az eddigi megtakarítási trendet követve a cél a tervezett dátum előtt teljesülhet")
-                                                .foregroundStyle(Color.appText.mix(with: .black, by: 0.2))
-                                        } icon: {
-                                            Image(systemName: "checkmark.seal.fill")
-                                                .foregroundStyle(.blue)
-                                        }
-
-                                    }
                                 }
                             }
-                            
-                            if vm.distinctDates >= 1 {
-                                Text("\(vm.distinctDates) különböző alkalommal történt feltöltés")
-                                    .foregroundStyle(.secondary)
-                            } else {
-                                Text("Még nem történt feltöltés")
-                            }
-                        }
-                        .padding()
-                        .background(Color.appBackground.mix(with: .blue, by: 0.05))
-                        .clipShape(RoundedRectangle(cornerRadius: 15))
-                        .padding()
-                    }
-                    
-                    // FIGYELMEZTETŐ SZÖVEG (A kártyán kívül)
-                    if vm.distinctDates < 7 {
-                        HStack {
-                            Image(systemName: "exclamationmark.triangle")
-                            Text("A becsléshez tölts fel még \(7 - vm.distinctDates) különböző nap tranzakciókat")
-                        }
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .padding()
-                    }
-                    
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 15) {
-                        
-                        if let monthlySaving = vm.monthlySavingplan  {
-                            StaticCardView(text: "Szükséges havi összeg a célért", value: "\(monthlySaving.formatted(.number.precision(.fractionLength(2)))) Ft")
                         }
                         
-                        StaticCardView(text: "Hátravévő napok", value: "\(vm.daysUntilCompletion > 0 ? vm.daysUntilCompletion: 0 )")
-
-                        if let maxTransactionAmount = vm.maxTransactionAmount {
-                            StaticCardView(text: "Eddig fetöltött legnagyobb összeg", value: "\(maxTransactionAmount.formatted()) Ft")
-
+                        if vm.distinctDates >= 1 {
+                            Text("\(vm.distinctDates) különböző alkalommal történt feltöltés")
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Text("Még nem történt feltöltés")
                         }
                     }
-                    .padding(.horizontal)
+                    .padding()
+                    .background(.secondaryBackground.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 15))
+                    .padding()
                 }
-                .padding()
-            }
-            .fontDesign(.rounded)
-            .navigationTitle("Statisztikák")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(action: coordinator.dismissSheet) {
-                        Image(systemName: "arrow.backward")
+                
+                // FIGYELMEZTETŐ SZÖVEG (A kártyán kívül)
+                if vm.distinctDates < 7 {
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle")
+                        Text("A becsléshez tölts fel még \(7 - vm.distinctDates) különböző nap tranzakciókat")
                     }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding()
+                }
+                
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 15) {
+                    
+                    if let monthlySaving = vm.monthlySavingplan  {
+                        StaticCardView(text: "Szükséges havi összeg a célért", value: "\(monthlySaving.formatted(.number.precision(.fractionLength(2)))) Ft")
+                    }
+                    
+                    StaticCardView(text: "Hátravévő napok", value: "\(vm.daysUntilCompletion > 0 ? vm.daysUntilCompletion: 0 )")
+
+                    if let maxTransactionAmount = vm.maxTransactionAmount {
+                        StaticCardView(text: "Eddig fetöltött legnagyobb összeg", value: "\(maxTransactionAmount.formatted()) Ft")
+
+                    }
+                }
+                .padding(.horizontal)
+            }
+            .padding()
+        }
+        .fontDesign(.rounded)
+        .navigationTitle("Statisztikák")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button(action: coordinator.dismissSheet) {
+                    Image(systemName: "arrow.backward")
                 }
             }
         }

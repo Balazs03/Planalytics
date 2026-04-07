@@ -37,9 +37,8 @@ struct GoalChart: View {
                         Text("\(selectedTransHolder.total.formatted()) Ft")
                     }
                     .fontWeight(.bold)
-                    .foregroundStyle(.white)
                     .padding()
-                    .background(Color.appText)
+                    .background(.secondaryBackground)
                     .shadow(radius: 2)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
@@ -50,13 +49,11 @@ struct GoalChart: View {
                     x: .value("Dátum", Calendar.current.startOfDay(for: transaction.date)),
                     y: .value("Összeg", transaction.total)
                 )
-                .foregroundStyle(by: .value("Típus", "Tényleges"))
                 
                 AreaMark(
                     x: .value("Dátum", Calendar.current.startOfDay(for: transaction.date)),
                     y: .value("Összeg", transaction.total)
                 )
-                .foregroundStyle(by: .value("Típus", "Tényleges"))
                 .opacity(0.3)
 
                 PointMark(

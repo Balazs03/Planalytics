@@ -36,18 +36,6 @@ extension Goal {
             return 0
         }
     }
-    
-    var iconNameWrapper: String {
-        get {
-            if let iconName {
-                return iconName
-            }
-            return "pointer.arrow.click.2"
-        }
-        set {
-            iconName = newValue
-        }
-    }
 }
 
 // MARK: Generated accessors for transactions

@@ -15,25 +15,26 @@ struct StaticCardView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            if let icon {
-                HStack {
+
+            
+            HStack{
+                Text(text)
+                
+                if let icon {
                     Image(systemName: icon)
                         .foregroundStyle(color ?? .blue)
-                    Spacer()
+                        .font(.title)
                 }
             }
-            Text(text)
-                .foregroundStyle(Color.appText.mix(with: .black, by: 0.2))
             
             Text(value)
                 .font(.title2)
                 .fontWeight(.bold)
-                .minimumScaleFactor(0.8)
                 .lineLimit(1)
         }
         .padding()
         .frame(height: 140)
-        .background(Color.appBackground.mix(with: .blue, by: 0.05))
+        .background(.secondaryBackground.opacity(0.1))
         .clipShape(RoundedRectangle(cornerRadius: 15))
         
     }

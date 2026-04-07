@@ -66,9 +66,6 @@ class AddTransactionViewModel {
     }
     
     func recognizeText() {
-        if receiptImage == nil {
-            receiptImage = UIImage(resource: .testReceipt2)
-        }
         guard let cgImage = self.receiptImage?.cgImage else { return }
         
         let handler = VNImageRequestHandler(cgImage: cgImage)

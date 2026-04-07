@@ -59,7 +59,7 @@ struct PlanalyticsWidgetEntryView : View {
                     Circle()
                         .fill(.secondaryBackground)
                         .frame(width: 48, height: 48)
-                    Image(systemName: goal.iconNameWrapper)
+                    Image(systemName: goal.iconName ?? "chart.line.text.clipboard")
                         .foregroundStyle(.textBackground)
                 }
                 Text(goal.name)
@@ -78,6 +78,7 @@ struct PlanalyticsWidget: Widget {
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: "GoalWidget", intent: SelectGoalIntent.self, provider: GoalTimelineProvider()) { entry in
             PlanalyticsWidgetEntryView(entry: entry)
+                .containerBackground(.textBackground, for: .widget)
         }
         .configurationDisplayName("Cél Widget")
         .description("Kövesd nyomon a kiválasztott célodat")
