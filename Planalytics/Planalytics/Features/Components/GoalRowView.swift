@@ -29,7 +29,7 @@ struct GoalRowView: View {
                         .fill(.secondaryBackground)
                         .frame(width: 48, height: 48)
                     
-                    Image(systemName: goal.iconName ?? "target")
+                    Image(systemName: goal.iconName ?? "chart.line.text.clipboard")
                         .fontWeight(.semibold)
                 }
                 

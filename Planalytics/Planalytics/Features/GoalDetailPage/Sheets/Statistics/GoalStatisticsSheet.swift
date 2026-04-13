@@ -11,17 +11,18 @@ import Charts
 struct GoalStatisticsSheet: View {
     @Environment(Coordinator.self) var coordinator
     @State private var vm: GoalStatisticsSheetViewModel
+    @AppStorage("appLanguage") private var appLanguage: String = "hu"
     
     init(vm: GoalStatisticsSheetViewModel) {
         self.vm = vm
     }
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 20) {
 
-                if vm.showChartsCondition {
-                    VStack(alignment: .leading, spacing: 10) {
+                    VStack(spacing: 10) {
                         Text("Megtakarítási trend")
                             .font(.headline)
                         
@@ -42,7 +43,7 @@ struct GoalStatisticsSheet: View {
                         
                         Picker("Szűrés", selection: $vm.selectedFilter) {
                             ForEach(ChartDateFilter.allCases, id: \.self) { filter in
-                                Text(filter.rawValue).tag(filter)
+                                Text(appLanguage == "hu" ? filter.nameHu : filter.nameEn).tag(filter)
                             }
                         }
                         .pickerStyle(.segmented)
@@ -51,11 +52,13 @@ struct GoalStatisticsSheet: View {
                         // INFO SOROK
                         Divider()
                         if let firstDate = vm.dailyTransactions?.first?.date {
-                            InfoRowView(label: "Első megtakarítás", value: firstDate.formatted(date: .numeric, time: .omitted)
+                            let label = appLanguage == "hu" ? "Első megtakarítás" : "First saving"
+                            InfoRowView(label: label, value: firstDate.formatted(date: .numeric, time: .omitted)
                             )
                         }
                         if let lastDate = vm.dailyTransactions?.last?.date {
-                            InfoRowView(label: "Utolsó megtakarítás", value: lastDate.formatted(date: .numeric, time: .omitted)
+                            let label = appLanguage == "hu" ? "Utolsó megtakarítás" : "Last saving"
+                            InfoRowView(label: label, value: lastDate.formatted(date: .numeric, time: .omitted)
                             )
                             Divider()
                         }
@@ -65,7 +68,7 @@ struct GoalStatisticsSheet: View {
                                let upper = predictions.max()  {
                                 HStack {
                                     Text("Becsült befejezés")
-                                        .foregroundStyle(Color.appText.mix(with: .black, by: 0.2))
+                                        .foregroundStyle(.secondary)
                                     Spacer()
                                     Text("\(lower.formatted(date: .numeric, time: .omitted)) - \(upper.formatted(date: .numeric, time: .omitted))")
                                         .fontWeight(.semibold)
@@ -93,7 +96,7 @@ struct GoalStatisticsSheet: View {
                                 else {
                                     Label {
                                         Text("Az eddigi megtakarítási trendet követve a cél a tervezett dátum előtt teljesülhet")
-                                            .foregroundStyle(Color.appText.mix(with: .black, by: 0.2))
+                                            .foregroundStyle(.secondary)
                                     } icon: {
                                         Image(systemName: "checkmark.seal.fill")
                                             .foregroundStyle(.blue)
@@ -114,43 +117,44 @@ struct GoalStatisticsSheet: View {
                     .background(.secondaryBackground.opacity(0.1))
                     .clipShape(RoundedRectangle(cornerRadius: 15))
                     .padding()
-                }
-                
-                // FIGYELMEZTETŐ SZÖVEG (A kártyán kívül)
-                if vm.distinctDates < 7 {
-                    HStack {
-                        Image(systemName: "exclamationmark.triangle")
-                        Text("A becsléshez tölts fel még \(7 - vm.distinctDates) különböző nap tranzakciókat")
-                    }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding()
-                }
-                
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 15) {
                     
-                    if let monthlySaving = vm.monthlySavingplan  {
-                        StaticCardView(text: "Szükséges havi összeg a célért", value: "\(monthlySaving.formatted(.number.precision(.fractionLength(2)))) Ft")
+                    // FIGYELMEZTETŐ SZÖVEG (A kártyán kívül)
+                    if vm.distinctDates < 7 {
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle")
+                            Text("A becsléshez tölts fel még \(7 - vm.distinctDates) különböző nap tranzakciókat")
+                        }
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .padding()
                     }
                     
-                    StaticCardView(text: "Hátravévő napok", value: "\(vm.daysUntilCompletion > 0 ? vm.daysUntilCompletion: 0 )")
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 15) {
+                        
+                        if let monthlySaving = vm.monthlySavingplan  {
+                            let text = appLanguage == "hu" ? "Szükséges havi összeg a cél eléréséért": "Monthly amount needed to achieve the goal"
+                            StaticCardView(text: text, value: "\(monthlySaving.formatted(.number.precision(.fractionLength(2)))) Ft")
+                        }
+                        let text = appLanguage == "hu" ? "Hátralévő napok" : "Remaining days"
+                        StaticCardView(text: text, value: "\(vm.daysUntilCompletion > 0 ? vm.daysUntilCompletion: 0 )")
 
-                    if let maxTransactionAmount = vm.maxTransactionAmount {
-                        StaticCardView(text: "Eddig fetöltött legnagyobb összeg", value: "\(maxTransactionAmount.formatted()) Ft")
+                        if let maxTransactionAmount = vm.maxTransactionAmount {
+                            let text = appLanguage == "hu" ? "Eddig fetöltött legnagyobb összeg" : "Largest amount saved so far"
+                            StaticCardView(text: text, value: "\(maxTransactionAmount.formatted()) Ft")
 
+                        }
                     }
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
+                .padding()
             }
-            .padding()
-        }
-        .fontDesign(.rounded)
-        .navigationTitle("Statisztikák")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                Button(action: coordinator.dismissSheet) {
-                    Image(systemName: "arrow.backward")
+            .navigationTitle("Statisztikák")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(action: coordinator.dismissSheet) {
+                        Image(systemName: "arrow.backward")
+                    }
                 }
             }
         }

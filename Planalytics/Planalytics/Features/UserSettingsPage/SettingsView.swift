@@ -10,7 +10,6 @@ import SwiftUI
 struct SettingsView: View {
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
     @AppStorage("theme") private var theme: String = ""
-    
     @AppStorage("isLockEnabled") private var isLockEnabled: Bool = false
     @Environment(Coordinator.self) private var coordinator
     
@@ -20,6 +19,7 @@ struct SettingsView: View {
                 Toggle(isOn: $isLockEnabled) {
                     Label("Alkalmazás zárolása", systemImage: "lock")
                 }
+                
                 if isLockEnabled {
                     Button {
                         coordinator.present(sheet: .setPinCode)
@@ -50,4 +50,5 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
+        .environment(Coordinator())
 }

@@ -21,6 +21,7 @@ struct SetPinSheet: View {
     var body: some View {
         VStack {
             Spacer()
+            Text("Pin megadása")
             
             if vm.isFirstPinSaved {
                 Text("Ismételd meg a kódot")
@@ -30,7 +31,7 @@ struct SetPinSheet: View {
                 ForEach(0..<4, id: \.self) { index in
                     Circle()
                         .frame(width: 30)
-                        .foregroundStyle(vm.currentPin.count > index ? .gray : .black)
+                        .foregroundStyle(vm.currentPin.count > index ? Color.mint : .primary)
                 }
             }
             .keyframeAnimator(initialValue: CGFloat.zero, trigger: vm.animateField, content: { content, value in
@@ -47,7 +48,6 @@ struct SetPinSheet: View {
                 }
             })
             .padding()
-            .padding()
             
             Spacer()
             
@@ -59,8 +59,10 @@ struct SetPinSheet: View {
                         }
                     } label: {
                         Text("\(number)")
+                            .font(.title)
                     }
-                    .frame(width: 40, height: 40)
+                    .frame(width: 60, height: 60)
+                    .buttonStyle(.glass)
                 }
                 
                 Button {
@@ -69,8 +71,10 @@ struct SetPinSheet: View {
                     }
                 } label: {
                     Image(systemName: "delete.left")
+                        .font(.title)
                 }
-                .frame(width: 40, height: 40)
+                .frame(width: 60, height: 60)
+                .buttonStyle(.glass)
                 
                 Button {
                     if vm.currentPin.count < 4 {
@@ -78,11 +82,14 @@ struct SetPinSheet: View {
                     }
                 } label: {
                     Text("0")
+                        .font(.title)
                 }
-                .frame(width: 40, height: 40)
+                .frame(width: 60, height: 60)
+                .buttonStyle(.glass)
             }
             .padding()
         }
+        .background()
         .onChange(of: vm.currentPin) { oldValue, newValue in
             if vm.currentPin.count >= 4 && vm.isFirstPinSaved == false {
                 vm.firstSavedPin = vm.currentPin
@@ -106,4 +113,5 @@ struct SetPinSheet: View {
 #Preview {
     let vm = SetPinSheetViewModel()
     SetPinSheet(vm: vm)
+        .environment(Coordinator())
 }

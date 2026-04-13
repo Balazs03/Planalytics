@@ -27,13 +27,12 @@ struct AddTransactionView: View {
                     Section{
                         Picker(selection: $vm.transactionType, label: Text("Válaszd ki a típust")) {
                             ForEach(TransactionType.allCases, id: \.self) { type in
-                                Text(appLanguage == "hu" ? type.titleEN: type.titleHU)
+                                Text(appLanguage == "hu" ? type.titleHU: type.titleEN)
                             }
                         }
                         .pickerStyle(.segmented)
                     } header: {
                         Text("Típus")
-                            .foregroundStyle(.black)
                     }
                     
                     if vm.transactionType == .expense {
@@ -85,7 +84,6 @@ struct AddTransactionView: View {
                             
                         } header: {
                             Text("Csatolmány")
-                                .foregroundStyle(.black)
                         }
                     }
                     
@@ -109,7 +107,6 @@ struct AddTransactionView: View {
                         }
                     } header: {
                         Text("Összeg")
-                            .foregroundStyle(.black)
 
                     }
                     
@@ -121,11 +118,9 @@ struct AddTransactionView: View {
                         )
                     } header: {
                         Text("Név")
-                            .foregroundStyle(.black)
                     }
                     
                     Section {
-                        
                         VStack {
                             Toggle("Ismétlődő fizetés beállítása", isOn: $vm.isRecurrent)
                             
@@ -140,7 +135,7 @@ struct AddTransactionView: View {
                                         }
                                     )) {
                                         ForEach(RecurrenceFrequency.allCases, id: \.id) { frequency in
-                                            Text(frequency.rawValue).tag(frequency)
+                                            Text(appLanguage == "hu" ? frequency.nameHu: frequency.nameEn).tag(frequency)
                                         }
                                     }
                                     DatePicker("Kezdő dátum", selection: Binding<Date>(
@@ -158,16 +153,14 @@ struct AddTransactionView: View {
                         }
                     } header: {
                         Text("Ismétlés")
-                            .foregroundStyle(.black)
                     }
                     
                     if vm.transactionType == .expense {
-                        Section("Kategória") {
+                        Section {
                             Picker(selection: $vm.transactionCategory, label: Text("Válaszd ki a kategóriát")) {
                                 ForEach(TransactionCategory.allCases) { category in
                                     Label {
-                                            Text(appLanguage == "hu" ? category.titleEN : category.titleHU)
-                                                .foregroundStyle(.black)
+                                            Text(appLanguage == "hu" ? category.titleHU : category.titleEN)
                                         } icon: {
                                             // Az ikon rész - itt alkalmazzuk a kategória színét
                                             Image(systemName: category.iconName)
@@ -177,10 +170,12 @@ struct AddTransactionView: View {
                                 }
                             }
                             .pickerStyle(.inline)
+                        } header: {
+                            Text("Kategória")
                         }
                     }
                 }
-                .onChange(of: photosPickerItem, { _, _ in
+                .onChange(of: photosPickerItem, {
                     Task {
                         if let photosPickerItem, let data = try? await photosPickerItem.loadTransferable(type: Data.self) {
                             if let image = UIImage(data: data) {
@@ -200,7 +195,7 @@ struct AddTransactionView: View {
                     Text("Mentés")
                         .font(.headline)
                         .fontWeight(.bold)
-                        .foregroundColor(vm.disableForm ? .none :  .black)
+                        .foregroundColor(vm.disableForm ? .none :  .white)
                         .frame(maxWidth: .infinity)
                         .padding()
                         // Ha le van tiltva, szürke, ha aktív, akkor az appAccent szín

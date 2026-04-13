@@ -47,7 +47,7 @@ struct GoalsMainView: View {
                 VStack {
                     Picker("Szűrés", selection: $vm.selectedFilter) {
                         ForEach(GoalFilter.allCases, id: \.self) { filter in
-                            Text(filter.rawValue).tag(filter)
+                            Text(appLanguage == "hu" ? filter.nameHu : filter.nameEn).tag(filter)
                         }
                     }
                     .padding(.horizontal)
@@ -55,6 +55,7 @@ struct GoalsMainView: View {
                     
                     if vm.goals.isEmpty {
                         Text("Nincsenek megadott célok")
+                        Spacer()
                     } else {
                         List {
                             ForEach(vm.filteredGoals, id: \.objectID) { goal in

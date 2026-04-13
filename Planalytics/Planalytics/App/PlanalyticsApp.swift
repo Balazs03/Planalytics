@@ -11,7 +11,6 @@ internal import CoreData
 
 @main
 struct PlanalyticsApp: App {
-    // Belépési pontnál létrehozom a coordinatort, hogy az legyen a root view
     @State private var coordinator = Coordinator()
     let persistentController = CoreDataManager.shared
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
@@ -51,18 +50,9 @@ struct PlanalyticsApp: App {
                 tempTransaction.amount = transaction.amount
                 tempTransaction.date = executionDay
                 
-                var nextDate: Date?
-                switch transaction.recurrenceWrapper {
-                case .daily:
-                    nextDate = Calendar.current.date(byAdding: .day, value: 1, to: executionDay)
-                case .weekly:
-                    nextDate = Calendar.current.date(byAdding: .day, value: 7, to: executionDay)
-                case .monthly:
-                    nextDate = Calendar.current.date(byAdding: .month, value: 1, to: executionDay)
-                case .none:
-                    break
-                }
-                
+                guard let frequency = transaction.recurrenceWrapper else { return }
+                let nextDate: Date? = Calendar.current.date(byAdding: frequency.value, value: frequency.step, to: executionDay)
+
                 transaction.recurrenceStartDate = nextDate
                 
                 if let name = transaction.name {

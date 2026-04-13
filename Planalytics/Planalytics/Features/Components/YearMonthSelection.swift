@@ -11,25 +11,37 @@ struct YearMonthSelection: View {
     @Binding var selectedYear: Int
     @Binding var selectedMonth: Int
     let firstYear: Int
+    @AppStorage("appLanguage") private var appLanguage: String = "hu"
     
     var body: some View {
         HStack {
             Picker(selection: $selectedYear) {
                 ForEach(firstYear...Calendar.current.component(.year, from: Date()), id: \.self) { year in
-                    Text("\(year)")
+                    Text(String(year))
                 }
             } label: {
                 Text("Év")
             }
             
+            Divider()
+                .frame(height: 20)
+                .foregroundStyle(.black)
+            
             Picker(selection: $selectedMonth) {
                 ForEach(Months.allCases, id: \.self) { month in
-                    Text(month.nameHU).tag(month.rawValue)
+                    Text(appLanguage == "hu" ? month.nameHU: month.nameEN).tag(month.rawValue)
                 }
             } label: {
                 Text("Hónap")
             }
         }
+        .tint(.secondary)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(.mainBackground, lineWidth: 2)
+        )
     }
 }
 

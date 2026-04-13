@@ -34,7 +34,29 @@ class GoalsMainViewModel {
 }
 
 enum GoalFilter: String, CaseIterable {
-    case all = "Összes"
-    case active = "Aktív"
-    case finished = "Befejezett"
+    case all
+    case active
+    case finished
+    
+    var nameHu: String {
+        switch self {
+        case .all:
+            "Összes"
+        case .active:
+            "Aktív"
+        case .finished:
+            "Befejezett"
+        }
+    }
+    
+    var nameEn: String {
+        switch self {
+        case .all:
+            "All"
+        case .active:
+            "Active"
+        case .finished:
+            "Finished"
+        }
+    }
 }

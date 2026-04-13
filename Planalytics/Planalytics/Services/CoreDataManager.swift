@@ -89,6 +89,21 @@ class CoreDataManager {
         }
     }
     
+    func fetchOldestTransactionDate() ->  Date? {
+        let request = NSFetchRequest<Transaction>(entityName: "Transaction")
+        request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: true)]
+        
+        request.fetchLimit = 1
+        
+        do {
+            let result = try context.fetch(request)
+            return result.first?.date
+        } catch {
+            print("Error while trying to fetch the first transaction: \(error)")
+            return nil
+        }
+    }
+    
     func fetchGoals() -> [Goal] {
         let request = NSFetchRequest<Goal>(entityName: "Goal")
         request.sortDescriptors = [NSSortDescriptor(key: "plannedCompletionDate", ascending: false)]
@@ -102,7 +117,8 @@ class CoreDataManager {
     }
 
     func calculateTotalBalance() -> [Decimal] {
-        let transactions: [Transaction] = fetchTransactions(year: nil, month: nil)
+        let fetchedTransactions: [Transaction] = fetchTransactions(year: nil, month: nil)
+        let transactions = fetchedTransactions.filter({ $0.isRecurrent == false })
         let goal: [Goal] = fetchGoals()
         
         var totalLiquidBalance: Decimal = 0

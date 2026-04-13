@@ -53,7 +53,11 @@ class AddTransactionViewModel {
         }
         
         transaction.isRecurrent = isRecurrent
-        transaction.recurrenceStartDate = startDate
+        if isRecurrent, startDate == nil {
+            transaction.recurrenceStartDate = Date()
+        } else {
+            transaction.recurrenceStartDate = startDate
+        }
         transaction.amount = amount as NSDecimalNumber
         transaction.transactionType = transactionType
         transaction.date = Date()

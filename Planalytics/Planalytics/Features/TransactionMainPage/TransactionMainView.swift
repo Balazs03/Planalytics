@@ -100,7 +100,6 @@ struct TransactionMainView: View {
                         }
                     }
                 }
-                .scrollDisabled(true)
                 .scrollContentBackground(.hidden)
             }
         }

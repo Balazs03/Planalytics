@@ -12,6 +12,24 @@ struct CoordinatorView: View {
     @Environment(Coordinator.self) private var coordinator
     let container: CoreDataManager
     
+    init(container: CoreDataManager) {
+        self.container = container
+        
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        
+        // Selected icon/text color
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor.black
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor.black]
+        
+        // Unselected icon/text color
+        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.lightGray
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.lightGray]
+        
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+    
     var body: some View {
         @Bindable var bindableCoordinator = coordinator
         
@@ -39,8 +57,6 @@ struct CoordinatorView: View {
             }
             .tag(Tab.goals)
         }
-        .fontDesign(.rounded)
-        .tabViewStyle(.automatic)
         .sheet(item: Bindable(coordinator).sheet) { sheet in
             sheetFactory(sheet)
         }

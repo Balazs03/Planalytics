@@ -25,11 +25,12 @@ struct TransactionsChart: View {
         Chart {
             ForEach(groupedTransactions, id: \.category) { item in
                 SectorMark(angle: .value("Kiadások", item.amount), innerRadius: .ratio(0.5), angularInset: 2)
-                    .foregroundStyle(by: .value("Kategória", appLanguage == "hu" ? item.category.titleHU : item.category.titleEN))
+                    .foregroundStyle(by: .value( appLanguage == "hu" ? "Kategória": "Category", appLanguage == "hu" ? item.category.titleHU : item.category.titleEN))
                     .cornerRadius(10)
             }
         }
         .chartForegroundStyleScale(domain: categoryTitles, range: categoryColors)
+        .font(.system(size: 16, weight: .medium))
         .frame(height: 250)
     }
 }

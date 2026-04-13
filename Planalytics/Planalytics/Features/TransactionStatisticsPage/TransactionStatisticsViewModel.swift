@@ -15,7 +15,7 @@ class TransactionStatisticsViewModel {
     var incomes: [Transaction]
     var selectedYear: Int
     var selectedMonth: Int
-    var firstTransactionYear: Int?
+    var firstTransactionYear: Int
     
     var groupedTransactions: [(category: TransactionCategory, amount: Decimal)] {
         let groupedDict = Dictionary(grouping: expenses, by: \.categoryWrapper)
@@ -53,8 +53,10 @@ class TransactionStatisticsViewModel {
         self.selectedYear = currentYear
         self.selectedMonth = currentMonth
         self.transactions = fetchedTransactions
-        if let firstYear = fetchedTransactions.first?.date {
-            self.firstTransactionYear = Calendar.current.component(.year, from: firstYear)
+        if let firstTransactionDate = container.fetchOldestTransactionDate() {
+            self.firstTransactionYear = Calendar.current.component(.year, from: firstTransactionDate)
+        } else {
+            self.firstTransactionYear = currentYear
         }
         
         incomes = fetchedTransactions.filter { $0.transactionType == .income && $0.isRecurrent == false }

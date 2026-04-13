@@ -39,6 +39,8 @@ struct AddMoneySheet: View {
                 }
                 
                 Text("Egyenleg: \(vm.transBalance.formatted()) Ft")
+                            
+                Text("Teljesítésig hátralévő összeg: \((vm.goal.amount.decimalValue - (vm.goal.saving?.decimalValue ?? 0)).formatted()) Ft")
                 
                 Button("Pénz hozzáadása") {
                     if let amount = vm.amount, amount > vm.goal.amount as Decimal {
@@ -51,34 +53,33 @@ struct AddMoneySheet: View {
                 .padding()
                 .buttonStyle(.glass)
                 .fontWeight(.semibold)
-            }
-            .alert("Túl nagy összeg", isPresented: $showAmountAlert) {
-                Button("Ok", role: .confirm){
-                    vm.addBalance()
-                    coordinator.dismissSheet()
-                }
-                Button("Mégse", role: .destructive) {
-                    showAmountAlert.toggle()
-                }
-            } message: {
-                Text("A megadott összeg meghaladja a cél összegét")
-            }
-            .navigationTitle("Pénz hozzáadása")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading){
-                    Button {
+                .alert("Túl nagy összeg", isPresented: $showAmountAlert) {
+                    Button("Ok", role: .confirm){
+                        vm.addBalance()
                         coordinator.dismissSheet()
-                    } label: {
-                        Image(systemName: "arrow.backward")
                     }
+                    Button("Mégse", role: .destructive) {
+                        showAmountAlert.toggle()
+                    }
+                } message: {
+                    Text("A megadott összeg meghaladja a cél összegét")
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Image(systemName:  vm.goal.iconName ?? "")
+                .navigationTitle("Pénz hozzáadása")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading){
+                        Button {
+                            coordinator.dismissSheet()
+                        } label: {
+                            Image(systemName: "arrow.backward")
+                        }
+                    }
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Image(systemName:  vm.goal.iconName ?? "chart.line.text.clipboard")
+                    }
                 }
             }
         }
-        .fontDesign(.rounded)
         .padding()
     }
 }

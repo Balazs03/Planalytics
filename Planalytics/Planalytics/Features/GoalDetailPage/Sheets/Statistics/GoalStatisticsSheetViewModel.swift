@@ -209,9 +209,31 @@ class GoalStatisticsSheetViewModel {
 }
 
 enum ChartDateFilter: String, CaseIterable {
-    case yearly = "Éves"
-    case monthly = "Havi"
-    case daily = "Napi"
+    case yearly
+    case monthly
+    case daily
+    
+    var nameHu : String {
+        switch self {
+        case .daily:
+            return "Napi"
+        case .monthly:
+            return "Havi"
+        case .yearly:
+            return "Éves"
+        }
+    }
+    
+    var nameEn: String {
+        switch self {
+        case .daily:
+            return "Daily"
+        case .monthly:
+            return "Monthly"
+        case .yearly:
+            return "Yearly"
+        }
+    }
     
     var date : Calendar.Component {
         switch self {

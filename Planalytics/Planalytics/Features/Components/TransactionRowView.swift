@@ -15,7 +15,17 @@ struct TransactionRowView: View {
         HStack {
             Text(transaction.name ?? "Névtelen")
             if transaction.isRecurrent {
-                Image(systemName: "repeat.circle.fill")
+                
+                VStack(alignment: .leading) {
+                    Image(systemName: "repeat.circle.fill")
+                    
+                    if let nextDate = transaction.recurrenceStartDate {
+                        let dateTitle = appLanguage == "hu" ? "Következő dátum:" : "Next date:"
+                        
+                        Text("\(dateTitle) \(nextDate.formatted(date: .numeric, time: .omitted))")
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
             
             Spacer()

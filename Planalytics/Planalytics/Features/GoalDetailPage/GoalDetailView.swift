@@ -47,11 +47,11 @@ struct GoalDetailView: View {
                     .padding(.horizontal)
                     
                     HStack(spacing: 40) {
-                        ActionButtonView(label: appLanguage == "hu" ? "Add" : "Hozzáadás", icon: "plus", action: {
+                        ActionButtonView(label: appLanguage == "hu" ? "Hozzáadás" : "Add", icon: "plus", action: {
                             coordinator.present(sheet: .addMoney(vm.goal))
                         })
                         
-                        ActionButtonView(label: appLanguage == "hu" ? "Withdraw" : "Kivétel", icon: "arrow.down", action: {
+                        ActionButtonView(label: appLanguage == "hu" ? "Kivétel" : "Withdraw", icon: "arrow.down", action: {
                             coordinator.present(sheet: .withdrawMoney(vm.goal))
                         })
                     }
@@ -68,12 +68,12 @@ struct GoalDetailView: View {
                             Divider()
                         }
                         
-                        InfoRowView(label: appLanguage == "hu" ? "Money saved so far" : "Eddig félretett pénz" , value: "\((vm.goal.saving as Decimal? ?? 0.00).formatted()) Ft")
+                        InfoRowView(label: appLanguage == "hu" ? "Eddig félretett pénz" : "Money saved so far", value: "\((vm.goal.saving as Decimal? ?? 0.00).formatted()) Ft")
                         
-                        InfoRowView(label: appLanguage == "hu" ? "Planned completion date" : "Tervezett befejezési dátum",
+                        InfoRowView(label: appLanguage == "hu" ? "Tervezett befejezési dátum" : "Planned completion date",
                                     value: "\(vm.goal.plannedCompletionDate.formatted(date: .numeric, time: .omitted))")
                         
-                        InfoRowView(label: appLanguage == "hu" ? "Created on" : "Létrehozva",
+                        InfoRowView(label: appLanguage == "hu" ? "Létrehozva" : "Created on",
                                     value: "\(vm.goal.creationDate.formatted(date: .numeric, time: .omitted))")
                         
                         Toggle("Befejezett", isOn: Binding(

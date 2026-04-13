@@ -27,7 +27,6 @@ struct AddGoalView: View {
                         TextField("Cél neve", text: $vm.name)
                     } header: {
                         Text("Név")
-                            .foregroundStyle(.black)
                     }
                     
                     Section {
@@ -41,7 +40,6 @@ struct AddGoalView: View {
                         }
                     } header: {
                         Text("Összeg")
-                            .foregroundStyle(.black)
                     }
                     
                     Section {
@@ -54,7 +52,6 @@ struct AddGoalView: View {
                         .datePickerStyle(.graphical)
                     } header: {
                         Text("Dátum")
-                            .foregroundStyle(.black)
                     }
                     
                     Section {
@@ -80,10 +77,8 @@ struct AddGoalView: View {
                         }
                     } header: {
                         Text("Ikon")
-                            .foregroundStyle(.black)
                     }
                 }
-                .tint(.appSlate)
                 .fontDesign(.rounded)
                 .scrollContentBackground(.hidden)
                 .sheet(isPresented: $showIconPicker) {
@@ -101,7 +96,7 @@ struct AddGoalView: View {
                     Text("Mentés")
                         .font(.headline)
                         .fontWeight(.bold)
-                        .foregroundColor(vm.disableForm ? .none :  .black)
+                        .foregroundColor(vm.disableForm ? .none :  .white)
                         .frame(maxWidth: .infinity)
                         .padding()
                         // Ha le van tiltva, szürke, ha aktív, akkor az appAccent szín

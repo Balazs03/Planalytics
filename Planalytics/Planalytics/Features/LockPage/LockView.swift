@@ -32,7 +32,7 @@ struct LockView: View {
                 ForEach(0..<4, id: \.self) { index in
                     Circle()
                         .frame(width: 30)
-                        .foregroundStyle(vm.currentPin.count >= index + 1 ? .blue : .black)
+                        .foregroundStyle(vm.currentPin.count >= index + 1 ? .mint : .primary)
                 }
             }
             .keyframeAnimator(initialValue: CGFloat.zero, trigger: vm.animateField, content: { content, value in
@@ -45,7 +45,6 @@ struct LockView: View {
                     CubicKeyframe(20, duration: 0.05)
                     CubicKeyframe(-20, duration: 0.05)
                     CubicKeyframe(0, duration: 0.05)
-
                 }
             })
             .padding()
@@ -63,8 +62,10 @@ struct LockView: View {
                         }
                     } label: {
                         Text("\(number)")
+                            .font(.title)
                     }
-                    .frame(width: 40, height: 40)
+                    .frame(width: 60, height: 60)
+                    .buttonStyle(.glass)
                 }
                 
                 Button {
@@ -73,8 +74,10 @@ struct LockView: View {
                     }
                 } label: {
                     Image(systemName: "delete.left")
+                        .font(.title)
                 }
-                .frame(width: 40, height: 40)
+                .frame(width: 60, height: 60)
+                .buttonStyle(.glass)
                 
                 Button {
                     if vm.currentPin.count < 4 {
@@ -82,8 +85,10 @@ struct LockView: View {
                     }
                 } label: {
                     Text("0")
+                        .font(.title)
                 }
-                .frame(width: 40, height: 40)
+                .frame(width: 60, height: 60)
+                .buttonStyle(.glass)
                 
                 Button {
                     vm.unlockWithFaceID()
@@ -91,12 +96,15 @@ struct LockView: View {
                     if let biometricType = vm.getBiometricType() {
                         if biometricType == .faceID {
                             Image(systemName: "faceid")
+                                .font(.title)
                         } else if biometricType == .touchID {
                             Image(systemName: "touchid")
+                                .font(.title)
                         }
                     }
                 }
-                .frame(width: 40, height: 40)
+                .frame(width: 60, height: 60)
+                .buttonStyle(.glass)
             }
             .padding()
         }
@@ -129,7 +137,6 @@ struct LockView: View {
         } message: {
             Text("Törölni szeretné a jelszót és a pin kódos belépést?")
         }
-
     }
 }
 

@@ -132,18 +132,51 @@ enum RecurrenceFrequency: String, Identifiable, CaseIterable {
         self.rawValue
     }
     
-    case daily = "Napi"
-    case weekly = "Heti"
-    case monthly = "Havi"
+    case daily
+    case weekly
+    case monthly
+    
+    var nameHu: String {
+        switch self {
+        case .daily:
+            return "Napi"
+        case .weekly:
+            return "Heti"
+        case .monthly:
+            return "Havi"
+        }
+    }
+    
+    var nameEn: String {
+        switch self {
+        case .daily:
+            return "Daily"
+        case .weekly:
+            return "Weekly"
+        case .monthly:
+            return "Monthly"
+        }
+    }
     
     var value: Calendar.Component {
         switch self {
         case .daily:
             return .day
         case .weekly:
-            return Calendar.Component.weekOfYear
+            return .weekOfYear
         case .monthly:
             return .month
+        }
+    }
+    
+    var step: Int {
+        switch self {
+        case .daily:
+            return 1
+        case .weekly:
+            return 7
+        case .monthly:
+            return 1
         }
     }
 }
@@ -154,11 +187,19 @@ extension Transaction: Identifiable {
         return NSFetchRequest<Transaction>(entityName: "Transaction")
     }
     
-    @objc var sect: String {
+    @objc var sectHu: String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
         formatter.locale = Locale(identifier: "hu_HU")
+        return formatter.string(from: self.date)
+    }
+    
+    @objc var sectEn: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        formatter.locale = Locale(identifier: "en_US")
         return formatter.string(from: self.date)
     }
 

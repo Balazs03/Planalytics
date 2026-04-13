@@ -19,7 +19,6 @@ class LockViewModel {
     let context = LAContext()
     var showAlert: Bool = false
     
-    
     var isBiometricAvailable: Bool {
         return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
     }

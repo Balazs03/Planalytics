@@ -18,6 +18,16 @@
       },
       "shouldTranslate" : false
     },
+    "%@ %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ %2$@"
+          }
+        }
+      }
+    },
     "%@ %%" : {
       "shouldTranslate" : false
     },
@@ -119,31 +129,53 @@
         }
       }
     },
-    "Aktív célok: %lld" : {
-      "extractionState" : "stale",
+    "Alapértelmezett" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Active goals: %lld"
+            "value" : "Default"
           }
         },
         "hu" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aktív célok: %lld"
+            "value" : "Alapértelmezett"
           }
         }
       }
     },
-    "Alapértelmezett" : {
-
-    },
     "Alkalmazás nyelv kiválasztása" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose app language"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alkalmazás nyelv kiválasztása"
+          }
+        }
+      }
     },
     "Alkalmazás témája" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App theme"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alkalmazás témája"
+          }
+        }
+      }
     },
     "Alkalmazás zárolása" : {
       "localizations" : {
@@ -162,7 +194,20 @@
       }
     },
     "Angol" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "English"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angol"
+          }
+        }
+      }
     },
     "Az adott időszakban nem történtek kiadások" : {
       "localizations" : {
@@ -340,6 +385,22 @@
         }
       }
     },
+    "Category" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kategória"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kategória"
+          }
+        }
+      }
+    },
     "Cél neve" : {
       "localizations" : {
         "en" : {
@@ -389,7 +450,20 @@
       }
     },
     "Csatolmány" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attachment"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Csatolmány"
+          }
+        }
+      }
     },
     "Dátum" : {
       "localizations" : {
@@ -419,23 +493,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Eddig a célra féltetett összeg: %@ Ft"
-          }
-        }
-      }
-    },
-    "Eddig befejezettek: %lld" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Completed so far: %lld "
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eddig befejezettek: %lld"
           }
         }
       }
@@ -505,21 +562,17 @@
       }
     },
     "Év" : {
-
-    },
-    "Év szűrés" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Year filter"
+            "value" : "Year"
           }
         },
         "hu" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Év szűrés"
+            "value" : "Év"
           }
         }
       }
@@ -552,21 +605,17 @@
       }
     },
     "Hónap" : {
-
-    },
-    "Hónap szűrés" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Month filter"
+            "value" : "Month"
           }
         },
         "hu" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hónap szűrés"
+            "value" : "Hónap"
           }
         }
       }
@@ -652,7 +701,20 @@
       }
     },
     "Ismétlődő tranzakciók" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recurring transactions"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ismétlődő tranzakciók"
+          }
+        }
+      }
     },
     "Kategória" : {
       "localizations" : {
@@ -666,23 +728,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Kategória"
-          }
-        }
-      }
-    },
-    "Kép kiválasztás" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Picture"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kép kiválasztás"
           }
         }
       }
@@ -752,13 +797,52 @@
       }
     },
     "Koppints ide a fotó kiválasztásához" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap here to choose a picture"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koppints ide a foto kiválasztásához"
+          }
+        }
+      }
     },
     "Leírás" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Description"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leírás"
+          }
+        }
+      }
     },
     "Magyar" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hungarian"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Magyar"
+          }
+        }
+      }
     },
     "Még nem történt feltöltés" : {
       "localizations" : {
@@ -905,10 +989,36 @@
       }
     },
     "Nyelv" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nyelv"
+          }
+        }
+      }
     },
     "Nyugta beolvasása" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read receipt"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nyugta beolvasása"
+          }
+        }
+      }
     },
     "Ok" : {
       "localizations" : {
@@ -1055,7 +1165,20 @@
       }
     },
     "Sötét" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dark"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sötét"
+          }
+        }
+      }
     },
     "Statisztikák" : {
       "localizations" : {
@@ -1089,8 +1212,37 @@
         }
       }
     },
+    "Teljesítésig hátralévő összeg: %@ Ft" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amount remaining until completion: %@ Ft"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Teljesítésig hátralévő összeg: %@ Ft"
+          }
+        }
+      }
+    },
     "Téma" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Theme"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Téma"
+          }
+        }
+      }
     },
     "Tervezett dátum" : {
       "localizations" : {
@@ -1205,7 +1357,20 @@
       }
     },
     "Új cél hozzáadása" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add new goal"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Új cél hozzáadása"
+          }
+        }
+      }
     },
     "Új tranzakció" : {
       "localizations" : {
@@ -1256,7 +1421,20 @@
       }
     },
     "Világos" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Light"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Világos"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"
