@@ -385,6 +385,22 @@
         }
       }
     },
+    "Cancel" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mégse"
+          }
+        }
+      }
+    },
     "Category" : {
       "localizations" : {
         "en" : {
@@ -780,6 +796,22 @@
         }
       }
     },
+    "Kiadások kategóriánként" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expenses by category"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Kiadások kategóriánként"
+          }
+        }
+      }
+    },
     "Kiválasztás" : {
       "localizations" : {
         "en" : {
@@ -1025,12 +1057,12 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ok"
+            "value" : "Ok"
           }
         },
         "hu" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "needs_review",
             "value" : "Ok"
           }
         }

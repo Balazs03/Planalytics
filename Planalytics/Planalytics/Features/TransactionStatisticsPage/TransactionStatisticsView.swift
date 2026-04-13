@@ -19,9 +19,12 @@ struct TransactionStatisticsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                VStack(spacing: 25) {
+                VStack(spacing: 15) {
                     YearMonthSelection(selectedYear: $vm.selectedYear, selectedMonth: $vm.selectedMonth, firstYear: vm.firstTransactionYear)
-                    
+                    Text("Kiadások kategóriánként")
+                        .foregroundStyle(.secondary)
+                        .font(.subheadline)
+
                     if !vm.expenses.isEmpty {
                         TransactionsChart(groupedTransactions: vm.groupedTransactions, totalExpenses: vm.totalExpenses)
                     } else {
