@@ -9,6 +9,7 @@ import SwiftUI
 internal import CoreData
 
 struct GoalsMainView: View {
+    @AppStorage("appLanguage") private var appLanguage: String = "hu"
     @Environment(Coordinator.self) private var coordinator
     @State private var vm: GoalsMainViewModel
     
@@ -18,25 +19,26 @@ struct GoalsMainView: View {
     
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [Color.appBackground, Color.appAccent, Color.appSlate]), startPoint: .bottom, endPoint: .top)
+            LinearGradient(gradient: Gradient(colors: [.mainBackground, .textBackground]), startPoint: .bottom, endPoint: .top)
                 .ignoresSafeArea()
             
             VStack {
-                VStack {
-                    Text("Aktív célok: \(vm.activeGoalNumber)")
-                        .contentTransition(.numericText())
-                        .animation(.default, value: vm.activeGoalNumber)
-                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                    
-                    Text("Eddig befejezettek: \(vm.finishedGoalNumber)")
-                        .contentTransition(.numericText())
-                        .animation(.default, value: vm.finishedGoalNumber)
-                        .font(.system(.title2, design: .rounded, weight: .bold))
-                        .multilineTextAlignment(.center)
-                    
-                    Button("Hozzáadás") {
-                        coordinator.goalPush(.addGoal)
+                VStack(spacing: 15) {
+                    HStack {
+                        StaticCardView(text: appLanguage == "hu" ? "Aktív célok": "Active goals", value: String(vm.activeGoalNumber), color: .blue, icon: "target")
+                        
+                        StaticCardView(text: appLanguage == "hu" ? "Befejezettek": "Completed", value: String(vm.finishedGoalNumber), color: .green, icon: "checkmark.seal.text.page.fill")
                     }
+                    
+                    Button {
+                        coordinator.goalPush(.addGoal)
+                    } label: {
+                        HStack {
+                            Image(systemName: "plus.circle.fill")
+                            Text("Új cél hozzáadása")
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
                     .padding()
                     .buttonStyle(.glass)
                     .fontWeight(.semibold)
@@ -45,13 +47,15 @@ struct GoalsMainView: View {
                 VStack {
                     Picker("Szűrés", selection: $vm.selectedFilter) {
                         ForEach(GoalFilter.allCases, id: \.self) { filter in
-                            Text(filter.rawValue).tag(filter)
+                            Text(appLanguage == "hu" ? filter.nameHu : filter.nameEn).tag(filter)
                         }
                     }
+                    .padding(.horizontal)
                     .pickerStyle(.segmented)
                     
                     if vm.goals.isEmpty {
                         Text("Nincsenek megadott célok")
+                        Spacer()
                     } else {
                         List {
                             ForEach(vm.filteredGoals, id: \.objectID) { goal in
@@ -66,6 +70,15 @@ struct GoalsMainView: View {
                 }
             }
             .padding()
+        }
+        .toolbar {
+            ToolbarItem(placement: .automatic) {
+                Button {
+                    coordinator.goalPush(.settings)
+                } label: {
+                    Label("Beállítások", systemImage: "gearshape.fill")
+                }
+            }
         }
         .onChange(of: coordinator.dataVersion) {
             withAnimation(.snappy) { // Itt adjuk meg az animációt

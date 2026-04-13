@@ -13,7 +13,6 @@ class AddMoneySheetViewModel {
     let container: CoreDataManager
     var goal: Goal
     var amount: Decimal?
-    var errorMessage: String?
     var finishedMessage: String?
     var transBalance: Decimal
 
@@ -21,16 +20,6 @@ class AddMoneySheetViewModel {
         self.container = container
         self.goal = goal
         self.transBalance = container.calculateTotalBalance()[1]
-    }
-    
-    func addBalancePossible() -> Bool {
-        guard let amount else { return false}
-        if amount <= transBalance {
-            errorMessage = nil
-            return true
-        }
-        errorMessage = "Nincs elegendő pénz a számlán!"
-        return false
     }
     
     func addBalance() {
@@ -44,8 +33,6 @@ class AddMoneySheetViewModel {
         newTransaction.goal = goal // ezzel az inverz kapcsolat miatt belerakom a transactions nssetbe
         // Másik megoldás a generált addTransaction függvénnyel
         newTransaction.transactionCategory = .saving
-
-        errorMessage = nil
         
         goal.saving = (goal.saving ?? 0) as Decimal + amount as NSDecimalNumber
         container.saveContext()

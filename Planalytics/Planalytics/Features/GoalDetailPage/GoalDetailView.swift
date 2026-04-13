@@ -12,6 +12,7 @@ import Charts
 struct GoalDetailView: View {
     @Environment(Coordinator.self) private var coordinator
     @State private var vm: GoalDetailViewModel
+    @AppStorage("appLanguage") private var appLanguage: String = "hu"
     
     init(vm : GoalDetailViewModel) {
         self.vm = vm
@@ -19,38 +20,38 @@ struct GoalDetailView: View {
     
     var body: some View {
         ZStack{
-            LinearGradient(colors: [.appBackground, .appSlate], startPoint: .top, endPoint: .bottom)
+            LinearGradient(colors: [.textBackground, .mainBackground], startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
             ScrollView {
                 VStack(spacing: 25) {
                     
                     VStack(spacing: 10) {
                         Text(vm.goal.name)
-                            .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                            .font(.system(.largeTitle, weight: .bold))
                             .multilineTextAlignment(.center)
                         
                         Text("Tervezett összeg: \((vm.goal.amount as Decimal).formatted(.number.precision(.fractionLength(2)))) Ft")
-                            .font(.system(.title2, design: .rounded, weight: .bold))
+                            .font(.system(.title2, weight: .bold))
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.secondary)
                         
                         VStack {
                             Text("\((vm.goal.progress * 100).formatted(.number.precision(.fractionLength(2)))) %")
-                                .font(.system(.title, design: .rounded, weight: .bold))
+                                .font(.system(.title, weight: .bold))
                             
                             LinearProgressView(value: NSDecimalNumber(decimal: vm.goal.progress).doubleValue, shape: Capsule())
-                                .tint(Gradient(colors: [.blue, .appAccent]))
+                                .tint(Gradient(colors: [.mainBackground, .secondaryBackground]))
                                 .frame(height: 64)
                         }
                     }
                     .padding(.horizontal)
                     
                     HStack(spacing: 40) {
-                        ActionButtonView(label: "Hozzáadás", icon: "plus", action: {
+                        ActionButtonView(label: appLanguage == "hu" ? "Hozzáadás" : "Add", icon: "plus", action: {
                             coordinator.present(sheet: .addMoney(vm.goal))
                         })
                         
-                        ActionButtonView(label: "Kivétel", icon: "arrow.down", action: {
+                        ActionButtonView(label: appLanguage == "hu" ? "Kivétel" : "Withdraw", icon: "arrow.down", action: {
                             coordinator.present(sheet: .withdrawMoney(vm.goal))
                         })
                     }
@@ -58,17 +59,21 @@ struct GoalDetailView: View {
                     
                     VStack(alignment: .leading, spacing: 15) {
                         if let description = vm.goal.desc {
-                            InfoGroupView(label: "Leírás", value: description)
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text("Leírás")
+                                    .font(.headline)
+                                Text(description)
+                                    .font(.body)
+                            }
                             Divider()
-                            
                         }
                         
-                        InfoRowView(label: "Eddig félretett pénz" , value: "\((vm.goal.saving as Decimal? ?? 0.00).formatted()) Ft")
+                        InfoRowView(label: appLanguage == "hu" ? "Eddig félretett pénz" : "Money saved so far", value: "\((vm.goal.saving as Decimal? ?? 0.00).formatted()) Ft")
                         
-                        InfoRowView(label: "Tervezett befejezési dátum",
+                        InfoRowView(label: appLanguage == "hu" ? "Tervezett befejezési dátum" : "Planned completion date",
                                     value: "\(vm.goal.plannedCompletionDate.formatted(date: .numeric, time: .omitted))")
                         
-                        InfoRowView(label: "Létrehozva",
+                        InfoRowView(label: appLanguage == "hu" ? "Létrehozva" : "Created on",
                                     value: "\(vm.goal.creationDate.formatted(date: .numeric, time: .omitted))")
                         
                         Toggle("Befejezett", isOn: Binding(

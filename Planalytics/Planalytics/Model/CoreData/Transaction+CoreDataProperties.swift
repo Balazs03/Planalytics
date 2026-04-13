@@ -18,7 +18,7 @@ enum TransactionType: Int16, CaseIterable{
     case income = 0
     case expense = 1
     
-    var title: String {
+    var titleHU: String {
         switch self {
         case .income:
             return "Bevétel"
@@ -26,9 +26,18 @@ enum TransactionType: Int16, CaseIterable{
             return "Kiadás"
         }
     }
+    
+    var titleEN: String {
+        switch self {
+        case .income:
+            return "Income"
+        case .expense:
+            return "Expense"
+        }
+    }
 }
 
-enum TransactionCategory: Int16, CaseIterable, Hashable, Identifiable{
+enum TransactionCategory: Int16, CaseIterable, Identifiable{
     var id: Int16 {
         self.rawValue
     }
@@ -41,7 +50,7 @@ enum TransactionCategory: Int16, CaseIterable, Hashable, Identifiable{
     case saving = 5
     case other = 6
     
-    var title : String {
+    var titleHU : String {
         switch self {
         case .food:
             return "Élelmiszer"
@@ -57,6 +66,25 @@ enum TransactionCategory: Int16, CaseIterable, Hashable, Identifiable{
             return "Megtakarítás"
         case .other:
             return "Egyéb"
+        }
+    }
+    
+    var titleEN : String {
+        switch self {
+        case .food:
+            return "Food"
+        case .entertainment:
+            return "Leisure"
+        case .housing:
+            return "Housing"
+        case .transportation:
+            return "Transport"
+        case .healthAndEducation:
+            return "Healthcare and Education"
+        case .saving:
+            return "Saving"
+        case .other:
+            return "Other"
         }
     }
     
@@ -99,17 +127,79 @@ enum TransactionCategory: Int16, CaseIterable, Hashable, Identifiable{
     }
 }
 
+enum RecurrenceFrequency: String, Identifiable, CaseIterable {
+    var id: String {
+        self.rawValue
+    }
+    
+    case daily
+    case weekly
+    case monthly
+    
+    var nameHu: String {
+        switch self {
+        case .daily:
+            return "Napi"
+        case .weekly:
+            return "Heti"
+        case .monthly:
+            return "Havi"
+        }
+    }
+    
+    var nameEn: String {
+        switch self {
+        case .daily:
+            return "Daily"
+        case .weekly:
+            return "Weekly"
+        case .monthly:
+            return "Monthly"
+        }
+    }
+    
+    var value: Calendar.Component {
+        switch self {
+        case .daily:
+            return .day
+        case .weekly:
+            return .weekOfYear
+        case .monthly:
+            return .month
+        }
+    }
+    
+    var step: Int {
+        switch self {
+        case .daily:
+            return 1
+        case .weekly:
+            return 7
+        case .monthly:
+            return 1
+        }
+    }
+}
+
 extension Transaction: Identifiable {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Transaction> {
         return NSFetchRequest<Transaction>(entityName: "Transaction")
     }
     
-    @objc var sect: String {
+    @objc var sectHu: String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
         formatter.locale = Locale(identifier: "hu_HU")
+        return formatter.string(from: self.date)
+    }
+    
+    @objc var sectEn: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        formatter.locale = Locale(identifier: "en_US")
         return formatter.string(from: self.date)
     }
 
@@ -119,6 +209,9 @@ extension Transaction: Identifiable {
     @NSManaged public var type: Int16
     @NSManaged public var category: Int16
     @NSManaged public var goal: Goal?
+    @NSManaged public var isRecurrent: Bool
+    @NSManaged public var recurrenceFrequency: String?
+    @NSManaged public var recurrenceStartDate: Date?
     
     var transactionType: TransactionType {
         get {
@@ -145,5 +238,18 @@ extension Transaction: Identifiable {
     
     var categoryWrapper: TransactionCategory {
         return TransactionCategory(rawValue: self.category) ?? .other
+    }
+    
+    var recurrenceWrapper: RecurrenceFrequency? {
+        get {
+            if let recFreq = self.recurrenceFrequency {
+                return RecurrenceFrequency(rawValue: recFreq)
+            }
+            return nil
+        }
+        
+        set {
+            self.recurrenceFrequency = newValue?.rawValue
+        }
     }
 }

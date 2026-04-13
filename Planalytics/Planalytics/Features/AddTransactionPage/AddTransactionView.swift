@@ -6,19 +6,13 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct AddTransactionView: View {
+    @AppStorage("appLanguage") private var appLanguage: String = "hu"
     @Environment(Coordinator.self) private var coordinator
     @State private var vm : AddTransactionViewModel
-    @State private var isAmountOnFocus: Bool = false
-    var disableForm: Bool {
-        guard let amount = vm.amount, let name = vm.name else { return true }
-        if vm.transactionType == .income {
-            return amount == 0
-        } else {
-            return amount == 0 || name.isEmpty || vm.transactionCategory == nil || amount > vm.transBalance
-        }
-    }
+    @State private var photosPickerItem: PhotosPickerItem?
     
     init(vm: AddTransactionViewModel) {
         self.vm = vm
@@ -26,20 +20,74 @@ struct AddTransactionView: View {
     
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [Color.appBackground, Color.appAccent]), startPoint: .bottom, endPoint: .top)
+            LinearGradient(gradient: Gradient(colors: [.mainBackground, .textBackground]), startPoint: .bottom, endPoint: .top)
                 .ignoresSafeArea()
             VStack {
                 Form {
-                    Section("Típus"){
+                    Section{
                         Picker(selection: $vm.transactionType, label: Text("Válaszd ki a típust")) {
                             ForEach(TransactionType.allCases, id: \.self) { type in
-                                Text(type.title)
+                                Text(appLanguage == "hu" ? type.titleHU: type.titleEN)
                             }
                         }
                         .pickerStyle(.segmented)
+                    } header: {
+                        Text("Típus")
                     }
                     
-                    Section("Összeg") {
+                    if vm.transactionType == .expense {
+                        Section {
+                            PhotosPicker(selection: $photosPickerItem, matching: .any(of: [.images, .screenshots])) {
+                                if let receiptImage = vm.receiptImage {
+                                    // State 1: Image is selected
+                                    Image(uiImage: receiptImage)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(height: 180)
+                                        .frame(maxWidth: .infinity)
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                        .overlay(alignment: .bottomTrailing) {
+                                            // Small edit badge in the corner
+                                            Image(systemName: "pencil.circle.fill")
+                                                .symbolRenderingMode(.multicolor)
+                                                .font(.system(size: 32))
+                                                .padding(8)
+                                                .background(Circle().fill(.white).padding(8))
+                                        }
+                                } else {
+                                    VStack(spacing: 12) {
+                                        Image(systemName: "doc.viewfinder.fill")
+                                            .font(.system(size: 40))
+                                            .foregroundStyle(.secondaryBackground)
+                                        
+                                        Text("Nyugta beolvasása")
+                                            .font(.headline)
+                                            .foregroundColor(.primary)
+                                        
+                                        Text("Koppints ide a fotó kiválasztásához")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 30)
+                                    .background(.thirdBackground.opacity(0.1))
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .strokeBorder(.white, style: StrokeStyle(lineWidth: 3, dash: [8]))
+                                    )
+                                }
+                            }
+                            .buttonStyle(.plain) // Removes default blue tint from text
+                            .listRowInsets(EdgeInsets()) // Pushes the card all the way to the edges of the form row
+                            .listRowBackground(Color.clear) // Removes the default white form background
+                            
+                        } header: {
+                            Text("Csatolmány")
+                        }
+                    }
+                    
+                    Section {
                         HStack{
                             TextField("0.0", value: $vm.amount, format: .number)
                                 .font(.title)
@@ -57,24 +105,62 @@ struct AddTransactionView: View {
                             }
                             .foregroundStyle(.red)
                         }
+                    } header: {
+                        Text("Összeg")
+
                     }
                     
-                    Section("Név") {
+                    Section {
                         TextField(vm.transactionType == .income ? "Bevétel neve" : "Kiadás neve", text: Binding(
                                 get: { vm.name ?? "" }, // Ha nil, akkor üres stringet mutat
                                 set: { vm.name = $0.isEmpty ? nil : $0 } // Ha üresre törli, akkor nil legyen (vagy maradhat simán $0 is)
                             )
                         )
+                    } header: {
+                        Text("Név")
+                    }
+                    
+                    Section {
+                        VStack {
+                            Toggle("Ismétlődő fizetés beállítása", isOn: $vm.isRecurrent)
+                            
+                            if vm.isRecurrent {
+                                VStack {
+                                    Picker("Gyakoriság", selection: Binding(
+                                        get: {
+                                            vm.recurrencyFrequency ?? RecurrenceFrequency.weekly
+                                        },
+                                        set: { newValue in
+                                            vm.recurrencyFrequency = newValue
+                                        }
+                                    )) {
+                                        ForEach(RecurrenceFrequency.allCases, id: \.id) { frequency in
+                                            Text(appLanguage == "hu" ? frequency.nameHu: frequency.nameEn).tag(frequency)
+                                        }
+                                    }
+                                    DatePicker("Kezdő dátum", selection: Binding<Date>(
+                                        get: {
+                                            vm.startDate ?? Date()
+                                        }, set: {
+                                            vm.startDate = $0
+                                        }
+                                    ),
+                                    in: Date()...,
+                                    displayedComponents: [.date]
+                                    )
+                                }
+                            }
+                        }
+                    } header: {
+                        Text("Ismétlés")
                     }
                     
                     if vm.transactionType == .expense {
-                        Section("Kategória") {
+                        Section {
                             Picker(selection: $vm.transactionCategory, label: Text("Válaszd ki a kategóriát")) {
                                 ForEach(TransactionCategory.allCases) { category in
                                     Label {
-                                            // A szöveg (title) rész - itt feketén hagyjuk vagy kényszerítjük
-                                            Text(category.title)
-                                                .foregroundStyle(.black)
+                                            Text(appLanguage == "hu" ? category.titleHU : category.titleEN)
                                         } icon: {
                                             // Az ikon rész - itt alkalmazzuk a kategória színét
                                             Image(systemName: category.iconName)
@@ -84,11 +170,22 @@ struct AddTransactionView: View {
                                 }
                             }
                             .pickerStyle(.inline)
+                        } header: {
+                            Text("Kategória")
                         }
                     }
                 }
+                .onChange(of: photosPickerItem, {
+                    Task {
+                        if let photosPickerItem, let data = try? await photosPickerItem.loadTransferable(type: Data.self) {
+                            if let image = UIImage(data: data) {
+                                vm.receiptImage = image
+                                vm.recognizeText()
+                            }
+                        }
+                    }
+                })
                 .scrollContentBackground(.hidden)
-                .tint(.appSlate)
                 .fontDesign(.rounded)
                 
                 Button {
@@ -98,16 +195,16 @@ struct AddTransactionView: View {
                     Text("Mentés")
                         .font(.headline)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity) // Teljes szélesség
+                        .foregroundColor(vm.disableForm ? .none :  .white)
+                        .frame(maxWidth: .infinity)
                         .padding()
                         // Ha le van tiltva, szürke, ha aktív, akkor az appAccent szín
-                        .background(disableForm ? Color.appSlate.opacity(0.5) : Color.appSlate)
+                        .background(.secondaryBackground)
                         .cornerRadius(16)
-                        .shadow(color: disableForm ? .clear : Color.appAccent.opacity(0.4), radius: 8, y: 4)
+                        .shadow(color: vm.disableForm ? .clear : .secondaryBackground, radius: 8, y: 4)
                 }
                 .padding()
-                .disabled(disableForm)
+                .disabled(vm.disableForm)
             }
         }
         .navigationTitle("Új tranzakció")

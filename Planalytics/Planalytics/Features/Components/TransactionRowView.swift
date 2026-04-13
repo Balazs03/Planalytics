@@ -8,36 +8,42 @@
 import SwiftUI
 
 struct TransactionRowView: View {
-    @ObservedObject var transaction: Transaction // Kulcsfontosságú a frissítéshez!
-    var isFistDayOfMonth: Bool {
-        Calendar.current.component(.day, from: transaction.date) == 1
-    }
-    
-    var isFirstMonthofYear: Bool {
-        Calendar.current.component(.month, from: transaction.date) == 1
-    }
+    @AppStorage("appLanguage") private var appLanguage: String = "hu"
+    @ObservedObject var transaction: Transaction
 
     var body: some View {
         HStack {
             Text(transaction.name ?? "Névtelen")
+            if transaction.isRecurrent {
+                
+                VStack(alignment: .leading) {
+                    Image(systemName: "repeat.circle.fill")
+                    
+                    if let nextDate = transaction.recurrenceStartDate {
+                        let dateTitle = appLanguage == "hu" ? "Következő dátum:" : "Next date:"
+                        
+                        Text("\(dateTitle) \(nextDate.formatted(date: .numeric, time: .omitted))")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            
             Spacer()
             if transaction.transactionType == .income {
                 Text("+\(transaction.amount.doubleValue.formatted()) Ft")
                     .foregroundStyle(.green)
             } else {
                 if let category = transaction.transactionCategory {
-                    Image(systemName: transaction.transactionCategory?.iconName ?? "")
+                    Image(systemName: category.iconName)
                         .foregroundStyle(category.diagramColor)
                     
-                    Text(category.title)
+                    Text(appLanguage == "hu" ? category.titleHU : category.titleEN)
+                        .foregroundStyle(.secondary)
                 }
                       
                 Text("-\(transaction.amount.doubleValue.formatted()) Ft")
                     .foregroundStyle(.red)
             }
         }
-        .fontDesign(.rounded)
-        .foregroundStyle(Color.appText)
-        .background(Color.appBackground)
     }
 }

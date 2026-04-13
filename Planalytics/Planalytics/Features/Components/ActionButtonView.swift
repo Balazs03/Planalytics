@@ -22,7 +22,7 @@ struct ActionButtonView: View {
             .buttonStyle(.glass)
             .fontWeight(.semibold)
             Text(label)
-                .font(.caption)
+                .font(.subheadline)
                 .fontWeight(.medium)
         }
     }

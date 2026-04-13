@@ -9,11 +9,12 @@ import SwiftUI
 import Charts
 
 struct TransactionsChart: View {
+    @AppStorage("appLanguage") private var appLanguage: String = "hu"
     let groupedTransactions: [(category: TransactionCategory, amount: Decimal)]
     let totalExpenses: Decimal
     
     var categoryTitles: [String] {
-        groupedTransactions.map { $0.category.title }
+        groupedTransactions.map { appLanguage == "hu" ? $0.category.titleHU : $0.category.titleEN }
     }
     
     var categoryColors: [Color] {
@@ -23,12 +24,13 @@ struct TransactionsChart: View {
     var body: some View {
         Chart {
             ForEach(groupedTransactions, id: \.category) { item in
-                SectorMark(angle: .value("Kiadáspok", item.amount), innerRadius: .ratio(0.5), angularInset: 2)
-                    .foregroundStyle(by: .value("Kategória", item.category.title))
+                SectorMark(angle: .value("Kiadások", item.amount), innerRadius: .ratio(0.5), angularInset: 2)
+                    .foregroundStyle(by: .value( appLanguage == "hu" ? "Kategória": "Category", appLanguage == "hu" ? item.category.titleHU : item.category.titleEN))
                     .cornerRadius(10)
             }
         }
         .chartForegroundStyleScale(domain: categoryTitles, range: categoryColors)
+        .font(.system(size: 16, weight: .medium))
         .frame(height: 250)
     }
 }

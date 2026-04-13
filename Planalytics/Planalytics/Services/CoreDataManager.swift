@@ -14,6 +14,11 @@ class CoreDataManager {
     
     private init(inMemory: Bool = false) {
         container = NSPersistentContainer(name: "Finance")
+        let url = URL.storeURL(appGroup: "group.bme.nagyhazi.Planalytics", databaseName: "Finance")
+        if let url = url {
+            let storeDescription = NSPersistentStoreDescription(url: url)
+            container.persistentStoreDescriptions = [storeDescription]
+        }
         
         if inMemory {
             container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
@@ -47,18 +52,17 @@ class CoreDataManager {
         var predicates: [NSPredicate] = []
         
         if let year = year {
-            let calendar = Calendar.current
             var dateTime = DateComponents()
             dateTime.year = year
             if let month = month {
                 dateTime.month = month
             }
             
-            let startDate: Date? = calendar.date(from: dateTime) ?? nil
+            let startDate: Date? = Calendar.current.date(from: dateTime) ?? nil
             
             let endDate: Date? = {
                 guard let startDate else { return nil }
-                return calendar.date(byAdding: .month, value: 1, to: startDate)
+                return Calendar.current.date(byAdding: .month, value: 1, to: startDate)
             }()
             
             if let s = startDate, let e = endDate {
@@ -85,6 +89,21 @@ class CoreDataManager {
         }
     }
     
+    func fetchOldestTransactionDate() ->  Date? {
+        let request = NSFetchRequest<Transaction>(entityName: "Transaction")
+        request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: true)]
+        
+        request.fetchLimit = 1
+        
+        do {
+            let result = try context.fetch(request)
+            return result.first?.date
+        } catch {
+            print("Error while trying to fetch the first transaction: \(error)")
+            return nil
+        }
+    }
+    
     func fetchGoals() -> [Goal] {
         let request = NSFetchRequest<Goal>(entityName: "Goal")
         request.sortDescriptors = [NSSortDescriptor(key: "plannedCompletionDate", ascending: false)]
@@ -98,16 +117,21 @@ class CoreDataManager {
     }
 
     func calculateTotalBalance() -> [Decimal] {
-        let transactions: [Transaction] = fetchTransactions(year: nil, month: nil)
+        let fetchedTransactions: [Transaction] = fetchTransactions(year: nil, month: nil)
+        let transactions = fetchedTransactions.filter({ $0.isRecurrent == false })
         let goal: [Goal] = fetchGoals()
         
         var totalLiquidBalance: Decimal = 0
         
         for transaction in transactions {
-            if transaction.transactionType == .income {
-                totalLiquidBalance += transaction.amount as Decimal
+            if transaction.isRecurrent, let startDate = transaction.recurrenceStartDate, startDate > Date() {
+                continue
             } else {
-                totalLiquidBalance -= transaction.amount as Decimal
+                if transaction.transactionType == .income {
+                    totalLiquidBalance += transaction.amount as Decimal
+                } else {
+                    totalLiquidBalance -= transaction.amount as Decimal
+                }
             }
         }
         
@@ -134,15 +158,26 @@ extension CoreDataManager {
         let myTransaction1 = Transaction(context: previewContext)
         myTransaction1.amount = 25000.2
         myTransaction1.name = "Bevásárlás"
-        myTransaction1.date = Date()
+        var datecomponent1 = DateComponents()
+        datecomponent1.year = 2025
+        datecomponent1.month = 12
+        datecomponent1.day = 11
+        myTransaction1.date = Calendar.current.date(from: datecomponent1)!
         myTransaction1.transactionType = .expense
         myTransaction1.category = TransactionCategory.food.rawValue
+        myTransaction1.isRecurrent = false
         
         let myTransaction2 = Transaction(context: previewContext)
         myTransaction2.amount = 100000.0
         myTransaction2.name = "Fizetés"
-        myTransaction2.date = Date()
+        var datecomponent2 = DateComponents()
+        datecomponent2.year = 2025
+        datecomponent2.month = 12
+        datecomponent2.day = 11
+        myTransaction2.date = Calendar.current.date(from: datecomponent2)!
         myTransaction2.transactionType = .income
+        myTransaction2.isRecurrent = false
+
         
         let myTransaction3 = Transaction(context: previewContext)
         myTransaction3.amount = 2500.6
@@ -150,21 +185,24 @@ extension CoreDataManager {
         myTransaction3.date = Date()
         myTransaction3.transactionType = .expense
         myTransaction3.category = TransactionCategory.entertainment.rawValue
-        
+        myTransaction3.isRecurrent = false
+
         let myTransaction4 = Transaction(context: previewContext)
         myTransaction4.amount = 1000.5
         myTransaction4.name = "Mozi"
         myTransaction4.date = Date()
         myTransaction4.transactionType = .expense
         myTransaction4.category = TransactionCategory.entertainment.rawValue
-        
+        myTransaction4.isRecurrent = false
+
         let myTransaction5 = Transaction(context: previewContext)
         myTransaction5.amount = 1000.5
         myTransaction5.name = "Tankönyvek"
         myTransaction5.date = Date()
         myTransaction5.transactionType = .expense
         myTransaction5.category = TransactionCategory.healthAndEducation.rawValue
-        
+        myTransaction5.isRecurrent = false
+
         manager.saveContext()
         return manager
     }
@@ -197,6 +235,7 @@ extension CoreDataManager {
         goal1Transaction.date = Calendar.current.date(from: calendar1)!
         goal1Transaction.transactionType = .expense
         goal1Transaction.transactionCategory = .saving
+        goal1Transaction.isRecurrent = false
         myGoal1.addToTransactions(goal1Transaction)
         myGoal1.saving = ((myGoal1.saving ?? 0) as Decimal) + (goal1Transaction.amount as Decimal) as NSDecimalNumber
         
@@ -210,6 +249,7 @@ extension CoreDataManager {
         goal1Transaction2.date = Calendar.current.date(from: calendar2)!
         goal1Transaction2.transactionType = .expense
         goal1Transaction2.transactionCategory = .saving
+        goal1Transaction2.isRecurrent = false
         myGoal1.addToTransactions(goal1Transaction2)
         myGoal1.saving = ((myGoal1.saving ?? 0) as Decimal) + (goal1Transaction2.amount as Decimal) as NSDecimalNumber
 
@@ -223,6 +263,7 @@ extension CoreDataManager {
         calendar3.day = 30
         goal1Transaction3.date = Calendar.current.date(from: calendar3)!
         goal1Transaction3.transactionType = .income
+        goal1Transaction3.isRecurrent = false
         myGoal1.addToTransactions(goal1Transaction3)
         myGoal1.saving = ((myGoal1.saving ?? 0) as Decimal) - (goal1Transaction3.amount as Decimal) as NSDecimalNumber
         
@@ -235,6 +276,7 @@ extension CoreDataManager {
         calendar4.day = 1
         goal1Transaction4.date = Calendar.current.date(from: calendar4)!
         goal1Transaction4.transactionType = .income
+        goal1Transaction4.isRecurrent = false
         myGoal1.addToTransactions(goal1Transaction4)
         myGoal1.saving = ((myGoal1.saving ?? 0) as Decimal) - (goal1Transaction4.amount as Decimal) as NSDecimalNumber
         
@@ -256,6 +298,7 @@ extension CoreDataManager {
             transaction.amount = NSDecimalNumber(value: data.amount)
             transaction.name = data.name
             transaction.transactionType = data.type
+            transaction.isRecurrent = false
             if data.type == .expense {
                 transaction.transactionCategory = .saving
             }

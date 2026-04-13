@@ -15,8 +15,9 @@ enum Page: Hashable {
     case main
     case addGoal
     case addTransaction
-    case allTransactions
+    case allTransactions(showRecurrentOnly: Bool)
     case transactionStatistics
+    case settings
 }
 
 enum Tab {
@@ -33,12 +34,15 @@ enum Sheet: Hashable, Identifiable {
             return "withdrawMoney_\(goal.id)"
         case .statistics(let goal):
             return "statics_\(goal.id)"
+        case .setPinCode:
+            return "setPinCode"
         }
     }
     
     case addMoney(Goal)
     case withdrawMoney(Goal)
     case statistics(Goal)
+    case setPinCode
 }
 
 @Observable

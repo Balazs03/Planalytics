@@ -14,10 +14,13 @@ class TransactionMainViewModel {
     var totalBalance: Decimal
     var goalBalance: Decimal
     var transBalance: Decimal
+    var recurrentTransactions: [Transaction]
     
     init(container: CoreDataManager) {
         self.container = container
-        transactions = container.fetchTransactions(year: nil, month: nil)
+        let fetchedTransactions = container.fetchTransactions(year: nil, month: nil)
+        transactions = fetchedTransactions.filter({ $0.isRecurrent == false })
+        recurrentTransactions = fetchedTransactions.filter({ $0.isRecurrent == true })
         let balances = container.calculateTotalBalance()
         totalBalance = balances[0]
         transBalance = balances[1]
@@ -25,7 +28,9 @@ class TransactionMainViewModel {
     }
     
     func refreshData() {
-        transactions = container.fetchTransactions(year: nil, month: nil)
+        let fetchedTransactions = container.fetchTransactions(year: nil, month: nil)
+        transactions = fetchedTransactions.filter({ $0.isRecurrent == false })
+        recurrentTransactions = fetchedTransactions.filter({ $0.isRecurrent == true })
         let balances = container.calculateTotalBalance()
         totalBalance = balances[0]
         transBalance = balances[1]

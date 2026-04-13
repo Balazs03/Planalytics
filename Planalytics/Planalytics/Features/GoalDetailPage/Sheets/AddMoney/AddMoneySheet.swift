@@ -19,7 +19,7 @@ struct AddMoneySheet: View {
     
     var body: some View {
         NavigationStack {
-            VStack(alignment: .center) {
+            VStack(alignment: .center, spacing: 15) {
                 HStack{
                     TextField("0.0", value: $vm.amount, format: .number)
                         .font(.largeTitle)
@@ -29,17 +29,18 @@ struct AddMoneySheet: View {
                         .font(.largeTitle)
                 }
                 
-                if let amount = vm.amount {
-                    HStack{
+                if let amount = vm.amount, amount > vm.transBalance as Decimal {
+                    HStack {
                         Image(systemName: "exclamationmark.triangle")
                             .foregroundColor(.red)
                         Text("A kívánt összeg meghaladja a jelenlegi egyenleget")
                             .foregroundColor(.red)
                     }
-                    .opacity(amount > vm.transBalance as Decimal ? 1 : 0)
                 }
                 
                 Text("Egyenleg: \(vm.transBalance.formatted()) Ft")
+                            
+                Text("Teljesítésig hátralévő összeg: \((vm.goal.amount.decimalValue - (vm.goal.saving?.decimalValue ?? 0)).formatted()) Ft")
                 
                 Button("Pénz hozzáadása") {
                     if let amount = vm.amount, amount > vm.goal.amount as Decimal {
@@ -52,37 +53,33 @@ struct AddMoneySheet: View {
                 .padding()
                 .buttonStyle(.glass)
                 .fontWeight(.semibold)
-                .disabled(!vm.addBalancePossible())
-            }
-            .alert("Túl nagy összeg", isPresented: $showAmountAlert) {
-                Button("OK", role: .cancel){
-                    vm.addBalance()
-                    coordinator.dismissSheet()
-                }
-                Button("Mégsem", role: .destructive) {
-                    showAmountAlert.toggle()
-                }
-            } message: {
-                Text("A megadott összeg meghaladja a cél összegét")
-            }
-            
-            
-            .navigationTitle("Pénz hozzáadása")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading){
-                    Button {
+                .alert("Túl nagy összeg", isPresented: $showAmountAlert) {
+                    Button("Ok", role: .confirm){
+                        vm.addBalance()
                         coordinator.dismissSheet()
-                    } label: {
-                        Image(systemName: "arrow.backward")
                     }
+                    Button("Mégse", role: .destructive) {
+                        showAmountAlert.toggle()
+                    }
+                } message: {
+                    Text("A megadott összeg meghaladja a cél összegét")
                 }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Image(vm.goal.iconName ?? "")
+                .navigationTitle("Pénz hozzáadása")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading){
+                        Button {
+                            coordinator.dismissSheet()
+                        } label: {
+                            Image(systemName: "arrow.backward")
+                        }
+                    }
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Image(systemName:  vm.goal.iconName ?? "chart.line.text.clipboard")
+                    }
                 }
             }
         }
-        .fontDesign(.rounded)
         .padding()
     }
 }
