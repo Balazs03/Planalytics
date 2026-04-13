@@ -53,16 +53,18 @@ struct AddMoneySheet: View {
                 .padding()
                 .buttonStyle(.glass)
                 .fontWeight(.semibold)
-                .alert("Túl nagy összeg", isPresented: $showAmountAlert) {
-                    Button("Ok", role: .confirm){
-                        vm.addBalance()
-                        coordinator.dismissSheet()
-                    }
-                    Button("Mégse", role: .destructive) {
-                        showAmountAlert.toggle()
-                    }
-                } message: {
-                    Text("A megadott összeg meghaladja a cél összegét")
+                .alert(isPresented: $showAmountAlert) {
+                    Alert(
+                        title: Text("Túl nagy összeg"),
+                        message: Text("A megadott összeg meghaladja a cél összegét"),
+                        primaryButton: .cancel(Text("Cancel")),
+                        secondaryButton: .default(
+                            Text("Ok"),
+                            action: {
+                                vm.addBalance()
+                                coordinator.dismissSheet()
+                        })
+                    )
                 }
                 .navigationTitle("Pénz hozzáadása")
                 .navigationBarTitleDisplayMode(.inline)

@@ -36,13 +36,11 @@ struct GoalChart: View {
                         Text("Összeg")
                         Text("\(selectedTransHolder.total.formatted()) Ft")
                     }
-                    .fontWeight(.bold)
                     .padding()
                     .background(.secondaryBackground)
                     .shadow(radius: 2)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
-                
             }
             ForEach(transactions) { transaction in
                 LineMark(
