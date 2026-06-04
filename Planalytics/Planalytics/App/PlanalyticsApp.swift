@@ -12,7 +12,7 @@ internal import CoreData
 @main
 struct PlanalyticsApp: App {
     @State private var coordinator = Coordinator()
-    let persistentController = CoreDataManager.shared
+    let container = CoreDataManager.shared
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
     @AppStorage("theme") private var theme: String = ""
     @AppStorage("isLockEnabled") private var isLockEnabled: Bool = false
@@ -35,7 +35,7 @@ struct PlanalyticsApp: App {
     }
     
     func uploadTransactions() {
-        let transactions = persistentController.fetchTransactions(year: nil, month: nil)
+        let transactions = container.fetchTransactions(year: nil, month: nil)
         let today = Calendar.current.startOfDay(for: .now)
         
         let recurrentTransactions = transactions.filter({ $0.isRecurrent })
@@ -46,7 +46,7 @@ struct PlanalyticsApp: App {
             
             while today >= executionDay {
                 
-                let tempTransaction = Transaction(context: persistentController.context)
+                let tempTransaction = Transaction(context: container.context)
                 tempTransaction.amount = transaction.amount
                 tempTransaction.date = executionDay
                 
@@ -73,13 +73,13 @@ struct PlanalyticsApp: App {
             }
         }
         
-        persistentController.saveContext()
+        container.saveContext()
     }
     
     var body: some Scene {
         WindowGroup {
             ZStack {
-                CoordinatorView(container: persistentController)
+                CoordinatorView(container: container)
                     .environment(coordinator)
                     .environment(\.locale, .init(identifier: appLanguage))
                     .preferredColorScheme(theme == "" ? .none : theme == "light" ? .light : .dark)
@@ -115,7 +115,9 @@ struct PlanalyticsApp: App {
         }
         .backgroundTask(.appRefresh("UploadTransactions")) {
             await scheduleAppRefresh()
-            await uploadTransactions()
+            Task {
+                await uploadTransactions()
+            }
         }
     }
 }

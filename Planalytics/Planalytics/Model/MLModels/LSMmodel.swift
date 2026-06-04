@@ -97,12 +97,12 @@ class LSMmodel {
         }
     }
     
-    func predictConfidenceIntervals(forX: Decimal) -> [Date] {
+    func getPredictionIntervals(forX: Decimal) -> [Date] {
         guard let transactions, transactions.count > 2 else { return [] }
         
         let n = Double(transactions.count)
         
-        // Alapelőrejelzés
+        // Alap előrejelzés
         let yPredicted = (((m * forX) + b) as NSDecimalNumber).doubleValue
         
         // Reziduumok négyzetes összege ( Sum of Squared Errors)
@@ -134,13 +134,13 @@ class LSMmodel {
         
         // Standard hiba az előrejelzéshez
         let xValue = (forX as NSDecimalNumber).doubleValue
-        let sePredict = sResidual * sqrt(1.0 / n + pow(xValue - meanX, 2) / sxx)
+        let sePredict = sResidual * sqrt(1 + (1.0 / n + pow(xValue - meanX, 2) / sxx))
         
         // t-érték 95%-os konfidenciaszinthez
         // Student-féle eloszlásból
         let tValue = getTValue(n: Int(n))
         
-        // Konfidenciaintervallum
+        // 7. A hibahatár (Margin of Error) és az intervallum határainak kiszámítása
         let marginOfError = tValue * sePredict
         
         let lowerBound = Date(timeIntervalSince1970: yPredicted - marginOfError)
@@ -148,5 +148,4 @@ class LSMmodel {
         
         return [lowerBound, upperBound]
     }
-    
 }
