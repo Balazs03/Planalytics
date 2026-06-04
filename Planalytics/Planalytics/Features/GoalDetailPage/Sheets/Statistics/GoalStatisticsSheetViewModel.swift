@@ -153,7 +153,7 @@ class GoalStatisticsSheetViewModel {
     func calculatePredictionBoundaries() {
         guard let dailyTransactions else { return }
         model = LSMmodel(transactions: dailyTransactions)
-        predictionBoundaries = model.predictConfidenceIntervals(forX: self.goal.amount as Decimal)
+        predictionBoundaries = model.getPredictionIntervals(forX: self.goal.amount as Decimal)
     }
     
     func calculateDistinctDates() {
