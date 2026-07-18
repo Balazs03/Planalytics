@@ -4,9 +4,6 @@
     "-%@ Ft" : {
       "shouldTranslate" : false
     },
-    "%@" : {
-      "shouldTranslate" : false
-    },
     "%@ - %@" : {
       "localizations" : {
         "en" : {

@@ -22,6 +22,18 @@ class GoalStatisticsSheetViewModel {
             updateSelectedMonth()
         }
     }
+    var selectedDate: Date?
+    var selectedTransHolder: transHolder? {
+        guard let filteredTransactions = filteredTransactions, let monthlyTransactions = monthlyTransactions, let yearlyTransactions = yearlyTransactions, let date = selectedDate else { return nil }
+        return switch selectedFilter {
+        case .yearly:
+            yearlyTransactions.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date) })
+        case .monthly:
+            monthlyTransactions.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date) })
+        case .daily:
+            filteredTransactions.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date) })
+        }
+    }
     var selectedMonth: Int {
         didSet {
             updateFilteredTransactions()
