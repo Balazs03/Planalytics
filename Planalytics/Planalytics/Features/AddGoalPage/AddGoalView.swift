@@ -9,7 +9,7 @@ import SwiftUI
 import SFSymbolsPicker
 
 struct AddGoalView: View {
-    @Environment(Coordinator.self) private var coordinator
+    @Environment(\.dismiss) private var dismiss
     @State private var vm : AddGoalPageViewModel
     @State private var showIconPicker: Bool = false
     
@@ -91,7 +91,7 @@ struct AddGoalView: View {
                 
                 Button {
                     vm.addGoal()
-                    coordinator.goalPop()
+                    dismiss()
                 } label: {
                     Text("Mentés")
                         .font(.headline)
@@ -117,5 +117,4 @@ struct AddGoalView: View {
     let container = CoreDataManager.transactionListPreview()
     let vm = AddGoalPageViewModel(container: container)
     AddGoalView(vm: vm)
-        .environment(Coordinator())
 }

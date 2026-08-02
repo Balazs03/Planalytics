@@ -10,9 +10,18 @@ internal import CoreData
 import Charts
 
 struct GoalDetailView: View {
-    @Environment(Coordinator.self) private var coordinator
     @State private var vm: GoalDetailViewModel
+    @State private var activeSheet: ActiveSheet?
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
+    @Environment(\.dismiss) private var dismiss
+    
+    enum ActiveSheet: Identifiable, Hashable {
+        var id: Int { hashValue }
+        
+        case addMoney(Goal)
+        case withdrawMoney(Goal)
+        case statistics(Goal)
+    }
     
     init(vm : GoalDetailViewModel) {
         self.vm = vm
@@ -48,11 +57,11 @@ struct GoalDetailView: View {
                     
                     HStack(spacing: 40) {
                         ActionButtonView(label: appLanguage == "hu" ? "Hozzáadás" : "Add", icon: "plus", action: {
-                            coordinator.present(sheet: .addMoney(vm.goal))
+                            activeSheet = .addMoney(vm.goal)
                         })
                         
                         ActionButtonView(label: appLanguage == "hu" ? "Kivétel" : "Withdraw", icon: "arrow.down", action: {
-                            coordinator.present(sheet: .withdrawMoney(vm.goal))
+                            activeSheet = .withdrawMoney(vm.goal)
                         })
                     }
                     .padding()
@@ -95,7 +104,7 @@ struct GoalDetailView: View {
                             Menu {
                                 // Törlés gomb a menüben
                                 Button(role: .destructive) {
-                                    coordinator.goalPop()
+                                    dismiss()
                                     
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                         vm.deleteGoal()
@@ -111,7 +120,7 @@ struct GoalDetailView: View {
                         }
                         ToolbarItem(placement: .automatic) {
                             Button {
-                                coordinator.present(sheet: .statistics(vm.goal))
+                                activeSheet = .statistics(vm.goal)
                             } label: {
                                 Image(systemName: "chart.bar.fill")
                             }
@@ -120,9 +129,14 @@ struct GoalDetailView: View {
                 }
             }
         }
-        .onChange(of: coordinator.dataVersion) {
-            withAnimation(.snappy) {
-                vm.refreshData()
+        .sheet(item: $activeSheet) { sheet in
+            switch sheet {
+            case .addMoney:
+                AddMoneySheet(vm: AddMoneySheetViewModel(container: vm.container, goal: vm.goal))
+            case .statistics:
+                GoalStatisticsSheet(vm: GoalStatisticsSheetViewModel(container: vm.container, goal: vm.goal))
+            case .withdrawMoney:
+                WithdrawMoneySheet(vm: WithdrawMoneySheetViewModel(container: vm.container, goal: vm.goal))
             }
         }
     }
@@ -133,6 +147,5 @@ struct GoalDetailView: View {
     let vm = GoalDetailViewModel(goal: container.fetchGoals()[0], container: container)
     NavigationStack {
         GoalDetailView(vm: vm)
-            .environment(Coordinator())
     }
 }

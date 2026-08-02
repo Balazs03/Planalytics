@@ -9,7 +9,6 @@ import SwiftUI
 
 struct TransactionStatisticsView: View {
     @State private var vm: TransactionStatisticsViewModel
-    @Environment(Coordinator.self) private var coordinator
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
 
     init(vm: TransactionStatisticsViewModel) {
@@ -113,5 +112,4 @@ struct TransactionStatisticsView: View {
     let mockManager = CoreDataManager.transactionListPreview()
     let vm = TransactionStatisticsViewModel(container: mockManager)
     TransactionStatisticsView(vm: vm)
-        .environment(Coordinator())
 }

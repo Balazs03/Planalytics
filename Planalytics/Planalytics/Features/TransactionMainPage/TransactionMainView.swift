@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct TransactionMainView: View {
-    @Environment(Coordinator.self) private var coordinator
     @State private var vm: TransactionMainViewModel
     
     init(vm: TransactionMainViewModel) {
@@ -36,10 +35,8 @@ struct TransactionMainView: View {
                         }
                     }
                 }
-            
-                Button {
-                    coordinator.mainPush(.addTransaction)
-                } label: {
+                
+                NavigationLink(value: Page.addTransaction) {
                     HStack {
                         Image(systemName: "plus.circle.fill")
                         Text("Hozzáadás")
@@ -62,9 +59,8 @@ struct TransactionMainView: View {
                             
                             HStack {
                                 Spacer()
-                                Button {
-                                    coordinator.mainPush(.allTransactions(showRecurrentOnly: false))
-                                } label: {
+                                
+                                NavigationLink(value: Page.allTransactions(showRecurrentOnly: false)) {
                                     Text("Összes")
                                 }
                                 .buttonStyle(.borderless)
@@ -85,9 +81,7 @@ struct TransactionMainView: View {
                             
                             HStack {
                                 Spacer()
-                                Button {
-                                    coordinator.mainPush(.allTransactions(showRecurrentOnly: true))
-                                } label: {
+                                NavigationLink(value: Page.allTransactions(showRecurrentOnly: true)) {
                                     Text("Összes")
                                 }
                                 .buttonStyle(.borderless)
@@ -105,23 +99,14 @@ struct TransactionMainView: View {
         }
         .toolbar {
             ToolbarItem(placement: .automatic) {
-                Button {
-                    coordinator.mainPush(.transactionStatistics)
-                } label: {
+                NavigationLink(value: Page.transactionStatistics) {
                     Image(systemName: "chart.bar.fill")
                 }
             }
             ToolbarItem(placement: .automatic) {
-                Button {
-                    coordinator.mainPush(.settings)
-                } label: {
+                NavigationLink(value: Page.settings) {
                     Label("Beállítások", systemImage: "gearshape.fill")
                 }
-            }
-        }
-        .onChange(of: coordinator.dataVersion) {
-            withAnimation(.snappy) {
-                vm.refreshData()
             }
         }
     }
@@ -134,5 +119,4 @@ struct TransactionMainView: View {
         container: mockManager
     )
     TransactionMainView(vm: vm)
-        .environment(Coordinator())
 }

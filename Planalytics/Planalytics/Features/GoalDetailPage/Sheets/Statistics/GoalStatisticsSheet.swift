@@ -9,12 +9,90 @@ import SwiftUI
 import Charts
 
 struct GoalStatisticsSheet: View {
-    @Environment(Coordinator.self) var coordinator
+    @Environment(\.dismiss) private var dismiss
     @State private var vm: GoalStatisticsSheetViewModel
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
     
     init(vm: GoalStatisticsSheetViewModel) {
         self.vm = vm
+    }
+    
+    @ViewBuilder
+    func GoalChart(transactions: [transHolder]?, vm: GoalStatisticsSheetViewModel, selectedDate: Date?) -> some View{
+        if let transactions = transactions {
+            VStack(alignment: .leading) {
+                if let selectedDate = vm.selectedDate, let matchingValue = transactions.last(where: { Calendar.current.startOfDay(for: $0.date) == Calendar.current.startOfDay(for: selectedDate) }) {
+                    
+                    Text("\(matchingValue.total.formatted(.number.precision(.fractionLength(2)))) Ft")
+                        .font(.largeTitle)
+                    
+                    Text(selectedDate.formatted(date: .numeric, time: .omitted))
+
+                } else {
+                    Text("\((vm.goal.saving?.decimalValue ?? 0).formatted(.number.precision(.fractionLength(2)))) Ft")                        .font(.largeTitle)
+                }
+                Chart {
+                    ForEach(transactions) { transaction in
+                        LineMark(
+                            x: .value("Dátum", Calendar.current.startOfDay(for: transaction.date)),
+                            y: .value("Összeg", transaction.total)
+                        )
+                        
+                        AreaMark(
+                            x: .value("Dátum", Calendar.current.startOfDay(for: transaction.date)),
+                            y: .value("Összeg", transaction.total)
+                        )
+                        .opacity(0.3)
+                        
+                        PointMark(
+                            x: .value("Dátum", Calendar.current.startOfDay(for: transaction.date)),
+                            y: .value("Összeg", transaction.total)
+                        )
+                        .symbolSize(100)
+                        .foregroundStyle(.blue)
+                        .opacity(selectedDate == nil || vm.selectedTransHolder?.date == transaction.date ? 1 : 0.3)
+                        
+                    }
+                }
+                .chartScrollableAxes(vm.selectedFilter == .daily ? []: .horizontal)
+                .chartXVisibleDomain(length: vm.selectedFilter.axisLength)
+                .chartXSelection(value: $vm.selectedDate)
+                .chartXScale(range: .plotDimension(padding: 20))
+                .chartYScale(domain: 0...max(((vm.goal.amount).decimalValue * 1.2), ((vm.goal.saving)?.decimalValue ?? 1) * 1.2, (vm.maxGoalSaving)))
+                .chartXAxis {
+                    AxisMarks(values: .stride(by: vm.selectedFilter.date, count: vm.selectedFilter.count)) { value in
+                        if let date = value.as(Date.self) {
+                            let components = Calendar.current.dateComponents([.day, .month, .year], from: date)
+                            AxisValueLabel {
+                                VStack(alignment: .leading) {
+                                    if value.index == 0 {
+                                        Text(date, format: .dateTime.day())
+                                        Text(date, format: .dateTime.month())
+                                        Text(date, format: .dateTime.year())
+                                    } else {
+                                        switch vm.selectedFilter {
+                                        case .daily:
+                                            Text(date, format: .dateTime.day())
+                                            
+                                        case .monthly:
+                                            Text(date, format: .dateTime.month())
+                                            
+                                            if components.month == 1 && (value.index > 1 || value.index > 4){
+                                                Text(date, format: .dateTime.year())
+                                            }
+                                        case .yearly:
+                                            Text(date, format: .dateTime.year())
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            EmptyView()
+        }
     }
     
     var body: some View {
@@ -31,13 +109,13 @@ struct GoalStatisticsSheet: View {
                             if let firstYear = vm.firstYear {
                                 YearMonthSelection(selectedYear: $vm.selectedYear, selectedMonth: $vm.selectedMonth, firstYear: firstYear)
                             }
-                            GoalChart(transactions: vm.filteredTransactions ?? [], vm: vm)
+                            GoalChart(transactions: vm.filteredTransactions, vm: vm, selectedDate: vm.selectedDate)
                                 .frame(minHeight: 200)
                         case .monthly:
-                            GoalChart(transactions: vm.monthlyTransactions ?? [], vm: vm)
+                            GoalChart(transactions: vm.monthlyTransactions, vm: vm, selectedDate: vm.selectedDate)
                                 .frame(minHeight: 200)
                         case .yearly:
-                            GoalChart(transactions: vm.yearlyTransactions ?? [], vm: vm)
+                            GoalChart(transactions: vm.yearlyTransactions, vm: vm, selectedDate: vm.selectedDate)
                                 .frame(minHeight: 200)
                         }
                         
@@ -152,7 +230,7 @@ struct GoalStatisticsSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(action: coordinator.dismissSheet) {
+                    Button(action: { dismiss() }){
                         Image(systemName: "arrow.backward")
                     }
                 }
@@ -165,5 +243,4 @@ struct GoalStatisticsSheet: View {
     let inMemoryContainer = CoreDataManager.goalsListPreview()
     let vm = GoalStatisticsSheetViewModel(container: inMemoryContainer, goal: inMemoryContainer.fetchGoals().first!)
     GoalStatisticsSheet(vm : vm)
-        .environment(Coordinator())
 }

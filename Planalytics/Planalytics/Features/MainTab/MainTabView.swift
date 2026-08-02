@@ -8,9 +8,48 @@
 import SwiftUI
 internal import CoreData
 
-struct CoordinatorView: View {
-    @Environment(Coordinator.self) private var coordinator
+enum Page: Hashable {
+    case goalsMain
+    case goalDetail(Goal)
+    case main
+    case addGoal
+    case addTransaction
+    case allTransactions(showRecurrentOnly: Bool)
+    case transactionStatistics
+    case settings
+}
+
+enum Tab {
+    case main
+    case goals
+}
+
+enum Sheet: Hashable, Identifiable {
+    var id: String {
+        switch self {
+        case .addMoney(let goal):
+            return "addMoney_\(goal.id)"
+        case .withdrawMoney(let goal):
+            return "withdrawMoney_\(goal.id)"
+        case .statistics(let goal):
+            return "statics_\(goal.id)"
+        case .setPinCode:
+            return "setPinCode"
+        }
+    }
+    
+    case addMoney(Goal)
+    case withdrawMoney(Goal)
+    case statistics(Goal)
+    case setPinCode
+}
+
+struct MainTabView: View {
     let container: CoreDataManager
+    @State var mainPath = NavigationPath()
+    @State var goalPath = NavigationPath()
+    var sheet: Sheet?
+    @State var selectedTab: Tab = .main
     
     init(container: CoreDataManager) {
         self.container = container
@@ -31,11 +70,9 @@ struct CoordinatorView: View {
     }
     
     var body: some View {
-        @Bindable var bindableCoordinator = coordinator
-        
-        TabView (selection: $bindableCoordinator.selectedTab) {
+        TabView(selection: $selectedTab) {
             
-            NavigationStack(path: $bindableCoordinator.mainPath) {
+            NavigationStack(path: $mainPath) {
                 viewFactory(.main)
                     .navigationDestination(for: Page.self) { page in
                         viewFactory(page)
@@ -46,7 +83,7 @@ struct CoordinatorView: View {
             }
             .tag(Tab.main)
             
-            NavigationStack(path: $bindableCoordinator.goalPath) {
+            NavigationStack(path: $goalPath) {
                 viewFactory(.goalsMain)
                     .navigationDestination(for: Page.self) { page in
                         viewFactory(page)
@@ -56,9 +93,6 @@ struct CoordinatorView: View {
                 Label("Célok", systemImage: "list.bullet")
             }
             .tag(Tab.goals)
-        }
-        .sheet(item: Bindable(coordinator).sheet) { sheet in
-            sheetFactory(sheet)
         }
     }
     
@@ -96,27 +130,9 @@ struct CoordinatorView: View {
             SettingsView()
         }
     }
-    
-    @ViewBuilder func sheetFactory(_ sheet: Sheet) -> some View {
-        switch sheet {
-        case .addMoney(let goal):
-            let vm = AddMoneySheetViewModel(container: container, goal: goal)
-            AddMoneySheet(vm: vm)
-        case .withdrawMoney(let goal):
-            let vm = WithdrawMoneySheetViewModel(container: container, goal: goal)
-            WithdrawMoneySheet(vm: vm)
-        case .statistics(let goal):
-            let vm = GoalStatisticsSheetViewModel(container: container, goal: goal)
-            GoalStatisticsSheet(vm: vm)
-        case .setPinCode:
-            let vm = SetPinSheetViewModel()
-            SetPinSheet(vm: vm)
-        }
-    }
 }
 
 #Preview {
     let container = CoreDataManager.transactionListPreview()
-    CoordinatorView(container: container)
-        .environment(Coordinator())
+    MainTabView(container: container)
 }

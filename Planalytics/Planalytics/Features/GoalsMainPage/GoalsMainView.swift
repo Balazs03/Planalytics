@@ -10,7 +10,6 @@ internal import CoreData
 
 struct GoalsMainView: View {
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
-    @Environment(Coordinator.self) private var coordinator
     @State private var vm: GoalsMainViewModel
     
     init(vm: GoalsMainViewModel) {
@@ -30,9 +29,7 @@ struct GoalsMainView: View {
                         StaticCardView(text: appLanguage == "hu" ? "Befejezettek": "Completed", value: String(vm.finishedGoalNumber), color: .green, icon: "checkmark.seal.text.page.fill")
                     }
                     
-                    Button {
-                        coordinator.goalPush(.addGoal)
-                    } label: {
+                    NavigationLink(value: Page.addGoal) {
                         HStack {
                             Image(systemName: "plus.circle.fill")
                             Text("Új cél hozzáadása")
@@ -73,16 +70,11 @@ struct GoalsMainView: View {
         }
         .toolbar {
             ToolbarItem(placement: .automatic) {
-                Button {
-                    coordinator.goalPush(.settings)
-                } label: {
+                
+                NavigationLink(value: Page.settings) {
                     Label("Beállítások", systemImage: "gearshape.fill")
+
                 }
-            }
-        }
-        .onChange(of: coordinator.dataVersion) {
-            withAnimation(.snappy) { // Itt adjuk meg az animációt
-                vm.fetchGoals()
             }
         }
     }
@@ -92,5 +84,4 @@ struct GoalsMainView: View {
     let container = CoreDataManager.goalsListPreview()
     let vm = GoalsMainViewModel(container: container)
     GoalsMainView(vm: vm)
-        .environment(Coordinator())
 }

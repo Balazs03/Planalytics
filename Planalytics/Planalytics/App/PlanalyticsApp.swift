@@ -11,7 +11,6 @@ internal import CoreData
 
 @main
 struct PlanalyticsApp: App {
-    @State private var coordinator = Coordinator()
     let container = CoreDataManager.shared
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
     @AppStorage("theme") private var theme: String = ""
@@ -79,8 +78,7 @@ struct PlanalyticsApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
-                CoordinatorView(container: container)
-                    .environment(coordinator)
+                MainTabView(container: container)
                     .environment(\.locale, .init(identifier: appLanguage))
                     .preferredColorScheme(theme == "" ? .none : theme == "light" ? .light : .dark)
                     .onAppear {

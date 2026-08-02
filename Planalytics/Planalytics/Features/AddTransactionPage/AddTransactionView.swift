@@ -10,7 +10,7 @@ import PhotosUI
 
 struct AddTransactionView: View {
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
-    @Environment(Coordinator.self) private var coordinator
+    @Environment(\.dismiss) private var dismiss
     @State private var vm : AddTransactionViewModel
     @State private var photosPickerItem: PhotosPickerItem?
     
@@ -190,7 +190,7 @@ struct AddTransactionView: View {
                 
                 Button {
                     vm.saveTransaction()
-                    coordinator.mainPop()
+                    dismiss()
                 } label: {
                     Text("Mentés")
                         .font(.headline)
@@ -216,5 +216,4 @@ struct AddTransactionView: View {
     let container = CoreDataManager.transactionListPreview()
     let vm = AddTransactionViewModel(container: container)
     AddTransactionView(vm: vm)
-        .environment(Coordinator())
 }
