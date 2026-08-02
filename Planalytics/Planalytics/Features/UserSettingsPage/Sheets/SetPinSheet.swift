@@ -8,10 +8,9 @@
 import SwiftUI
 
 struct SetPinSheet: View {
+    @Environment(\.dismiss) private var dismiss
     @AppStorage("isPinCodeSet") private var isPinCodeSet: Bool = false
     @AppStorage("pinCode") private var pinCode: String = ""
-    @Environment(Coordinator.self) private var coordinator
-
     @State private var vm: SetPinSheetViewModel
     
     init(vm: SetPinSheetViewModel) {
@@ -100,7 +99,7 @@ struct SetPinSheet: View {
                 if vm.isValid {
                     isPinCodeSet = true
                     pinCode = vm.currentPin
-                    coordinator.dismissSheet()
+                    dismiss()
                 } else {
                     vm.currentPin = ""
                     vm.animateField.toggle()
@@ -113,5 +112,4 @@ struct SetPinSheet: View {
 #Preview {
     let vm = SetPinSheetViewModel()
     SetPinSheet(vm: vm)
-        .environment(Coordinator())
 }

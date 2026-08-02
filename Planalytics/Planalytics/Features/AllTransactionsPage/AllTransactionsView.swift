@@ -9,7 +9,6 @@ import SwiftUI
 internal import CoreData
 
 struct AllTransactionsView: View {
-    @Environment(Coordinator.self) private var coordinator
     @Environment(\.managedObjectContext) var viewContext
     // @ miatt ez egy wrapper. 2 propertije van: items és _items
     // Előbbi csak egy "getter", ami mutat az _itemsre, mint egy private value public része
@@ -76,6 +75,5 @@ struct AllTransactionsView: View {
 #Preview {
     let mockManager = CoreDataManager.transactionListPreview()
     AllTransactionsView(showRecurrentOnly: false)
-        .environment(Coordinator())
         .environment(\.managedObjectContext, mockManager.context)
 }

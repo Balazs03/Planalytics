@@ -11,7 +11,7 @@ struct SettingsView: View {
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
     @AppStorage("theme") private var theme: String = ""
     @AppStorage("isLockEnabled") private var isLockEnabled: Bool = false
-    @Environment(Coordinator.self) private var coordinator
+    @State private var isPresented: Bool = false
     
     var body: some View {
         Form {
@@ -22,7 +22,7 @@ struct SettingsView: View {
                 
                 if isLockEnabled {
                     Button {
-                        coordinator.present(sheet: .setPinCode)
+                        isPresented = true
                     } label: {
                         Label("Pin kód beállítása", systemImage: "key")
                     }
@@ -45,10 +45,12 @@ struct SettingsView: View {
             }
         }
         .navigationTitle("Beállítások")
+        .sheet(isPresented: $isPresented) {
+            SetPinSheet(vm: SetPinSheetViewModel())
+        }
     }
 }
 
 #Preview {
     SettingsView()
-        .environment(Coordinator())
 }

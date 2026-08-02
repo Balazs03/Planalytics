@@ -9,7 +9,7 @@ import SwiftUI
 import Charts
 
 struct GoalStatisticsSheet: View {
-    @Environment(Coordinator.self) var coordinator
+    @Environment(\.dismiss) private var dismiss
     @State private var vm: GoalStatisticsSheetViewModel
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
     
@@ -230,7 +230,7 @@ struct GoalStatisticsSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(action: coordinator.dismissSheet) {
+                    Button(action: { dismiss() }){
                         Image(systemName: "arrow.backward")
                     }
                 }
@@ -243,5 +243,4 @@ struct GoalStatisticsSheet: View {
     let inMemoryContainer = CoreDataManager.goalsListPreview()
     let vm = GoalStatisticsSheetViewModel(container: inMemoryContainer, goal: inMemoryContainer.fetchGoals().first!)
     GoalStatisticsSheet(vm : vm)
-        .environment(Coordinator())
 }

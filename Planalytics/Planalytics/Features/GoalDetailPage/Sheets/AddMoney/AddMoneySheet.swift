@@ -9,7 +9,7 @@ import SwiftUI
 internal import CoreData
 
 struct AddMoneySheet: View {
-    @Environment(Coordinator.self) private var coordinator
+    @Environment(\.dismiss) private var dismiss
     @State private var vm: AddMoneySheetViewModel
     @State private var showAmountAlert: Bool = false
     
@@ -47,7 +47,7 @@ struct AddMoneySheet: View {
                         showAmountAlert.toggle()
                     } else {
                         vm.addBalance()
-                        coordinator.dismissSheet()
+                        dismiss()
                     }
                 }
                 .padding()
@@ -62,7 +62,7 @@ struct AddMoneySheet: View {
                             Text("Ok"),
                             action: {
                                 vm.addBalance()
-                                coordinator.dismissSheet()
+                                dismiss()
                         })
                     )
                 }
@@ -71,7 +71,7 @@ struct AddMoneySheet: View {
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading){
                         Button {
-                            coordinator.dismissSheet()
+                            dismiss()
                         } label: {
                             Image(systemName: "arrow.backward")
                         }
@@ -92,5 +92,4 @@ struct AddMoneySheet: View {
     AddMoneySheet(
         vm: vm
     )
-    .environment(Coordinator()) // Inject the coordinator to avoid crashing
 }

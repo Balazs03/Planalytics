@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct WithdrawMoneySheet: View {
-    @Environment(Coordinator.self) private var coordinator
+    @Environment(\.dismiss) private var dismiss
     @State private var vm: WithdrawMoneySheetViewModel
     
     init(vm: WithdrawMoneySheetViewModel) {
@@ -41,7 +41,7 @@ struct WithdrawMoneySheet: View {
                 
                 Button("Pénz kivétel") {
                     vm.withdrawBalance()
-                    coordinator.dismissSheet()
+                    dismiss()
                 }
                 .disabled(!vm.withdrawBalancePossible() || vm.amount == 0)
                 .padding()
@@ -53,7 +53,7 @@ struct WithdrawMoneySheet: View {
             .toolbar{
                 ToolbarItem(placement: .navigationBarLeading){
                     Button{
-                        coordinator.dismissSheet()
+                        dismiss()
                     } label: {
                         Image(systemName: "arrow.backward")
                     }
@@ -73,5 +73,4 @@ struct WithdrawMoneySheet: View {
     WithdrawMoneySheet(
         vm: vm
     )
-    .environment(Coordinator())
 }
