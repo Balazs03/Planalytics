@@ -13,13 +13,14 @@ struct AddGoalView: View {
     @Environment(\.dismiss) private var dismiss
     let container: CoreDataManager
     @State private var showIconPicker: Bool = false
-    @State private var name: String = ""
+    @State private var name: String?
     @State private var amount: Decimal?
     @State private var plannedCompletionDate = Date()
     @State private var desc: String?
     @State private var iconName: String?
     private var disableForm: Bool {
-        name.isEmpty || amount == nil
+        guard let name, let amount else { return false }
+        return name.isEmpty
     }
     
     var body: some View {
@@ -29,7 +30,7 @@ struct AddGoalView: View {
             VStack {
                 Form {
                     Section {
-                        TextField("Cél neve", text: $name)
+                        TextField("Cél neve", text: $name.bindOptionalString())
                     } header: {
                         Text("Név")
                     }
@@ -87,10 +88,7 @@ struct AddGoalView: View {
                 .fontDesign(.rounded)
                 .scrollContentBackground(.hidden)
                 .sheet(isPresented: $showIconPicker) {
-                    SymbolsPicker(selection: Binding(
-                        get: { iconName ?? "" }, // Ha nil, akkor üres stringet mutat
-                        set: { iconName = $0.isEmpty ? nil : $0 } // Ha üresre törli, akkor nil legyen (vagy maradhat simán $0 is)
-                    ), title: "Válassz egy ikont", searchLabel: "Keresés", autoDismiss: true)
+                    SymbolsPicker(selection: $iconName.bindOptionalString(), title: "Válassz egy ikont", searchLabel: "Keresés", autoDismiss: true)
                 }
                 .padding()
                 
@@ -118,9 +116,9 @@ struct AddGoalView: View {
     }
     
     private func addGoal() {
-        guard let amount else { return }
+        guard let name, let amount else { return }
         let newGoal = Goal(context: container.context)
-        newGoal.name = self.name
+        newGoal.name = name
         newGoal.amount = amount as NSDecimalNumber
         newGoal.plannedCompletionDate = self.plannedCompletionDate
         newGoal.creationDate = Date()
