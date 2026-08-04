@@ -10,8 +10,10 @@ internal import CoreData
 import Charts
 
 struct GoalDetailView: View {
-    @State private var vm: GoalDetailViewModel
+    let container: CoreDataManager
     @State private var activeSheet: ActiveSheet?
+    @ObservedObject var goal: Goal
+    
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
     @Environment(\.dismiss) private var dismiss
     
@@ -23,10 +25,6 @@ struct GoalDetailView: View {
         case statistics(Goal)
     }
     
-    init(vm : GoalDetailViewModel) {
-        self.vm = vm
-    }
-    
     var body: some View {
         ZStack{
             LinearGradient(colors: [.textBackground, .mainBackground], startPoint: .top, endPoint: .bottom)
@@ -35,20 +33,20 @@ struct GoalDetailView: View {
                 VStack(spacing: 25) {
                     
                     VStack(spacing: 10) {
-                        Text(vm.goal.name)
+                        Text(goal.name)
                             .font(.system(.largeTitle, weight: .bold))
                             .multilineTextAlignment(.center)
                         
-                        Text("Tervezett összeg: \((vm.goal.amount as Decimal).formatted(.number.precision(.fractionLength(2)))) Ft")
+                        Text("Tervezett összeg: \((goal.amount as Decimal).formatted(.number.precision(.fractionLength(2)))) Ft")
                             .font(.system(.title2, weight: .bold))
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.secondary)
                         
                         VStack {
-                            Text("\((vm.goal.progress * 100).formatted(.number.precision(.fractionLength(2)))) %")
+                            Text("\((goal.progress * 100).formatted(.number.precision(.fractionLength(2)))) %")
                                 .font(.system(.title, weight: .bold))
                             
-                            LinearProgressView(value: NSDecimalNumber(decimal: vm.goal.progress).doubleValue, shape: Capsule())
+                            LinearProgressView(value: NSDecimalNumber(decimal: goal.progress).doubleValue, shape: Capsule())
                                 .tint(Gradient(colors: [.mainBackground, .secondaryBackground]))
                                 .frame(height: 64)
                         }
@@ -57,17 +55,17 @@ struct GoalDetailView: View {
                     
                     HStack(spacing: 40) {
                         ActionButtonView(label: appLanguage == "hu" ? "Hozzáadás" : "Add", icon: "plus", action: {
-                            activeSheet = .addMoney(vm.goal)
+                            activeSheet = .addMoney(goal)
                         })
                         
                         ActionButtonView(label: appLanguage == "hu" ? "Kivétel" : "Withdraw", icon: "arrow.down", action: {
-                            activeSheet = .withdrawMoney(vm.goal)
+                            activeSheet = .withdrawMoney(goal)
                         })
                     }
                     .padding()
                     
                     VStack(alignment: .leading, spacing: 15) {
-                        if let description = vm.goal.desc {
+                        if let description = goal.desc {
                             VStack(alignment: .leading, spacing: 5) {
                                 Text("Leírás")
                                     .font(.headline)
@@ -77,19 +75,19 @@ struct GoalDetailView: View {
                             Divider()
                         }
                         
-                        InfoRowView(label: appLanguage == "hu" ? "Eddig félretett pénz" : "Money saved so far", value: "\((vm.goal.saving as Decimal? ?? 0.00).formatted()) Ft")
+                        InfoRowView(label: appLanguage == "hu" ? "Eddig félretett pénz" : "Money saved so far", value: "\((goal.saving as Decimal? ?? 0.00).formatted()) Ft")
                         
                         InfoRowView(label: appLanguage == "hu" ? "Tervezett befejezési dátum" : "Planned completion date",
-                                    value: "\(vm.goal.plannedCompletionDate.formatted(date: .numeric, time: .omitted))")
+                                    value: "\(goal.plannedCompletionDate.formatted(date: .numeric, time: .omitted))")
                         
                         InfoRowView(label: appLanguage == "hu" ? "Létrehozva" : "Created on",
-                                    value: "\(vm.goal.creationDate.formatted(date: .numeric, time: .omitted))")
+                                    value: "\(goal.creationDate.formatted(date: .numeric, time: .omitted))")
                         
                         Toggle("Befejezett", isOn: Binding(
-                            get: { vm.goal.isFinished },
+                            get: { goal.isFinished },
                             set: { newValue in
-                                vm.goal.isFinished = newValue
-                                vm.container.saveContext() // Azonnali mentés a Toggle átváltásakor
+                                goal.isFinished = newValue
+                                container.saveContext() // Azonnali mentés a Toggle átváltásakor
                             }
                         ))
                         .padding(.top)
@@ -107,7 +105,7 @@ struct GoalDetailView: View {
                                     dismiss()
                                     
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                        vm.deleteGoal()
+                                        deleteGoal()
                                     }
                                     
                                 } label: {
@@ -120,7 +118,7 @@ struct GoalDetailView: View {
                         }
                         ToolbarItem(placement: .automatic) {
                             Button {
-                                activeSheet = .statistics(vm.goal)
+                                activeSheet = .statistics(goal)
                             } label: {
                                 Image(systemName: "chart.bar.fill")
                             }
@@ -132,20 +130,31 @@ struct GoalDetailView: View {
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
             case .addMoney:
-                AddMoneySheet(vm: AddMoneySheetViewModel(container: vm.container, goal: vm.goal))
+                AddMoneySheet(vm: AddMoneySheetViewModel(container: container, goal: goal))
             case .statistics:
-                GoalStatisticsSheet(vm: GoalStatisticsSheetViewModel(container: vm.container, goal: vm.goal))
+                GoalStatisticsSheet(vm: GoalStatisticsSheetViewModel(container: container, goal: goal))
             case .withdrawMoney:
-                WithdrawMoneySheet(vm: WithdrawMoneySheetViewModel(container: vm.container, goal: vm.goal))
+                WithdrawMoneySheet(vm: WithdrawMoneySheetViewModel(container: container, goal: goal))
             }
         }
+    }
+    
+    func deleteGoal() {
+        if let saving = goal.saving as? Decimal, saving > 0 {
+            let newTrans = Transaction(context: container.context)
+            newTrans.amount = goal.saving!
+            newTrans.name = "\(goal.name) nevű célra félretett megtakarítás"
+            newTrans.date = Date()
+            newTrans.transactionType = .income
+        }
+        container.context.delete(goal)
+        container.saveContext()
     }
 }
 
 #Preview {
     let container = CoreDataManager.goalsListPreview()
-    let vm = GoalDetailViewModel(goal: container.fetchGoals()[0], container: container)
     NavigationStack {
-        GoalDetailView(vm: vm)
+        GoalDetailView(container: container, goal: container.fetchGoals().first!)
     }
 }

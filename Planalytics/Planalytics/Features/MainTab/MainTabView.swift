@@ -107,12 +107,10 @@ struct MainTabView: View {
             GoalsMainView(vm: vm)
             
         case .goalDetail(let goal):
-            let vm = GoalDetailViewModel(goal: goal, container: container)
-            GoalDetailView(vm: vm)
+            GoalDetailView(container: container, goal: goal)
             
         case .addGoal:
-            let vm = AddGoalPageViewModel(container: container)
-            AddGoalView(vm: vm)
+            AddGoalView(container: container)
             
         case .addTransaction:
             let vm = AddTransactionViewModel(container: container)
