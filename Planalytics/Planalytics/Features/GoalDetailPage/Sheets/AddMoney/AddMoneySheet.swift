@@ -10,26 +10,28 @@ internal import CoreData
 
 struct AddMoneySheet: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var vm: AddMoneySheetViewModel
+    let container: CoreDataManager
+    @ObservedObject var goal: Goal
+    @State private var amount: Decimal?
+    @State private var finishedMessage: String?
     @State private var showAmountAlert: Bool = false
-    
-    init(vm: AddMoneySheetViewModel) {
-        self.vm = vm
+    private var transBalance: Decimal {
+        container.calculateTotalBalance()[1]
     }
     
     var body: some View {
         NavigationStack {
             VStack(alignment: .center, spacing: 15) {
                 HStack{
-                    TextField("0.0", value: $vm.amount, format: .number)
+                    TextField("0.0", value: $amount, format: .number)
                         .font(.largeTitle)
                         .multilineTextAlignment(.center)
                     Text("Ft")
-                        .opacity(vm.amount == nil ? 0.3 : 1)
+                        .opacity(amount == nil ? 0.3 : 1)
                         .font(.largeTitle)
                 }
                 
-                if let amount = vm.amount, amount > vm.transBalance as Decimal {
+                if let amount = amount, amount > transBalance as Decimal {
                     HStack {
                         Image(systemName: "exclamationmark.triangle")
                             .foregroundColor(.red)
@@ -38,15 +40,15 @@ struct AddMoneySheet: View {
                     }
                 }
                 
-                Text("Egyenleg: \(vm.transBalance.formatted()) Ft")
+                Text("Egyenleg: \(transBalance.formatted()) Ft")
                             
-                Text("Teljesítésig hátralévő összeg: \((vm.goal.amount.decimalValue - (vm.goal.saving?.decimalValue ?? 0)).formatted()) Ft")
+                Text("Teljesítésig hátralévő összeg: \((goal.amount.decimalValue - (goal.saving?.decimalValue ?? 0)).formatted()) Ft")
                 
                 Button("Pénz hozzáadása") {
-                    if let amount = vm.amount, amount > vm.goal.amount as Decimal {
+                    if let amount = amount, amount > goal.amount as Decimal {
                         showAmountAlert.toggle()
                     } else {
-                        vm.addBalance()
+                        addBalance()
                         dismiss()
                     }
                 }
@@ -61,7 +63,7 @@ struct AddMoneySheet: View {
                         secondaryButton: .default(
                             Text("Ok"),
                             action: {
-                                vm.addBalance()
+                                addBalance()
                                 dismiss()
                         })
                     )
@@ -77,19 +79,32 @@ struct AddMoneySheet: View {
                         }
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Image(systemName:  vm.goal.iconName ?? "chart.line.text.clipboard")
+                        Image(systemName:  goal.iconName ?? "chart.line.text.clipboard")
                     }
                 }
             }
         }
         .padding()
     }
+    
+    func addBalance() {
+        guard let amount else { return }
+        let newTransaction = Transaction(context: container.context)
+        newTransaction.amount = amount as NSDecimalNumber
+        newTransaction.date = Date()
+        newTransaction.name = "Megtakarítás feltöltése a következő célra: \(goal.name)"
+        newTransaction.transactionCategory = .saving
+        newTransaction.transactionType = .expense
+        newTransaction.goal = goal // ezzel az inverz kapcsolat miatt belerakom a transactions nssetbe
+        // Másik megoldás a generált addTransaction függvénnyel
+        newTransaction.transactionCategory = .saving
+        
+        goal.saving = (goal.saving ?? 0) as Decimal + amount as NSDecimalNumber
+        container.saveContext()
+    }
 }
 
 #Preview {
     let container = CoreDataManager.goalsListPreview()
-    let vm = AddMoneySheetViewModel(container: container, goal: container.fetchGoals()[0])
-    AddMoneySheet(
-        vm: vm
-    )
+    AddMoneySheet(container: container, goal: container.fetchGoals()[0])
 }

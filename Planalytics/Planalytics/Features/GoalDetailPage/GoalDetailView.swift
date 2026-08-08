@@ -130,11 +130,11 @@ struct GoalDetailView: View {
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
             case .addMoney:
-                AddMoneySheet(vm: AddMoneySheetViewModel(container: container, goal: goal))
+                AddMoneySheet(container: container, goal: goal)
             case .statistics:
                 GoalStatisticsSheet(vm: GoalStatisticsSheetViewModel(container: container, goal: goal))
             case .withdrawMoney:
-                WithdrawMoneySheet(vm: WithdrawMoneySheetViewModel(container: container, goal: goal))
+                WithdrawMoneySheet(container: container, goal: goal)
             }
         }
     }

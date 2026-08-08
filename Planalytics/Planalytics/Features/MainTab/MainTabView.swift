@@ -101,21 +101,25 @@ struct MainTabView: View {
         case .main:
             let vm = TransactionMainViewModel(container: container)
             TransactionMainView(vm: vm)
-            
+                .environment(\.managedObjectContext, container.context)
+
         case .goalsMain:
             let vm = GoalsMainViewModel(container: container)
             GoalsMainView(vm: vm)
-            
+                .environment(\.managedObjectContext, container.context)
+
         case .goalDetail(let goal):
             GoalDetailView(container: container, goal: goal)
-            
+                .environment(\.managedObjectContext, container.context)
+
         case .addGoal:
             AddGoalView(container: container)
-            
+                //.environment(\.managedObjectContext, container.context)
+            // MAJD HA KICSERÉLEM A CORE DATA OSZTÁLYT
         case .addTransaction:
-            let vm = AddTransactionViewModel(container: container)
-            AddTransactionView(vm: vm)
-            
+            AddTransactionView(container: container)
+                .environment(\.managedObjectContext, container.context)
+
         case .allTransactions(let showRecurrentOnly):
             AllTransactionsView(showRecurrentOnly: showRecurrentOnly)
                 .environment(\.managedObjectContext, container.context)
@@ -123,7 +127,8 @@ struct MainTabView: View {
         case .transactionStatistics:
             let vm = TransactionStatisticsViewModel(container: container)
             TransactionStatisticsView(vm: vm)
-            
+                .environment(\.managedObjectContext, container.context)
+
         case .settings:
             SettingsView()
         }

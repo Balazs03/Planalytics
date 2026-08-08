@@ -7,15 +7,38 @@
 
 import SwiftUI
 import PhotosUI
+internal import CoreData
 
 struct AddTransactionView: View {
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
     @Environment(\.dismiss) private var dismiss
-    @State private var vm : AddTransactionViewModel
+    // @Environment(\.managedObjectContext) private var viewContext
     @State private var photosPickerItem: PhotosPickerItem?
     
-    init(vm: AddTransactionViewModel) {
-        self.vm = vm
+    let container: CoreDataManager
+    private let scanner = ReceiptScannerService()
+    
+    @State private var name : String?
+    @State private var amount: Decimal?
+    @State private var transactionType: TransactionType = .income
+    @State private var transactionCategory: TransactionCategory?
+    @State private var recurrencyFrequency: RecurrenceFrequency?
+    @State private var startDate: Date?
+    @State private var isRecurrent: Bool = false
+    @State private var receiptImage: UIImage?
+    @State private var recognizedText: String?
+    
+    private var transBalance: Decimal {
+        self.container.calculateTotalBalance()[1]
+    }
+    
+    var disableForm: Bool {
+        guard let amount = amount, let name = name else { return true }
+        if transactionType == .income {
+            return amount == 0
+        } else {
+            return amount == 0 || name.isEmpty || transactionCategory == nil || amount > transBalance
+        }
     }
     
     var body: some View {
@@ -25,7 +48,7 @@ struct AddTransactionView: View {
             VStack {
                 Form {
                     Section{
-                        Picker(selection: $vm.transactionType, label: Text("Válaszd ki a típust")) {
+                        Picker(selection: $transactionType, label: Text("Válaszd ki a típust")) {
                             ForEach(TransactionType.allCases, id: \.self) { type in
                                 Text(appLanguage == "hu" ? type.titleHU: type.titleEN)
                             }
@@ -35,10 +58,10 @@ struct AddTransactionView: View {
                         Text("Típus")
                     }
                     
-                    if vm.transactionType == .expense {
+                    if transactionType == .expense {
                         Section {
                             PhotosPicker(selection: $photosPickerItem, matching: .any(of: [.images, .screenshots])) {
-                                if let receiptImage = vm.receiptImage {
+                                if let receiptImage = receiptImage {
                                     // State 1: Image is selected
                                     Image(uiImage: receiptImage)
                                         .resizable()
@@ -89,15 +112,15 @@ struct AddTransactionView: View {
                     
                     Section {
                         HStack{
-                            TextField("0.0", value: $vm.amount, format: .number)
+                            TextField("0.0", value: $amount, format: .number)
                                 .font(.title)
                                 .multilineTextAlignment(.center)
                             Text("Ft")
-                                .opacity(vm.amount != nil ? 1 : 0.3)
+                                .opacity(amount != nil ? 1 : 0.3)
                                 .font(.title)
                         }
                         
-                        if let amount = vm.amount, amount > vm.transBalance, vm.transactionType == .expense {
+                        if let amount = amount, amount > transBalance, transactionType == .expense {
                             Label{
                                 Text("Az adott összeg meghaladja a jelenlegi egyenleget")
                             }icon: {
@@ -111,27 +134,23 @@ struct AddTransactionView: View {
                     }
                     
                     Section {
-                        TextField(vm.transactionType == .income ? "Bevétel neve" : "Kiadás neve", text: Binding(
-                                get: { vm.name ?? "" }, // Ha nil, akkor üres stringet mutat
-                                set: { vm.name = $0.isEmpty ? nil : $0 } // Ha üresre törli, akkor nil legyen (vagy maradhat simán $0 is)
-                            )
-                        )
+                        TextField(transactionType == .income ? "Bevétel neve" : "Kiadás neve", text: $name.bindOptionalString())
                     } header: {
                         Text("Név")
                     }
                     
                     Section {
                         VStack {
-                            Toggle("Ismétlődő fizetés beállítása", isOn: $vm.isRecurrent)
+                            Toggle("Ismétlődő fizetés beállítása", isOn: $isRecurrent)
                             
-                            if vm.isRecurrent {
+                            if isRecurrent {
                                 VStack {
                                     Picker("Gyakoriság", selection: Binding(
                                         get: {
-                                            vm.recurrencyFrequency ?? RecurrenceFrequency.weekly
+                                            recurrencyFrequency ?? RecurrenceFrequency.weekly
                                         },
                                         set: { newValue in
-                                            vm.recurrencyFrequency = newValue
+                                            recurrencyFrequency = newValue
                                         }
                                     )) {
                                         ForEach(RecurrenceFrequency.allCases, id: \.id) { frequency in
@@ -140,9 +159,9 @@ struct AddTransactionView: View {
                                     }
                                     DatePicker("Kezdő dátum", selection: Binding<Date>(
                                         get: {
-                                            vm.startDate ?? Date()
+                                            startDate ?? Date()
                                         }, set: {
-                                            vm.startDate = $0
+                                            startDate = $0
                                         }
                                     ),
                                     in: Date()...,
@@ -155,9 +174,9 @@ struct AddTransactionView: View {
                         Text("Ismétlés")
                     }
                     
-                    if vm.transactionType == .expense {
+                    if transactionType == .expense {
                         Section {
-                            Picker(selection: $vm.transactionCategory, label: Text("Válaszd ki a kategóriát")) {
+                            Picker(selection: $transactionCategory, label: Text("Válaszd ki a kategóriát")) {
                                 ForEach(TransactionCategory.allCases) { category in
                                     Label {
                                             Text(appLanguage == "hu" ? category.titleHU : category.titleEN)
@@ -179,8 +198,12 @@ struct AddTransactionView: View {
                     Task {
                         if let photosPickerItem, let data = try? await photosPickerItem.loadTransferable(type: Data.self) {
                             if let image = UIImage(data: data) {
-                                vm.receiptImage = image
-                                vm.recognizeText()
+                                receiptImage = image
+                                
+                                let textData = try? await scanner.recognizeText(receiptImage: receiptImage)
+                                
+                                name = textData?.name
+                                amount = textData?.amount
                             }
                         }
                     }
@@ -189,31 +212,60 @@ struct AddTransactionView: View {
                 .fontDesign(.rounded)
                 
                 Button {
-                    vm.saveTransaction()
+                    saveTransaction()
                     dismiss()
                 } label: {
                     Text("Mentés")
                         .font(.headline)
                         .fontWeight(.bold)
-                        .foregroundColor(vm.disableForm ? .none :  .white)
+                        .foregroundColor(disableForm ? .none :  .white)
                         .frame(maxWidth: .infinity)
                         .padding()
                         // Ha le van tiltva, szürke, ha aktív, akkor az appAccent szín
                         .background(.secondaryBackground)
                         .cornerRadius(16)
-                        .shadow(color: vm.disableForm ? .clear : .secondaryBackground, radius: 8, y: 4)
+                        .shadow(color: disableForm ? .clear : .secondaryBackground, radius: 8, y: 4)
                 }
                 .padding()
-                .disabled(vm.disableForm)
+                .disabled(disableForm)
             }
         }
         .navigationTitle("Új tranzakció")
         .navigationBarTitleDisplayMode(.inline)
     }
+    
+    func saveTransaction() {
+        guard let name, let amount else { return }
+        let transaction = Transaction(context: container.context)
+        if transactionType == .income && name.isEmpty {
+            transaction.name = "Névtelen bevétel"
+        } else {
+            transaction.name = name
+        }
+        
+        if isRecurrent, let recFreq = recurrencyFrequency {
+            transaction.recurrenceWrapper = recFreq
+        }
+        
+        transaction.isRecurrent = isRecurrent
+        if isRecurrent, startDate == nil {
+            transaction.recurrenceStartDate = Date()
+        } else {
+            transaction.recurrenceStartDate = startDate
+        }
+        transaction.amount = amount as NSDecimalNumber
+        transaction.transactionType = transactionType
+        transaction.date = Date()
+        
+        if transactionType == .expense {
+            transaction.transactionCategory = transactionCategory
+        }
+        
+        container.saveContext()
+    }
 }
 
 #Preview {
     let container = CoreDataManager.transactionListPreview()
-    let vm = AddTransactionViewModel(container: container)
-    AddTransactionView(vm: vm)
+    AddTransactionView(container: container)
 }

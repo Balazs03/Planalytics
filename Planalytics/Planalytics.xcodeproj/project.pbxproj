@@ -70,6 +70,7 @@
 				"Model/CoreData/Transaction+CoreDataProperties.swift",
 				Resources/Assets.xcassets,
 				Services/CoreDataManager.swift,
+				Services/ReceiptScannerService.swift,
 				Services/URLExtentionService.swift,
 			);
 			target = 60F9F1B82F4DB3CA00B23F9F /* PlanalyticsWidgetExtension */;

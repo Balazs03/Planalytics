@@ -11,6 +11,7 @@ internal import CoreData
 
 struct AddGoalView: View {
     @Environment(\.dismiss) private var dismiss
+    // @Environment(\.managedObjectContext) private var viewContext
     let container: CoreDataManager
     @State private var showIconPicker: Bool = false
     @State private var name: String?
@@ -19,7 +20,7 @@ struct AddGoalView: View {
     @State private var desc: String?
     @State private var iconName: String?
     private var disableForm: Bool {
-        guard let name, let amount else { return false }
+        guard let name, amount != nil else { return false }
         return name.isEmpty
     }
     
