@@ -11,6 +11,7 @@ internal import CoreData
 enum Page: Hashable {
     case goalsMain
     case goalDetail(Goal)
+    case statistics(Goal)
     case main
     case addGoal
     case addTransaction
@@ -99,13 +100,11 @@ struct MainTabView: View {
     @ViewBuilder func viewFactory(_ path: Page) -> some View {
         switch path {
         case .main:
-            let vm = TransactionMainViewModel(container: container)
-            TransactionMainView(vm: vm)
+            TransactionMainView()
                 .environment(\.managedObjectContext, container.context)
 
         case .goalsMain:
-            let vm = GoalsMainViewModel(container: container)
-            GoalsMainView(vm: vm)
+            GoalsMainView()
                 .environment(\.managedObjectContext, container.context)
 
         case .goalDetail(let goal):
@@ -113,11 +112,10 @@ struct MainTabView: View {
                 .environment(\.managedObjectContext, container.context)
 
         case .addGoal:
-            AddGoalView(container: container)
-                //.environment(\.managedObjectContext, container.context)
-            // MAJD HA KICSERÉLEM A CORE DATA OSZTÁLYT
+            AddGoalView()
+                .environment(\.managedObjectContext, container.context)
         case .addTransaction:
-            AddTransactionView(container: container)
+            AddTransactionView()
                 .environment(\.managedObjectContext, container.context)
 
         case .allTransactions(let showRecurrentOnly):
@@ -125,12 +123,14 @@ struct MainTabView: View {
                 .environment(\.managedObjectContext, container.context)
             
         case .transactionStatistics:
-            let vm = TransactionStatisticsViewModel(container: container)
-            TransactionStatisticsView(vm: vm)
+            TransactionStatisticsView()
                 .environment(\.managedObjectContext, container.context)
 
         case .settings:
             SettingsView()
+            
+        case .statistics(let goal):
+            GoalStatisticsSheet(vm: GoalStatisticsSheetViewModel(container: container, goal: goal))
         }
     }
 }

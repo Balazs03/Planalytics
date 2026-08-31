@@ -70,6 +70,7 @@
 				"Model/CoreData/Transaction+CoreDataProperties.swift",
 				Resources/Assets.xcassets,
 				Services/CoreDataManager.swift,
+				Services/FinancialService.swift,
 				Services/ReceiptScannerService.swift,
 				Services/URLExtentionService.swift,
 			);

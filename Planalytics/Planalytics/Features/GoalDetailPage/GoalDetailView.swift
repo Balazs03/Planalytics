@@ -22,7 +22,6 @@ struct GoalDetailView: View {
         
         case addMoney(Goal)
         case withdrawMoney(Goal)
-        case statistics(Goal)
     }
     
     var body: some View {
@@ -117,9 +116,7 @@ struct GoalDetailView: View {
                             }
                         }
                         ToolbarItem(placement: .automatic) {
-                            Button {
-                                activeSheet = .statistics(goal)
-                            } label: {
+                            NavigationLink(value: Page.statistics(goal)) {
                                 Image(systemName: "chart.bar.fill")
                             }
                         }
@@ -130,9 +127,8 @@ struct GoalDetailView: View {
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
             case .addMoney:
-                AddMoneySheet(container: container, goal: goal)
-            case .statistics:
-                GoalStatisticsSheet(vm: GoalStatisticsSheetViewModel(container: container, goal: goal))
+                AddMoneySheet(goal: goal)
+                    .environment(\.managedObjectContext, container.context)
             case .withdrawMoney:
                 WithdrawMoneySheet(container: container, goal: goal)
             }

@@ -11,8 +11,7 @@ internal import CoreData
 
 struct AddGoalView: View {
     @Environment(\.dismiss) private var dismiss
-    // @Environment(\.managedObjectContext) private var viewContext
-    let container: CoreDataManager
+    @Environment(\.managedObjectContext) private var viewContext
     @State private var showIconPicker: Bool = false
     @State private var name: String?
     @State private var amount: Decimal?
@@ -118,7 +117,7 @@ struct AddGoalView: View {
     
     private func addGoal() {
         guard let name, let amount else { return }
-        let newGoal = Goal(context: container.context)
+        let newGoal = Goal(context: viewContext)
         newGoal.name = name
         newGoal.amount = amount as NSDecimalNumber
         newGoal.plannedCompletionDate = self.plannedCompletionDate
@@ -128,11 +127,16 @@ struct AddGoalView: View {
         }
         newGoal.iconName = self.iconName
         
-        container.saveContext()
+        do {
+            try viewContext.save()
+        } catch {
+            print(error.localizedDescription)
+        }
     }
 }
 
 #Preview {
     let container = CoreDataManager.transactionListPreview()
-    AddGoalView(container: container)
+    AddGoalView()
+        .environment(\.managedObjectContext, container.context)
 }

@@ -10,10 +10,47 @@ internal import CoreData
 
 struct GoalsMainView: View {
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
-    @State private var vm: GoalsMainViewModel
+    @Environment(\.managedObjectContext) private var viewContext
     
-    init(vm: GoalsMainViewModel) {
-        self.vm = vm
+    enum GoalFilter: String, CaseIterable {
+        case all
+        case active
+        case finished
+        
+        var nameHu: String {
+            switch self {
+            case .all:
+                "Összes"
+            case .active:
+                "Aktív"
+            case .finished:
+                "Befejezett"
+            }
+        }
+        
+        var nameEn: String {
+            switch self {
+            case .all:
+                "All"
+            case .active:
+                "Active"
+            case .finished:
+                "Finished"
+            }
+        }
+    }
+    
+    @State private var selectedFilter: GoalFilter = .all
+    @FetchRequest(sortDescriptors: [SortDescriptor(\.plannedCompletionDate, order: .forward)])
+    private var goals: FetchedResults<Goal>
+    private var finishedGoalNumber: Int { return goals.filter { $0.isFinished }.count }
+    private var activeGoalNumber : Int { return goals.filter { !$0.isDeleted && !$0.isFinished }.count }
+    private var filteredGoals: [Goal] {
+        switch selectedFilter {
+        case .all: return Array(goals)
+        case .active: return goals.filter { !$0.isFinished }
+        case .finished: return goals.filter { $0.isFinished }
+        }
     }
     
     var body: some View {
@@ -24,9 +61,9 @@ struct GoalsMainView: View {
             VStack {
                 VStack(spacing: 15) {
                     HStack {
-                        StaticCardView(text: appLanguage == "hu" ? "Aktív célok": "Active goals", value: String(vm.activeGoalNumber), color: .blue, icon: "target")
+                        StaticCardView(text: appLanguage == "hu" ? "Aktív célok": "Active goals", value: String(activeGoalNumber), color: .blue, icon: "target")
                         
-                        StaticCardView(text: appLanguage == "hu" ? "Befejezettek": "Completed", value: String(vm.finishedGoalNumber), color: .green, icon: "checkmark.seal.text.page.fill")
+                        StaticCardView(text: appLanguage == "hu" ? "Befejezettek": "Completed", value: String(finishedGoalNumber), color: .green, icon: "checkmark.seal.text.page.fill")
                     }
                     
                     NavigationLink(value: Page.addGoal) {
@@ -42,7 +79,7 @@ struct GoalsMainView: View {
                 }
                 
                 VStack {
-                    Picker("Szűrés", selection: $vm.selectedFilter) {
+                    Picker("Szűrés", selection: $selectedFilter) {
                         ForEach(GoalFilter.allCases, id: \.self) { filter in
                             Text(appLanguage == "hu" ? filter.nameHu : filter.nameEn).tag(filter)
                         }
@@ -50,19 +87,19 @@ struct GoalsMainView: View {
                     .padding(.horizontal)
                     .pickerStyle(.segmented)
                     
-                    if vm.goals.isEmpty {
+                    if goals.isEmpty {
                         Text("Nincsenek megadott célok")
                         Spacer()
                     } else {
                         List {
-                            ForEach(vm.filteredGoals, id: \.objectID) { goal in
+                            ForEach(filteredGoals, id: \.objectID) { goal in
                                 NavigationLink(value: Page.goalDetail(goal)){
                                     GoalRowView(goal: goal)
                                 }
                             }
                         }
                         .scrollContentBackground(.hidden)
-                        .animation(.default, value: vm.filteredGoals)
+                        .animation(.default, value: filteredGoals)
                     }
                 }
             }
@@ -82,6 +119,6 @@ struct GoalsMainView: View {
 
 #Preview {
     let container = CoreDataManager.goalsListPreview()
-    let vm = GoalsMainViewModel(container: container)
-    GoalsMainView(vm: vm)
+    GoalsMainView()
+        .environment(\.managedObjectContext, container.context)
 }

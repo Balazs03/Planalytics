@@ -6,26 +6,81 @@
 //
 
 import SwiftUI
+internal import CoreData
 
 struct TransactionStatisticsView: View {
-    @State private var vm: TransactionStatisticsViewModel
+    @Environment(\.managedObjectContext) private var viewContext
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
-
-    init(vm: TransactionStatisticsViewModel) {
-        self.vm = vm
+    @FetchRequest(sortDescriptors: [SortDescriptor(\.date, order: .forward)], predicate: NSPredicate(format: "isRecurrent == false AND type == 1"))
+    private var expenses : FetchedResults<Transaction>
+    @FetchRequest(sortDescriptors: [SortDescriptor(\.date, order: .forward)], predicate: NSPredicate(format: "isRecurrent == false AND type == 0"))
+    private var incomes : FetchedResults<Transaction>
+    
+    @State private var selectedYear: Int = Calendar.current.component(.year ,from: Date())
+    @State private var selectedMonth: Int = Calendar.current.component(.month ,from: Date())
+    
+    private var chartData: [(category: TransactionCategory, amount: Decimal)] {
+        let categoryDict = Dictionary(grouping: expenses, by: \.transactionCategory)
+        
+        let result = categoryDict.compactMap { (category, transactions) -> (category: TransactionCategory, amount: Decimal)? in
+            
+            guard let validCategory = category else {
+                return nil
+            }
+            
+            var sum: Decimal = 0
+            
+            for transaction in transactions {
+                sum += transaction.amount.decimalValue
+            }
+            
+            return (category: validCategory, amount: sum)
+        }
+        
+        return result.sorted { $0.amount < $1.amount }
+    }
+    
+    private var firstTransactionYear: Int {
+        let request = NSFetchRequest<Transaction>(entityName: "Transaction")
+        
+        request.predicate = NSPredicate(format: "isRecurrent == false")
+        
+        request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: true)]
+        
+        request.fetchLimit = 1
+        
+        do {
+            let result = try viewContext.fetch(request)
+            return Calendar.current.component(.year, from: result.first!.date)
+        } catch {
+            return Calendar.current.component(.year, from: Date())
+        }
+        
+    }
+    
+    var totalExpenses: Decimal {
+        expenses.reduce(0) { $0 + $1.amount.decimalValue }
+    }
+    
+    var totalIncomes: Decimal {
+        incomes.reduce(0) { $0 + $1.amount.decimalValue }
+    }
+    
+    var balance: Bool {
+        return (totalIncomes - totalExpenses) > 0
     }
     
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
                 VStack(spacing: 15) {
-                    YearMonthSelection(selectedYear: $vm.selectedYear, selectedMonth: $vm.selectedMonth, firstYear: vm.firstTransactionYear)
+                    YearMonthSelection(selectedYear: $selectedYear, selectedMonth: $selectedMonth, firstYear: firstTransactionYear)
                     Text("Kiadások kategóriánként")
                         .foregroundStyle(.secondary)
                         .font(.subheadline)
 
-                    if !vm.expenses.isEmpty {
-                        TransactionsChart(groupedTransactions: vm.groupedTransactions, totalExpenses: vm.totalExpenses)
+                    if !expenses.isEmpty {
+                        TransactionsChart(chartData: chartData, totalExpenses: totalExpenses)
                     } else {
                         Text("Az adott időszakban nem történtek kiadások")
                     }
@@ -40,7 +95,7 @@ struct TransactionStatisticsView: View {
                         Text("Kiadások")
                             .fontWeight(.bold)
                             .font(.title3)
-                        Text("\(vm.totalExpenses.formatted(.number.precision(.fractionLength(2)))) Ft")
+                        Text("\(totalExpenses.formatted(.number.precision(.fractionLength(2)))) Ft")
                             .fontWeight(.semibold)
                             .font(.title2)
                     }
@@ -54,7 +109,7 @@ struct TransactionStatisticsView: View {
                         Text("Bevételek")
                             .fontWeight(.bold)
                             .font(.title3)
-                        Text("\(vm.totalIncomes.formatted(.number.precision(.fractionLength(2)))) Ft")
+                        Text("\(totalIncomes.formatted(.number.precision(.fractionLength(2)))) Ft")
                             .fontWeight(.semibold)
                             .font(.title2)
                     }
@@ -68,10 +123,10 @@ struct TransactionStatisticsView: View {
                         Text("Nettó pénzforgalom")
                             .fontWeight(.bold)
                             .font(.title3)
-                        Text("\((vm.totalIncomes - vm.totalExpenses).formatted()) Ft")
+                        Text("\((totalIncomes - totalExpenses).formatted()) Ft")
                             .fontWeight(.semibold)
                             .font(.title2)
-                        if vm.balance {
+                        if balance {
                             Label {
                                 Text("Pozitív")
                             } icon: {
@@ -99,17 +154,39 @@ struct TransactionStatisticsView: View {
         .background(Color.thirdBackground)
         .navigationTitle("Statisztikák")
         .navigationBarTitleDisplayMode(.inline)
-        .onChange(of: vm.selectedYear) {
-            vm.refreshData()
+        .onAppear {
+            updateDateFilter()
         }
-        .onChange(of: vm.selectedMonth) {
-            vm.refreshData()
+        .onChange(of: selectedYear) { _, _ in
+            updateDateFilter()
         }
+        .onChange(of: selectedMonth) { _, _ in
+            updateDateFilter()
+        }
+    }
+    
+    func updateDateFilter() {
+        let dateComponents = DateComponents(year: selectedYear, month: selectedMonth)
+        
+        guard let startDate = Calendar.current.date(from: dateComponents),
+                let nextMonth: Date = Calendar.current.date(byAdding: .month, value: 1, to: startDate) else { return }
+        
+        expenses.nsPredicate = NSPredicate(
+            format: "isRecurrent == false AND type == 1 AND date >= %@ AND date < %@",
+            startDate as NSDate,
+            nextMonth as NSDate
+        )
+        
+        incomes.nsPredicate = NSPredicate(
+            format: "isRecurrent == false AND type == 0 AND date >= %@ AND date < %@",
+            startDate as NSDate,
+            nextMonth as NSDate
+        )
     }
 }
 
 #Preview {
     let mockManager = CoreDataManager.transactionListPreview()
-    let vm = TransactionStatisticsViewModel(container: mockManager)
-    TransactionStatisticsView(vm: vm)
+    TransactionStatisticsView()
+        .environment(\.managedObjectContext, mockManager.context)
 }

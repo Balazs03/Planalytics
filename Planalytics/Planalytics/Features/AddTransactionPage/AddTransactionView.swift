@@ -12,10 +12,10 @@ internal import CoreData
 struct AddTransactionView: View {
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
     @Environment(\.dismiss) private var dismiss
-    // @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.managedObjectContext) private var viewContext
     @State private var photosPickerItem: PhotosPickerItem?
+    @FetchRequest(sortDescriptors: [SortDescriptor(\.date, order: .forward)], predicate: NSPredicate(format: "isRecurrent == false")) var transactions: FetchedResults<Transaction>
     
-    let container: CoreDataManager
     private let scanner = ReceiptScannerService()
     
     @State private var name : String?
@@ -28,10 +28,9 @@ struct AddTransactionView: View {
     @State private var receiptImage: UIImage?
     @State private var recognizedText: String?
     
-    private var transBalance: Decimal {
-        self.container.calculateTotalBalance()[1]
+    var transBalance: Decimal {
+        transactions.reduce(0) { $0 + ($1.amount as Decimal) }
     }
-    
     var disableForm: Bool {
         guard let amount = amount, let name = name else { return true }
         if transactionType == .income {
@@ -236,7 +235,7 @@ struct AddTransactionView: View {
     
     func saveTransaction() {
         guard let name, let amount else { return }
-        let transaction = Transaction(context: container.context)
+        let transaction = Transaction(context: viewContext)
         if transactionType == .income && name.isEmpty {
             transaction.name = "Névtelen bevétel"
         } else {
@@ -261,11 +260,16 @@ struct AddTransactionView: View {
             transaction.transactionCategory = transactionCategory
         }
         
-        container.saveContext()
+        do {
+            try viewContext.save()
+        } catch {
+            print(error)
+        }
     }
 }
 
 #Preview {
     let container = CoreDataManager.transactionListPreview()
-    AddTransactionView(container: container)
+    AddTransactionView()
+        .environment(\.managedObjectContext ,container.context)
 }

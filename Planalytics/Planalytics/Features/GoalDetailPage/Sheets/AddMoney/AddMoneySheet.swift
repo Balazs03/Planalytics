@@ -10,13 +10,16 @@ internal import CoreData
 
 struct AddMoneySheet: View {
     @Environment(\.dismiss) private var dismiss
-    let container: CoreDataManager
+    @Environment(\.managedObjectContext) private var viewContext
     @ObservedObject var goal: Goal
     @State private var amount: Decimal?
     @State private var finishedMessage: String?
     @State private var showAmountAlert: Bool = false
-    private var transBalance: Decimal {
-        container.calculateTotalBalance()[1]
+    
+    private let financeService = FinancialService()
+    
+    private var transBalance : Decimal {
+        financeService.calculateBalance(context: viewContext)
     }
     
     var body: some View {
@@ -89,7 +92,7 @@ struct AddMoneySheet: View {
     
     func addBalance() {
         guard let amount else { return }
-        let newTransaction = Transaction(context: container.context)
+        let newTransaction = Transaction(context: viewContext)
         newTransaction.amount = amount as NSDecimalNumber
         newTransaction.date = Date()
         newTransaction.name = "Megtakarítás feltöltése a következő célra: \(goal.name)"
@@ -100,11 +103,17 @@ struct AddMoneySheet: View {
         newTransaction.transactionCategory = .saving
         
         goal.saving = (goal.saving ?? 0) as Decimal + amount as NSDecimalNumber
-        container.saveContext()
+        
+        do {
+            try viewContext.save()
+        } catch {
+            print(error.localizedDescription)
+        }
     }
 }
 
 #Preview {
     let container = CoreDataManager.goalsListPreview()
-    AddMoneySheet(container: container, goal: container.fetchGoals()[0])
+    AddMoneySheet(goal: container.fetchGoals()[0])
+        .environment(\.managedObjectContext, container.context)
 }

@@ -19,11 +19,6 @@ struct PlanalyticsApp: App {
     @AppStorage("pinCode") private var pinCode: String = ""
     @Environment(\.scenePhase) var scenePhase
     
-    @State private var lockVM = LockViewModel(
-        lockType: .both,
-        actualPin: UserDefaults.standard.string(forKey: "pinCode") ?? ""
-    )
-    
     func scheduleAppRefresh() {
         let today = Calendar.current.startOfDay(for: .now)
         let tomorrow = Calendar.current.date(byAdding: .day,value: 1, to: today)
@@ -34,7 +29,7 @@ struct PlanalyticsApp: App {
     }
     
     func uploadTransactions() {
-        let transactions = container.fetchTransactions(year: nil, month: nil)
+        let transactions = container.fetchTransactions()
         let today = Calendar.current.startOfDay(for: .now)
         
         let recurrentTransactions = transactions.filter({ $0.isRecurrent })
@@ -86,30 +81,26 @@ struct PlanalyticsApp: App {
                         uploadTransactions()
                     }
                 
-                if  isLockEnabled && isPinCodeSet && !lockVM.isUnlocked {
-                    LockView(vm: lockVM)
+                if  isLockEnabled && isPinCodeSet{
+                    LockView(lockType: .both)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color(UIColor.systemBackground))
                         .zIndex(1)
                 }
             }
             .onChange(of: pinCode, initial: false) { _, newPin in
-                lockVM.actualPin = newPin
+                pinCode = newPin
             }
-            
-            .onChange(of: isLockEnabled, { oldValue, newValue in
-                if newValue {
-                    lockVM.isUnlocked = true
-                }
-            })
-            
+            /*
             .onChange(of: scenePhase, initial: true) { _, newValue in
                 if newValue != .active && lockVM.lockWhenAppGoesBackground {
                     lockVM.isUnlocked = false
                 }
             }
+             */
             
-            .animation(.easeInOut, value: lockVM.isUnlocked)
+            // isUnlocked helyett valami
+            //.animation(.easeInOut, value: lockVM.isUnlocked)
         }
         .backgroundTask(.appRefresh("UploadTransactions")) {
             await scheduleAppRefresh()

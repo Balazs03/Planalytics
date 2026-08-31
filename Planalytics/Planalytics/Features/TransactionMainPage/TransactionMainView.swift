@@ -8,10 +8,16 @@
 import SwiftUI
 
 struct TransactionMainView: View {
-    @State private var vm: TransactionMainViewModel
+    @Environment(\.managedObjectContext) private var viewContext
+    @FetchRequest(sortDescriptors: [], predicate: NSPredicate(format: "isRecurrent == true"))
+    var transactions : FetchedResults<Transaction>
+    @FetchRequest(sortDescriptors: [SortDescriptor(\.date ,order: .forward)], predicate: NSPredicate(format: "isRecurrent == false"))
+    var recurrentTransactions: FetchedResults<Transaction>
     
-    init(vm: TransactionMainViewModel) {
-        self.vm = vm
+    private let financeService = FinancialService()
+    
+    private var transBalance : Decimal {
+        financeService.calculateBalance(context: viewContext)
     }
     
     var body: some View {
@@ -23,12 +29,12 @@ struct TransactionMainView: View {
                 VStack {
                     Text("Egyenleg HUF")
                     HStack {
-                        Text("\(vm.transBalance.formatted()) Ft")
+                        Text("\(transBalance.formatted()) Ft")
                             .font(.system(.largeTitle, weight: .bold))
                             .contentTransition(.numericText())
-                            .animation(.default, value: vm.transBalance)
+                            .animation(.default, value: transBalance)
                         
-                        if vm.transBalance < 0 {
+                        if transBalance < 0 {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .foregroundStyle(.red)
                                 .font(.largeTitle)
@@ -48,12 +54,12 @@ struct TransactionMainView: View {
                 .fontWeight(.semibold)
                 
                 List {
-                    if vm.transactions.isEmpty {
+                    if transactions.isEmpty {
                         Text("Nincs megjeleníthető tranzakció")
                         Spacer()
                     } else {
                         Section {
-                            ForEach(vm.transactions.reversed().prefix(3)) { transaction in
+                            ForEach(transactions.reversed().prefix(3)) { transaction in
                                 TransactionRowView(transaction: transaction)
                             }
                             
@@ -73,9 +79,9 @@ struct TransactionMainView: View {
                         }
                     }
                     
-                    if !vm.recurrentTransactions.isEmpty {
+                    if !recurrentTransactions.isEmpty {
                         Section {
-                            ForEach(vm.recurrentTransactions.reversed().prefix(3)) { recurrentTransaction in
+                            ForEach(recurrentTransactions.reversed().prefix(3)) { recurrentTransaction in
                                 TransactionRowView(transaction: recurrentTransaction)
                             }
                             
@@ -115,8 +121,6 @@ struct TransactionMainView: View {
 #Preview {
     // memóriába mentő manager
     let mockManager = CoreDataManager.transactionListPreview()
-    let vm = TransactionMainViewModel(
-        container: mockManager
-    )
-    TransactionMainView(vm: vm)
+    TransactionMainView()
+        .environment(\.managedObjectContext, mockManager.context)
 }
