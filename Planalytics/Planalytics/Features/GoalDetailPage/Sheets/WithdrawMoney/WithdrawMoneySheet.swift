@@ -9,8 +9,8 @@ import SwiftUI
 internal import CoreData
 
 struct WithdrawMoneySheet: View {
+    @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) private var dismiss
-    let container: CoreDataManager
     @ObservedObject var goal: Goal
     @State var amount: Decimal?
     
@@ -76,7 +76,7 @@ struct WithdrawMoneySheet: View {
     
     func withdrawBalance() {
         guard let amount else { return }
-        let newTransaction = Transaction(context: container.context)
+        let newTransaction = Transaction(context: viewContext)
         newTransaction.amount = amount as NSDecimalNumber
         newTransaction.date = Date()
         newTransaction.name = "Utalás \(goal.name) célból"
@@ -84,11 +84,16 @@ struct WithdrawMoneySheet: View {
         newTransaction.goal = goal
                 
         goal.saving = (goal.saving ?? 0) as Decimal - amount as NSDecimalNumber
-        container.saveContext()
+        do {
+            try viewContext.save()
+        } catch {
+            print(error.localizedDescription)
+        }
     }
 }
 
 #Preview {
     let container = CoreDataManager.goalsListPreview()
-    WithdrawMoneySheet(container: container, goal: container.fetchGoals()[0])
+    WithdrawMoneySheet(goal: container.fetchGoals()[0])
+        .environment(\.managedObjectContext, container.context)
 }

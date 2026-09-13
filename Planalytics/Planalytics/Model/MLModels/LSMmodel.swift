@@ -11,10 +11,10 @@ import Foundation
 class LSMmodel {
     var m: Decimal
     var b: Decimal
-    var transactions: [transHolder]?
+    var transactions: [ChartDataPoint]?
     // X a tranzakciók értéke, Y a dátum, amit becsülni szeretnénk
     
-    init(transactions: [transHolder]) {
+    init(transactions: [ChartDataPoint]) {
         self.transactions = transactions
         
         let n = Decimal(transactions.count)

@@ -71,6 +71,7 @@
 				Resources/Assets.xcassets,
 				Services/CoreDataManager.swift,
 				Services/FinancialService.swift,
+				Services/GoalStaticticsService.swift,
 				Services/ReceiptScannerService.swift,
 				Services/URLExtentionService.swift,
 			);

@@ -10,12 +10,12 @@ internal import CoreData
 import Charts
 
 struct GoalDetailView: View {
-    let container: CoreDataManager
+    @Environment(\.managedObjectContext) private var viewContext
+    @Environment(\.dismiss) private var dismiss
+    @AppStorage("appLanguage") private var appLanguage: String = "hu"
+    
     @State private var activeSheet: ActiveSheet?
     @ObservedObject var goal: Goal
-    
-    @AppStorage("appLanguage") private var appLanguage: String = "hu"
-    @Environment(\.dismiss) private var dismiss
     
     enum ActiveSheet: Identifiable, Hashable {
         var id: Int { hashValue }
@@ -86,7 +86,11 @@ struct GoalDetailView: View {
                             get: { goal.isFinished },
                             set: { newValue in
                                 goal.isFinished = newValue
-                                container.saveContext() // Azonnali mentés a Toggle átváltásakor
+                                do {
+                                    try viewContext.save()
+                                } catch {
+                                    print(error)
+                                }
                             }
                         ))
                         .padding(.top)
@@ -128,29 +132,35 @@ struct GoalDetailView: View {
             switch sheet {
             case .addMoney:
                 AddMoneySheet(goal: goal)
-                    .environment(\.managedObjectContext, container.context)
+                    .environment(\.managedObjectContext, viewContext)
             case .withdrawMoney:
-                WithdrawMoneySheet(container: container, goal: goal)
+                WithdrawMoneySheet(goal: goal)
+                    .environment(\.managedObjectContext, viewContext)
             }
         }
     }
     
     func deleteGoal() {
         if let saving = goal.saving as? Decimal, saving > 0 {
-            let newTrans = Transaction(context: container.context)
+            let newTrans = Transaction(context: viewContext)
             newTrans.amount = goal.saving!
             newTrans.name = "\(goal.name) nevű célra félretett megtakarítás"
             newTrans.date = Date()
             newTrans.transactionType = .income
         }
-        container.context.delete(goal)
-        container.saveContext()
+        viewContext.delete(goal)
+        do {
+            try viewContext.save()
+        } catch {
+            print(error)
+        }
     }
 }
 
 #Preview {
     let container = CoreDataManager.goalsListPreview()
     NavigationStack {
-        GoalDetailView(container: container, goal: container.fetchGoals().first!)
+        GoalDetailView(goal: container.fetchGoals().first!)
+            .environment(\.managedObjectContext, container.context)
     }
 }

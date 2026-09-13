@@ -46,7 +46,7 @@ enum Sheet: Hashable, Identifiable {
 }
 
 struct MainTabView: View {
-    let container: CoreDataManager
+    @Environment(\.managedObjectContext) private var viewContext
     @State var mainPath = NavigationPath()
     @State var goalPath = NavigationPath()
     var sheet: Sheet?
@@ -101,36 +101,37 @@ struct MainTabView: View {
         switch path {
         case .main:
             TransactionMainView()
-                .environment(\.managedObjectContext, container.context)
+                .environment(\.managedObjectContext, viewContext)
 
         case .goalsMain:
             GoalsMainView()
-                .environment(\.managedObjectContext, container.context)
+                .environment(\.managedObjectContext, viewContext)
 
         case .goalDetail(let goal):
-            GoalDetailView(container: container, goal: goal)
-                .environment(\.managedObjectContext, container.context)
+            GoalDetailView(goal: goal)
+                .environment(\.managedObjectContext, viewContext)
 
         case .addGoal:
             AddGoalView()
-                .environment(\.managedObjectContext, container.context)
+                .environment(\.managedObjectContext, viewContext)
         case .addTransaction:
             AddTransactionView()
-                .environment(\.managedObjectContext, container.context)
+                .environment(\.managedObjectContext, viewContext)
 
         case .allTransactions(let showRecurrentOnly):
             AllTransactionsView(showRecurrentOnly: showRecurrentOnly)
-                .environment(\.managedObjectContext, container.context)
+                .environment(\.managedObjectContext, viewContext)
             
         case .transactionStatistics:
             TransactionStatisticsView()
-                .environment(\.managedObjectContext, container.context)
+                .environment(\.managedObjectContext, viewContext)
 
         case .settings:
             SettingsView()
             
         case .statistics(let goal):
-            GoalStatisticsSheet(vm: GoalStatisticsSheetViewModel(container: container, goal: goal))
+            GoalStatisticsView(vm: GoalStatisticsViewModel(goal: goal))
+                .environment(\.managedObjectContext, viewContext)
         }
     }
 }

@@ -8,14 +8,7 @@
 import Foundation
 
 @Observable
-class GoalStatisticsSheetViewModel {
-    let container: CoreDataManager
-    let goal: Goal
-    var model: LSMmodel
-    var dailyTransactions: [transHolder]?
-    var monthlyTransactions: [transHolder]?
-    var yearlyTransactions: [transHolder]?
-    var filteredTransactions: [transHolder]?
+class GoalStatisticsViewModel {
     var datesDictionary: [Int: Set<Int>]?
     var selectedYear: Int {
         didSet {
@@ -23,17 +16,7 @@ class GoalStatisticsSheetViewModel {
         }
     }
     var selectedDate: Date?
-    var selectedTransHolder: transHolder? {
-        guard let filteredTransactions = filteredTransactions, let monthlyTransactions = monthlyTransactions, let yearlyTransactions = yearlyTransactions, let date = selectedDate else { return nil }
-        return switch selectedFilter {
-        case .yearly:
-            yearlyTransactions.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date) })
-        case .monthly:
-            monthlyTransactions.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date) })
-        case .daily:
-            filteredTransactions.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date) })
-        }
-    }
+    
     var selectedMonth: Int {
         didSet {
             updateFilteredTransactions()
@@ -58,24 +41,12 @@ class GoalStatisticsSheetViewModel {
         return maxTransaction?.amount.decimalValue
     }
     
-    var showChartsCondition: Bool {
-        guard let dailyTransactions = dailyTransactions, let filteredTransactions = filteredTransactions, let monthlyTransactions = monthlyTransactions, let yearlyTransactions = yearlyTransactions, let datesDict = datesDictionary, !dailyTransactions.isEmpty, !filteredTransactions.isEmpty, !monthlyTransactions.isEmpty, !yearlyTransactions.isEmpty, !datesDict.isEmpty else {return false}
-        
-        return true
-    }
-    
     var maxGoalSaving: Decimal {
         guard let transactions = dailyTransactions else {return 0}
         
         return transactions.map { $0.total }.max() ?? 0
     }
-    
-    var selectedFilter: ChartDateFilter = .monthly
-    
-    var distinctDates: Int = 0
-        
-    var predictionBoundaries: [Date]?
-    
+            
     init(container: CoreDataManager, goal: Goal) {
         self.container = container
         self.goal = goal
@@ -107,13 +78,8 @@ class GoalStatisticsSheetViewModel {
     }
     
     func updateAllData() {
-        createTransactionHistory()
-        calculateDistinctDates()
         monthlySavingplan = calculateRequiredMonthlySaving()
         datesDictionary = calculateYearsAndMonthsPickerDates()
-        if distinctDates > 7 {
-            calculatePredictionBoundaries()
-        }
         updateFilteredTransactions()
     }
 
@@ -160,63 +126,6 @@ class GoalStatisticsSheetViewModel {
         }
         
         return dateDict
-    }
-    
-    func calculatePredictionBoundaries() {
-        guard let dailyTransactions else { return }
-        model = LSMmodel(transactions: dailyTransactions)
-        predictionBoundaries = model.getPredictionIntervals(forX: self.goal.amount as Decimal)
-    }
-    
-    func calculateDistinctDates() {
-        guard let transactions = dailyTransactions else {
-            return
-        }
-        
-        let dates = transactions.map { Calendar.current.startOfDay(for: $0.date) }
-        
-        self.distinctDates = Set(dates).count
-    }
-    
-    func createTransactionHistory() {
-        let intervalSet: [Set<Calendar.Component>] = [
-            [.year, .month, .day],
-            [.year, .month],
-            [.year]
-        ]
-        
-        dailyTransactions = createRollingSaves(interval: intervalSet[0])
-        monthlyTransactions = createRollingSaves(interval: intervalSet[1])
-        yearlyTransactions = createRollingSaves(interval: intervalSet[2])
-    }
-    
-    func createRollingSaves(interval: Set<Calendar.Component>) -> [transHolder] {
-        let transactions = goal.transactions as? Set<Transaction> ?? []
-        
-        // Első closureben megadjuk, hogy szeretnénk groupolni a dictionaryt, másodikban mapeljük a value-kat
-        let tempDict = Dictionary(grouping: transactions) { transaction in
-            let components = Calendar.current.dateComponents(interval, from: transaction.date)
-            
-            return Calendar.current.date(from: components)!
-        } .mapValues { groupedTransactions in
-            groupedTransactions.reduce(0) { (sum, transaction) -> Decimal in
-                let amount = transaction.amount as Decimal
-                return sum + (transaction.transactionType == .income ? -amount : amount)
-            }
-        }
-        
-        let sortedDates = tempDict.keys.sorted()
-        var currentTotal: Decimal = 0.00
-        var tempTransHolder: [transHolder] = []
-        
-        for date in sortedDates {
-            if let value = tempDict[date] {
-                currentTotal += value
-            }
-            
-            tempTransHolder.append(transHolder(id: UUID(), total: currentTotal, date: date))
-        }
-        return tempTransHolder
     }
 }
 
@@ -281,7 +190,7 @@ enum ChartDateFilter: String, CaseIterable {
     }
 }
 
-struct transHolder: Identifiable {
+struct ChartDataPoint: Identifiable {
     var id: UUID
     var total: Decimal
     var date: Date

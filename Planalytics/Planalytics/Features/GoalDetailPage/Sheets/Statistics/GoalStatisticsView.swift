@@ -8,17 +8,23 @@
 import SwiftUI
 import Charts
 
-struct GoalStatisticsSheet: View {
+struct GoalStatisticsView: View {
+    @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) private var dismiss
-    @State private var vm: GoalStatisticsSheetViewModel
     @AppStorage("appLanguage") private var appLanguage: String = "hu"
+    @State private var statisticsService = GoalStaticticsService()
     
-    init(vm: GoalStatisticsSheetViewModel) {
-        self.vm = vm
-    }
+    @ObservedObject var goal: Goal
+    @State private var goalResults: GoalStaticticsService.Result
+    @State private var isCalculating = false
+    @State private var selectedFilter: ChartDateFilter = .monthly
+    var filteredTransactions: [ChartDataPoint]?
+    var datesDictionary: [Int: Set<Int>]?
+    var selectedYear: Int?
+
     
     @ViewBuilder
-    func GoalChart(transactions: [transHolder]?, vm: GoalStatisticsSheetViewModel, selectedDate: Date?) -> some View{
+    func GoalChart(transactions: [ChartDataPoint]?, vm: GoalStatisticsSheetViewModel, selectedDate: Date?) -> some View{
         if let transactions = transactions {
             VStack(alignment: .leading) {
                 if let selectedDate = vm.selectedDate, let matchingValue = transactions.last(where: { Calendar.current.startOfDay(for: $0.date) == Calendar.current.startOfDay(for: selectedDate) }) {
@@ -29,7 +35,8 @@ struct GoalStatisticsSheet: View {
                     Text(selectedDate.formatted(date: .numeric, time: .omitted))
 
                 } else {
-                    Text("\((vm.goal.saving?.decimalValue ?? 0).formatted(.number.precision(.fractionLength(2)))) Ft")                        .font(.largeTitle)
+                    Text("\((vm.goal.saving?.decimalValue ?? 0).formatted(.number.precision(.fractionLength(2)))) Ft")
+                        .font(.largeTitle)
                 }
                 Chart {
                     ForEach(transactions) { transaction in
@@ -37,11 +44,13 @@ struct GoalStatisticsSheet: View {
                             x: .value("Dátum", Calendar.current.startOfDay(for: transaction.date)),
                             y: .value("Összeg", transaction.total)
                         )
+                        .interpolationMethod(.stepEnd)
                         
                         AreaMark(
                             x: .value("Dátum", Calendar.current.startOfDay(for: transaction.date)),
                             y: .value("Összeg", transaction.total)
                         )
+                        .interpolationMethod(.stepEnd)
                         .opacity(0.3)
                         
                         PointMark(
@@ -237,10 +246,24 @@ struct GoalStatisticsSheet: View {
             }
         }
     }
+    
+    @MainActor
+    func calculateTransaction() async {
+        guard let transactions = goal.transactions as? Set<Transaction> else { return }
+        isCalculating = true
+        
+        
+        self.goalResults = await statisticsService.process(
+            transactions: transactions,
+            targetAmount: goal.amount.decimalValue,
+        )
+        
+        isCalculating = false
+    }
 }
 
 #Preview {
     let inMemoryContainer = CoreDataManager.goalsListPreview()
     let vm = GoalStatisticsSheetViewModel(container: inMemoryContainer, goal: inMemoryContainer.fetchGoals().first!)
-    GoalStatisticsSheet(vm : vm)
+    GoalStatisticsView(vm : vm)
 }

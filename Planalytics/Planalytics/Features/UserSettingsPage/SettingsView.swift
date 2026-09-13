@@ -46,7 +46,7 @@ struct SettingsView: View {
         }
         .navigationTitle("Beállítások")
         .sheet(isPresented: $isPresented) {
-            SetPinSheet(vm: SetPinSheetViewModel())
+            SetPinSheet()
         }
     }
 }

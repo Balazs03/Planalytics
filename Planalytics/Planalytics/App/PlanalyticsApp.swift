@@ -75,6 +75,7 @@ struct PlanalyticsApp: App {
             ZStack {
                 MainTabView(container: container)
                     .environment(\.locale, .init(identifier: appLanguage))
+                    .environment(\.managedObjectContext, container.context)
                     .preferredColorScheme(theme == "" ? .none : theme == "light" ? .light : .dark)
                     .onAppear {
                         scheduleAppRefresh()
@@ -87,9 +88,6 @@ struct PlanalyticsApp: App {
                         .background(Color(UIColor.systemBackground))
                         .zIndex(1)
                 }
-            }
-            .onChange(of: pinCode, initial: false) { _, newPin in
-                pinCode = newPin
             }
             /*
             .onChange(of: scenePhase, initial: true) { _, newValue in

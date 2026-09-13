@@ -14,7 +14,7 @@ struct ScannedReceiptData {
     var amount : Decimal?
 }
 
-struct ReceiptScannerService {
+struct ReceiptScannerService {  
     func recognizeText(receiptImage: UIImage?) async throws -> ScannedReceiptData {
         // ensure the image can be converted to a CGImage, otherwise return empty data immediately
         guard let cgImage = receiptImage?.cgImage else { return ScannedReceiptData() }
