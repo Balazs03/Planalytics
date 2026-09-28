@@ -35,72 +35,15 @@ class CoreDataManager {
     // ami a memóriából olvassa be az elemeket
     var context: NSManagedObjectContext { return self.container.viewContext }
     
-    func saveContext () {
-        do {
-            try context.save()
-        } catch {
-            print("Sikertelen mentés: \(error)")
-        }
-    }
-    
-    // 2 verziót kapunk ezzel, az egyikben szűrni tudunk az évre és hónapra
-    // a másikban megkapjuk az összes tranzakciót
-    func fetchTransactions(year:Int?, month: Int?) -> [Transaction] {
+    func fetchTransactions() -> [Transaction] {
         let request = NSFetchRequest<Transaction>(entityName: "Transaction")
         request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: true)]
-        
-        var predicates: [NSPredicate] = []
-        
-        if let year = year {
-            var dateTime = DateComponents()
-            dateTime.year = year
-            if let month = month {
-                dateTime.month = month
-            }
-            
-            let startDate: Date? = Calendar.current.date(from: dateTime) ?? nil
-            
-            let endDate: Date? = {
-                guard let startDate else { return nil }
-                return Calendar.current.date(byAdding: .month, value: 1, to: startDate)
-            }()
-            
-            if let s = startDate, let e = endDate {
-                let datePredicate = NSPredicate(
-                    format: "date >= %@ AND date < %@",
-                    s as NSDate,
-                    e as NSDate
-                )
-                
-                predicates.append(datePredicate)
-            }
-        }
-        // ha a predicate nem üres, akkor AND kapcsolatot létesít köztük
-        // vagyis az összes predicate ÉS kapcsolattal érvényesül
-        if !predicates.isEmpty {
-                request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
-            }
         
         do {
             return try context.fetch(request)
         } catch {
             print("Probléma a lekérdezéskor: \(error)")
             return []
-        }
-    }
-    
-    func fetchOldestTransactionDate() ->  Date? {
-        let request = NSFetchRequest<Transaction>(entityName: "Transaction")
-        request.sortDescriptors = [NSSortDescriptor(key: "date", ascending: true)]
-        
-        request.fetchLimit = 1
-        
-        do {
-            let result = try context.fetch(request)
-            return result.first?.date
-        } catch {
-            print("Error while trying to fetch the first transaction: \(error)")
-            return nil
         }
     }
     
@@ -116,35 +59,20 @@ class CoreDataManager {
         }
     }
 
-    func calculateTotalBalance() -> [Decimal] {
-        let fetchedTransactions: [Transaction] = fetchTransactions(year: nil, month: nil)
-        let transactions = fetchedTransactions.filter({ $0.isRecurrent == false })
-        let goal: [Goal] = fetchGoals()
-        
-        var totalLiquidBalance: Decimal = 0
-        
-        for transaction in transactions {
-            if transaction.isRecurrent, let startDate = transaction.recurrenceStartDate, startDate > Date() {
-                continue
-            } else {
-                if transaction.transactionType == .income {
-                    totalLiquidBalance += transaction.amount as Decimal
-                } else {
-                    totalLiquidBalance -= transaction.amount as Decimal
-                }
-            }
-        }
-        
-        let totalGoalBalance: Decimal = goal.reduce(0) { $0 + ($1.amount as Decimal) }
-        
-        return [totalGoalBalance + totalLiquidBalance, totalLiquidBalance, totalGoalBalance] as [Decimal]
-    }
 }
 
 extension CoreDataManager {
     // memóriába mentett manager
     private static func createMemoryManager() -> CoreDataManager {
         return CoreDataManager(inMemory: true)
+    }
+    
+    func saveContext() {
+        do {
+            try self.context.save()
+        } catch {
+            print(error)
+        }
     }
     
     // példányosítja a memóriába mentett managert, majd létrehoz elemeket

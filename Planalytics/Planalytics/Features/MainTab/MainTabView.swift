@@ -11,6 +11,7 @@ internal import CoreData
 enum Page: Hashable {
     case goalsMain
     case goalDetail(Goal)
+    case statistics(Goal)
     case main
     case addGoal
     case addTransaction
@@ -45,15 +46,13 @@ enum Sheet: Hashable, Identifiable {
 }
 
 struct MainTabView: View {
-    let container: CoreDataManager
+    @Environment(\.managedObjectContext) private var viewContext
     @State var mainPath = NavigationPath()
     @State var goalPath = NavigationPath()
     var sheet: Sheet?
     @State var selectedTab: Tab = .main
     
-    init(container: CoreDataManager) {
-        self.container = container
-        
+    init() {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         
@@ -99,40 +98,45 @@ struct MainTabView: View {
     @ViewBuilder func viewFactory(_ path: Page) -> some View {
         switch path {
         case .main:
-            let vm = TransactionMainViewModel(container: container)
-            TransactionMainView(vm: vm)
-            
+            TransactionMainView()
+                .environment(\.managedObjectContext, viewContext)
+
         case .goalsMain:
-            let vm = GoalsMainViewModel(container: container)
-            GoalsMainView(vm: vm)
-            
+            GoalsMainView()
+                .environment(\.managedObjectContext, viewContext)
+
         case .goalDetail(let goal):
-            let vm = GoalDetailViewModel(goal: goal, container: container)
-            GoalDetailView(vm: vm)
-            
+            GoalDetailView(goal: goal)
+                .environment(\.managedObjectContext, viewContext)
+
         case .addGoal:
-            let vm = AddGoalPageViewModel(container: container)
-            AddGoalView(vm: vm)
+            AddGoalView()
+                .environment(\.managedObjectContext, viewContext)
             
         case .addTransaction:
-            let vm = AddTransactionViewModel(container: container)
-            AddTransactionView(vm: vm)
-            
+            AddTransactionView()
+                .environment(\.managedObjectContext, viewContext)
+
         case .allTransactions(let showRecurrentOnly):
             AllTransactionsView(showRecurrentOnly: showRecurrentOnly)
-                .environment(\.managedObjectContext, container.context)
+                .environment(\.managedObjectContext, viewContext)
             
         case .transactionStatistics:
-            let vm = TransactionStatisticsViewModel(container: container)
-            TransactionStatisticsView(vm: vm)
-            
+            TransactionStatisticsView()
+                .environment(\.managedObjectContext, viewContext)
+
         case .settings:
             SettingsView()
+            
+        case .statistics(let goal):
+            GoalStatisticsView(goal: goal)
+                .environment(\.managedObjectContext, viewContext)
         }
     }
 }
 
 #Preview {
     let container = CoreDataManager.transactionListPreview()
-    MainTabView(container: container)
+    MainTabView()
+        .environment(\.managedObjectContext, container.context)
 }

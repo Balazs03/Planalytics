@@ -9,17 +9,28 @@ import SwiftUI
 internal import LocalAuthentication
 
 struct LockView: View {
-    @State var vm: LockViewModel
     @AppStorage("isLockEnabled") private var isLockEnabled: Bool = false
     @AppStorage("isPinCodeSet") private var isPinCodeSet: Bool = false
     @AppStorage("pinCode") private var pinCode: String = ""
+    
+    enum LockTypes: String {
+        case numeric = "Custom number lock"
+        case both = "Biometric or numeric unlock"
+    }
+    
+    @State private var currentPin: String = ""
+    @State var lockType: LockTypes
+    @State private var animateField: Bool = false
+    @State private var lockWhenAppGoesBackground: Bool = true
+    @State private var context = LAContext()
+    @State private var showAlert: Bool = false
     
     var body: some View {
         VStack {
             NumberPadView()
         }
         .onAppear {
-            vm.unlockWithFaceID()
+            unlockWithFaceID()
         }
     }
     
@@ -32,10 +43,10 @@ struct LockView: View {
                 ForEach(0..<4, id: \.self) { index in
                     Circle()
                         .frame(width: 30)
-                        .foregroundStyle(vm.currentPin.count >= index + 1 ? .mint : .primary)
+                        .foregroundStyle(currentPin.count >= index + 1 ? .mint : .primary)
                 }
             }
-            .keyframeAnimator(initialValue: CGFloat.zero, trigger: vm.animateField, content: { content, value in
+            .keyframeAnimator(initialValue: CGFloat.zero, trigger: animateField, content: { content, value in
                 content.offset(x: value)
                 
             }, keyframes: { _ in
@@ -50,15 +61,15 @@ struct LockView: View {
             .padding()
             
             Button("Elfelejtett jelszó?") {
-                vm.showAlert.toggle()
+                showAlert.toggle()
             }
             Spacer()
             
             LazyVGrid(columns: Array(repeating: GridItem(), count: 3)) {
                 ForEach(1...9, id: \.self) { number in
                     Button {
-                        if vm.currentPin.count < 4 {
-                            vm.currentPin.append(String(number))
+                        if currentPin.count < 4 {
+                            currentPin.append(String(number))
                         }
                     } label: {
                         Text("\(number)")
@@ -69,8 +80,8 @@ struct LockView: View {
                 }
                 
                 Button {
-                    if !vm.currentPin.isEmpty {
-                        vm.currentPin = String(vm.currentPin.dropLast())
+                    if !currentPin.isEmpty {
+                        currentPin = String(currentPin.dropLast())
                     }
                 } label: {
                     Image(systemName: "delete.left")
@@ -80,8 +91,8 @@ struct LockView: View {
                 .buttonStyle(.glass)
                 
                 Button {
-                    if vm.currentPin.count < 4 {
-                        vm.currentPin.append("0")
+                    if currentPin.count < 4 {
+                        currentPin.append("0")
                     }
                 } label: {
                     Text("0")
@@ -91,9 +102,9 @@ struct LockView: View {
                 .buttonStyle(.glass)
                 
                 Button {
-                    vm.unlockWithFaceID()
+                    unlockWithFaceID()
                 } label: {
-                    if let biometricType = vm.getBiometricType() {
+                    if let biometricType = getBiometricType() {
                         if biometricType == .faceID {
                             Image(systemName: "faceid")
                                 .font(.title)
@@ -108,23 +119,23 @@ struct LockView: View {
             }
             .padding()
         }
-        .onChange(of: vm.currentPin) { oldValue, newValue in
-            if vm.currentPin.count == 4 {
-                if vm.currentPin == vm.actualPin {
+        .onChange(of: currentPin) { oldValue, newValue in
+            if currentPin.count == 4 {
+                if currentPin == pinCode {
                     withAnimation(.snappy, completionCriteria: .logicallyComplete) {
-                        vm.isUnlocked = true
+                        isLockEnabled = false
                     } completion: {
-                        vm.currentPin = ""
+                        currentPin = ""
                     }
                 } else {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                        vm.currentPin = ""
+                        currentPin = ""
                     }
-                    vm.animateField.toggle()
+                    animateField.toggle()
                 }
             }
         }
-        .alert("Elfelejtett jelszó",isPresented: $vm.showAlert) {
+        .alert("Elfelejtett jelszó",isPresented: $showAlert) {
             Button("Ok", role: .confirm) {
                 pinCode = ""
                 isPinCodeSet = false
@@ -132,15 +143,47 @@ struct LockView: View {
             }
             
             Button("Mégse", role: .cancel) {
-                vm.showAlert.toggle()
+                showAlert.toggle()
             }
         } message: {
             Text("Törölni szeretné a jelszót és a pin kódos belépést?")
         }
     }
+    
+    var isBiometricAvailable: Bool {
+        return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
+    }
+    
+    func unlockWithFaceID() {
+        Task {
+            if isBiometricAvailable && lockType != .numeric {
+                if let result = try? await context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Alkalmazás feloldása"), result {
+                    isLockEnabled = false
+                    
+                }
+            }
+        }
+    }
+    
+    func getBiometricType() -> LABiometryType? {
+        if #available(iOS 11, *) {
+            switch (context.biometryType) {
+            case .none:
+                return Optional.none
+            case .touchID:
+                return .touchID
+            case .faceID:
+                return .faceID
+            case .opticID:
+                return .opticID
+
+            @unknown default:
+                return nil
+            }
+        }
+    }
 }
 
 #Preview {
-    let vm = LockViewModel(lockType: .both, actualPin: "0123")
-    LockView(vm: vm)
+    LockView(lockType: .both)
 }

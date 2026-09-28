@@ -11,10 +11,12 @@ struct SetPinSheet: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("isPinCodeSet") private var isPinCodeSet: Bool = false
     @AppStorage("pinCode") private var pinCode: String = ""
-    @State private var vm: SetPinSheetViewModel
-    
-    init(vm: SetPinSheetViewModel) {
-        self.vm = vm
+    @State var currentPin = ""
+    @State var firstSavedPin: String?
+    @State var isFirstPinSaved: Bool = false
+    @State var animateField: Bool = false
+    var isValid: Bool {
+        return !currentPin.isEmpty && currentPin == self.firstSavedPin && currentPin.count == 4
     }
 
     var body: some View {
@@ -22,7 +24,7 @@ struct SetPinSheet: View {
             Spacer()
             Text("Pin megadása")
             
-            if vm.isFirstPinSaved {
+            if isFirstPinSaved {
                 Text("Ismételd meg a kódot")
             }
             
@@ -30,10 +32,10 @@ struct SetPinSheet: View {
                 ForEach(0..<4, id: \.self) { index in
                     Circle()
                         .frame(width: 30)
-                        .foregroundStyle(vm.currentPin.count > index ? Color.mint : .primary)
+                        .foregroundStyle(currentPin.count > index ? Color.mint : .primary)
                 }
             }
-            .keyframeAnimator(initialValue: CGFloat.zero, trigger: vm.animateField, content: { content, value in
+            .keyframeAnimator(initialValue: CGFloat.zero, trigger: animateField, content: { content, value in
                 content.offset(x: value)
                 
             }, keyframes: { _ in
@@ -53,8 +55,8 @@ struct SetPinSheet: View {
             LazyVGrid(columns: Array(repeating: GridItem(), count: 3)) {
                 ForEach(1...9, id: \.self) { number in
                     Button {
-                        if vm.currentPin.count < 4 {
-                            vm.currentPin.append("\(number)")
+                        if currentPin.count < 4 {
+                            currentPin.append("\(number)")
                         }
                     } label: {
                         Text("\(number)")
@@ -65,8 +67,8 @@ struct SetPinSheet: View {
                 }
                 
                 Button {
-                    if vm.currentPin.count > 0 {
-                        vm.currentPin = String(vm.currentPin.dropLast())
+                    if currentPin.count > 0 {
+                        currentPin = String(currentPin.dropLast())
                     }
                 } label: {
                     Image(systemName: "delete.left")
@@ -76,8 +78,8 @@ struct SetPinSheet: View {
                 .buttonStyle(.glass)
                 
                 Button {
-                    if vm.currentPin.count < 4 {
-                        vm.currentPin.append("0")
+                    if currentPin.count < 4 {
+                        currentPin.append("0")
                     }
                 } label: {
                     Text("0")
@@ -89,20 +91,20 @@ struct SetPinSheet: View {
             .padding()
         }
         .background()
-        .onChange(of: vm.currentPin) { oldValue, newValue in
-            if vm.currentPin.count >= 4 && vm.isFirstPinSaved == false {
-                vm.firstSavedPin = vm.currentPin
-                vm.currentPin = ""
-                vm.isFirstPinSaved = true
+        .onChange(of: currentPin) { oldValue, newValue in
+            if currentPin.count >= 4 && isFirstPinSaved == false {
+                firstSavedPin = currentPin
+                currentPin = ""
+                isFirstPinSaved = true
                 
-            } else if vm.currentPin.count >= 4 && vm.isFirstPinSaved == true {
-                if vm.isValid {
+            } else if currentPin.count >= 4 && isFirstPinSaved == true {
+                if isValid {
                     isPinCodeSet = true
-                    pinCode = vm.currentPin
+                    pinCode = currentPin
                     dismiss()
                 } else {
-                    vm.currentPin = ""
-                    vm.animateField.toggle()
+                    currentPin = ""
+                    animateField.toggle()
                 }
             }
         }
@@ -110,6 +112,5 @@ struct SetPinSheet: View {
 }
 
 #Preview {
-    let vm = SetPinSheetViewModel()
-    SetPinSheet(vm: vm)
+    SetPinSheet()
 }

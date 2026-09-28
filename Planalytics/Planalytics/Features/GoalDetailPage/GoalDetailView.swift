@@ -10,21 +10,18 @@ internal import CoreData
 import Charts
 
 struct GoalDetailView: View {
-    @State private var vm: GoalDetailViewModel
-    @State private var activeSheet: ActiveSheet?
-    @AppStorage("appLanguage") private var appLanguage: String = "hu"
+    @Environment(\.managedObjectContext) private var viewContext
     @Environment(\.dismiss) private var dismiss
+    @AppStorage("appLanguage") private var appLanguage: String = "hu"
+    
+    @State private var activeSheet: ActiveSheet?
+    @ObservedObject var goal: Goal
     
     enum ActiveSheet: Identifiable, Hashable {
         var id: Int { hashValue }
         
         case addMoney(Goal)
         case withdrawMoney(Goal)
-        case statistics(Goal)
-    }
-    
-    init(vm : GoalDetailViewModel) {
-        self.vm = vm
     }
     
     var body: some View {
@@ -35,20 +32,20 @@ struct GoalDetailView: View {
                 VStack(spacing: 25) {
                     
                     VStack(spacing: 10) {
-                        Text(vm.goal.name)
+                        Text(goal.name)
                             .font(.system(.largeTitle, weight: .bold))
                             .multilineTextAlignment(.center)
                         
-                        Text("Tervezett összeg: \((vm.goal.amount as Decimal).formatted(.number.precision(.fractionLength(2)))) Ft")
+                        Text("Tervezett összeg: \((goal.amount as Decimal).formatted(.number.precision(.fractionLength(2)))) Ft")
                             .font(.system(.title2, weight: .bold))
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.secondary)
                         
                         VStack {
-                            Text("\((vm.goal.progress * 100).formatted(.number.precision(.fractionLength(2)))) %")
+                            Text("\((goal.progress * 100).formatted(.number.precision(.fractionLength(2)))) %")
                                 .font(.system(.title, weight: .bold))
                             
-                            LinearProgressView(value: NSDecimalNumber(decimal: vm.goal.progress).doubleValue, shape: Capsule())
+                            LinearProgressView(value: NSDecimalNumber(decimal: goal.progress).doubleValue, shape: Capsule())
                                 .tint(Gradient(colors: [.mainBackground, .secondaryBackground]))
                                 .frame(height: 64)
                         }
@@ -57,17 +54,17 @@ struct GoalDetailView: View {
                     
                     HStack(spacing: 40) {
                         ActionButtonView(label: appLanguage == "hu" ? "Hozzáadás" : "Add", icon: "plus", action: {
-                            activeSheet = .addMoney(vm.goal)
+                            activeSheet = .addMoney(goal)
                         })
                         
                         ActionButtonView(label: appLanguage == "hu" ? "Kivétel" : "Withdraw", icon: "arrow.down", action: {
-                            activeSheet = .withdrawMoney(vm.goal)
+                            activeSheet = .withdrawMoney(goal)
                         })
                     }
                     .padding()
                     
                     VStack(alignment: .leading, spacing: 15) {
-                        if let description = vm.goal.desc {
+                        if let description = goal.desc {
                             VStack(alignment: .leading, spacing: 5) {
                                 Text("Leírás")
                                     .font(.headline)
@@ -77,19 +74,23 @@ struct GoalDetailView: View {
                             Divider()
                         }
                         
-                        InfoRowView(label: appLanguage == "hu" ? "Eddig félretett pénz" : "Money saved so far", value: "\((vm.goal.saving as Decimal? ?? 0.00).formatted()) Ft")
+                        InfoRowView(label: appLanguage == "hu" ? "Eddig félretett pénz" : "Money saved so far", value: "\((goal.saving as Decimal? ?? 0.00).formatted()) Ft")
                         
                         InfoRowView(label: appLanguage == "hu" ? "Tervezett befejezési dátum" : "Planned completion date",
-                                    value: "\(vm.goal.plannedCompletionDate.formatted(date: .numeric, time: .omitted))")
+                                    value: "\(goal.plannedCompletionDate.formatted(date: .numeric, time: .omitted))")
                         
                         InfoRowView(label: appLanguage == "hu" ? "Létrehozva" : "Created on",
-                                    value: "\(vm.goal.creationDate.formatted(date: .numeric, time: .omitted))")
+                                    value: "\(goal.creationDate.formatted(date: .numeric, time: .omitted))")
                         
                         Toggle("Befejezett", isOn: Binding(
-                            get: { vm.goal.isFinished },
+                            get: { goal.isFinished },
                             set: { newValue in
-                                vm.goal.isFinished = newValue
-                                vm.container.saveContext() // Azonnali mentés a Toggle átváltásakor
+                                goal.isFinished = newValue
+                                do {
+                                    try viewContext.save()
+                                } catch {
+                                    print(error)
+                                }
                             }
                         ))
                         .padding(.top)
@@ -107,7 +108,7 @@ struct GoalDetailView: View {
                                     dismiss()
                                     
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                        vm.deleteGoal()
+                                        deleteGoal()
                                     }
                                     
                                 } label: {
@@ -119,9 +120,7 @@ struct GoalDetailView: View {
                             }
                         }
                         ToolbarItem(placement: .automatic) {
-                            Button {
-                                activeSheet = .statistics(vm.goal)
-                            } label: {
+                            NavigationLink(value: Page.statistics(goal)) {
                                 Image(systemName: "chart.bar.fill")
                             }
                         }
@@ -132,20 +131,36 @@ struct GoalDetailView: View {
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
             case .addMoney:
-                AddMoneySheet(vm: AddMoneySheetViewModel(container: vm.container, goal: vm.goal))
-            case .statistics:
-                GoalStatisticsSheet(vm: GoalStatisticsSheetViewModel(container: vm.container, goal: vm.goal))
+                AddMoneySheet(goal: goal)
+                    .environment(\.managedObjectContext, viewContext)
             case .withdrawMoney:
-                WithdrawMoneySheet(vm: WithdrawMoneySheetViewModel(container: vm.container, goal: vm.goal))
+                WithdrawMoneySheet(goal: goal)
+                    .environment(\.managedObjectContext, viewContext)
             }
+        }
+    }
+    
+    func deleteGoal() {
+        if let saving = goal.saving as? Decimal, saving > 0 {
+            let newTrans = Transaction(context: viewContext)
+            newTrans.amount = goal.saving!
+            newTrans.name = "\(goal.name) nevű célra félretett megtakarítás"
+            newTrans.date = Date()
+            newTrans.transactionType = .income
+        }
+        viewContext.delete(goal)
+        do {
+            try viewContext.save()
+        } catch {
+            print(error)
         }
     }
 }
 
 #Preview {
     let container = CoreDataManager.goalsListPreview()
-    let vm = GoalDetailViewModel(goal: container.fetchGoals()[0], container: container)
     NavigationStack {
-        GoalDetailView(vm: vm)
+        GoalDetailView(goal: container.fetchGoals().first!)
+            .environment(\.managedObjectContext, container.context)
     }
 }

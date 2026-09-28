@@ -9,7 +9,7 @@ import SwiftUI
 internal import CoreData
 
 struct AllTransactionsView: View {
-    @Environment(\.managedObjectContext) var viewContext
+    @Environment(\.managedObjectContext) private var viewContext
     // @ miatt ez egy wrapper. 2 propertije van: items és _items
     // Előbbi csak egy "getter", ami mutat az _itemsre, mint egy private value public része
     // Ha a _items nincs inicializálva, hibát dob, mert nincs mire mutatnia
