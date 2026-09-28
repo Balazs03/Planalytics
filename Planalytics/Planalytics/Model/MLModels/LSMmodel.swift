@@ -7,11 +7,10 @@
 
 import Foundation
 
-
 class LSMmodel {
     var m: Decimal
     var b: Decimal
-    var transactions: [ChartDataPoint]?
+    var transactions: [ChartDataPoint]
     // X a tranzakciók értéke, Y a dátum, amit becsülni szeretnénk
     
     init(transactions: [ChartDataPoint]) {
@@ -98,7 +97,7 @@ class LSMmodel {
     }
     
     func getPredictionIntervals(forX: Decimal) -> [Date] {
-        guard let transactions, transactions.count > 2 else { return [] }
+        guard transactions.count > 2 else { return [] }
         
         let n = Double(transactions.count)
         

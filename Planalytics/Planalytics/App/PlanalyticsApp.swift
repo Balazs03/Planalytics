@@ -73,7 +73,7 @@ struct PlanalyticsApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
-                MainTabView(container: container)
+                MainTabView()
                     .environment(\.locale, .init(identifier: appLanguage))
                     .environment(\.managedObjectContext, container.context)
                     .preferredColorScheme(theme == "" ? .none : theme == "light" ? .light : .dark)

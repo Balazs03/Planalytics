@@ -52,9 +52,7 @@ struct MainTabView: View {
     var sheet: Sheet?
     @State var selectedTab: Tab = .main
     
-    init(container: CoreDataManager) {
-        self.container = container
-        
+    init() {
         let appearance = UITabBarAppearance()
         appearance.configureWithOpaqueBackground()
         
@@ -114,6 +112,7 @@ struct MainTabView: View {
         case .addGoal:
             AddGoalView()
                 .environment(\.managedObjectContext, viewContext)
+            
         case .addTransaction:
             AddTransactionView()
                 .environment(\.managedObjectContext, viewContext)
@@ -130,7 +129,7 @@ struct MainTabView: View {
             SettingsView()
             
         case .statistics(let goal):
-            GoalStatisticsView(vm: GoalStatisticsViewModel(goal: goal))
+            GoalStatisticsView(goal: goal)
                 .environment(\.managedObjectContext, viewContext)
         }
     }
@@ -138,5 +137,6 @@ struct MainTabView: View {
 
 #Preview {
     let container = CoreDataManager.transactionListPreview()
-    MainTabView(container: container)
+    MainTabView()
+        .environment(\.managedObjectContext, container.context)
 }

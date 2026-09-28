@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+internal import CoreData
 
 struct TransactionMainView: View {
     @Environment(\.managedObjectContext) private var viewContext
